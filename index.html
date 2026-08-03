@@ -10,7 +10,7 @@
     
     <link rel="icon" href="assets/image/logo1/logoSlipH2o.png" type="image/png">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
 
         :root {
             --bg-main: linear-gradient(135deg, #fda1d4 0%, #c2fbc2 50%, #e0c3fc 100%);
@@ -53,13 +53,14 @@
         
         .slip-shell { display: flex; height: 100vh; overflow: hidden; }
         
+        /* ปรับความกว้าง Sidebar ให้เล็กลง */
         .slip-sidebar { 
-            width: 280px; 
+            width: 260px; 
             display: flex; flex-direction: column; 
             background: var(--sidebar-bg); 
             border-right: 1px solid var(--card-border); 
             backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-            padding: 25px 20px; overflow-y: auto; flex-shrink: 0; 
+            padding: 20px 15px; overflow-y: auto; flex-shrink: 0; 
             transition: all 0.5s ease;
             box-shadow: 5px 0 30px rgba(0,0,0,0.02);
         }
@@ -70,64 +71,209 @@
         
         .slip-main { flex-grow: 1; overflow-y: auto; padding: 20px 30px; }
 
-        .sidebar-brand img { 
-            max-width: 140px; margin-bottom: 30px; 
-            animation: floatLogo 4s ease-in-out infinite; 
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.05));
+        /* โลโก้ด้านบน Navbar */
+        .navbar-brand-logo {
+            max-height: 45px;
+            object-fit: contain;
+            margin-right: 12px;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+            animation: floatLogo 4s ease-in-out infinite;
         }
-        @keyframes floatLogo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        
-        .sidebar-menu { display: flex; flex-direction: column; gap: 6px; }
+        @keyframes floatLogo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+        /* -------------------------------------------
+           ปรับโปรไฟล์ผู้ใช้งาน (Profile Card) ให้เล็กลงและกระชับ
+        ---------------------------------------------- */
+        .profile-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+            transition: all 0.3s;
+        }
+        .profile-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+        }
+        .profile-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .profile-avatar {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #9333ea, #c084fc); 
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
+        }
+        .profile-text-group {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+            overflow: hidden;
+        }
+        .profile-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+        .profile-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            max-width: 140px;
+        }
+        .profile-status-box {
+            background: var(--item-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .status-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #10b981; 
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            animation: pulse-green 2s infinite;
+        }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .status-info-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+        .status-info-row:last-child { margin-bottom: 0; }
+        .info-title {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        .info-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .info-highlight {
+            color: #d97706; 
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(217, 119, 6, 0.2);
+        }
+        body.theme-dark .info-highlight {
+            color: #fbbf24;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+        }
+        .btn-renew {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 6px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-renew:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        /* -------------------------------------------
+           สไตล์เมนูด้านซ้าย
+        ---------------------------------------------- */
+        .sidebar-menu { display: flex; flex-direction: column; gap: 6px; padding-top: 5px;}
         
         .sidebar-link { 
             position: relative; display: flex; align-items: center; gap: 12px; 
             color: var(--text-muted); text-decoration: none; 
-            padding: 12px 18px; border-radius: 12px; font-weight: 500; 
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden;
-        }
-        .sidebar-link::before {
-            content: ''; position: absolute; left: 0; top: 15%; height: 70%; width: 4px; 
-            background: var(--text-main); border-radius: 0 4px 4px 0; 
-            transform: scaleY(0); transition: 0.3s ease; opacity: 0;
-        }
-        .sidebar-link:hover::before, .sidebar-link.active::before { transform: scaleY(1); opacity: 1; }
-        .sidebar-link:hover, .sidebar-link.active { 
-            background: var(--primary-color); color: #fff; transform: translateX(6px); box-shadow: 0 4px 15px var(--primary-glow);
+            padding: 12px 15px; border-radius: 12px; font-weight: 500; font-size: 0.95rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            overflow: hidden;
+            border: 1px solid transparent;
+            z-index: 1;
         }
 
-        .sidebar-icon-img { width: 22px; height: 22px; object-fit: contain; transition: 0.3s; }
-        .sidebar-link:hover .sidebar-icon-img { transform: scale(1.15) rotate(-5deg); }
+        .cyber-bg {
+            position: absolute; inset: 0; z-index: -1;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), transparent);
+            opacity: 0; transform: translateX(-100%);
+            transition: all 0.5s ease;
+        }
+
+        .cyber-line {
+            position: absolute; left: 0; top: 50%; transform: translateY(-50%) scaleY(0);
+            height: 60%; width: 4px; border-radius: 0 4px 4px 0;
+            background: var(--primary-color);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 12px var(--primary-color);
+        }
+
+        .sidebar-link:hover .cyber-bg, .sidebar-link.active .cyber-bg {
+            opacity: 1; transform: translateX(0);
+        }
+
+        .sidebar-link:hover .cyber-line, .sidebar-link.active .cyber-line {
+            transform: translateY(-50%) scaleY(1);
+        }
+
+        .sidebar-link:hover, .sidebar-link.active { 
+            color: var(--text-main); 
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            padding-left: 20px;
+        }
+
+        body.theme-dark .sidebar-link:hover, body.theme-dark .sidebar-link.active {
+            color: #fff;
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.15) inset, 0 5px 15px rgba(0,0,0,0.2);
+            text-shadow: 0 0 8px rgba(255,255,255,0.3);
+        }
+
+        .sidebar-link i { font-size: 1.1rem; transition: 0.4s; }
+        .sidebar-link:hover i, .sidebar-link.active i { 
+            color: var(--primary-color);
+            transform: scale(1.15);
+            filter: drop-shadow(0 0 8px var(--primary-glow));
+        }
         
-        .sidebar-link[aria-expanded="true"] .toggle-icon { transform: rotate(180deg); }
-        .toggle-icon { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); font-size: 0.85rem; opacity: 0.7; }
-        .sub-link { padding: 10px 15px; font-size: 0.95rem; border-radius: 8px; }
+        /* ------------------------------------------- */
 
         .slip-navbar {
             background: var(--card-bg); border: 1px solid var(--card-border);
             border-radius: 16px; backdrop-filter: blur(25px);
             padding: 12px 20px; transition: all 0.5s ease; box-shadow: var(--shadow);
         }
-
-        .tab-switcher {
-            display: inline-flex; background: var(--card-bg); border: 1px solid var(--card-border);
-            border-radius: 50rem; padding: 6px; margin-bottom: 25px; backdrop-filter: blur(20px);
-            box-shadow: var(--shadow);
-        }
-        .tab-btn {
-            background: transparent; color: var(--text-muted); border: none; padding: 10px 24px;
-            border-radius: 50rem; font-weight: 500; font-size: 0.95rem; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex; align-items: center; gap: 8px;
-        }
-        .tab-btn:hover { color: var(--text-main); transform: translateY(-2px); }
-        .tab-btn.active { background: var(--primary-color); color: #fff; box-shadow: 0 6px 20px var(--primary-glow); }
-
-        .expire-badge {
-            background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 50rem;
-            padding: 6px 16px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); transition: 0.3s;
-        }
-        .expire-badge:hover { transform: scale(1.05); border-color: var(--warning-color); }
-        .expire-icon { font-size: 1.2rem; color: var(--warning-color); animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.7; } }
 
         .btn-outline-danger { border-color: #ef4444; color: #ef4444; transition: 0.3s; background: transparent; }
         .btn-outline-danger:hover { background: #ef4444; color: #fff; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3); transform: translateY(-2px); }
@@ -210,33 +356,56 @@
         .btn-theme-toggle:hover { background: var(--primary-color); color: #fff; box-shadow: 0 5px 15px var(--primary-glow); transform: translateY(-2px); }
 
         .preview-tooltip {
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px) scale(0.95);
-            transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 8px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            position: fixed; pointer-events: none; z-index: 9999; opacity: 0; visibility: hidden;
+            transform: translateY(10px) scale(0.95); transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+            background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;
+            padding: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
         }
-        .preview-tooltip.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0) scale(1);
+        .preview-tooltip.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+        .preview-tooltip img { width: 200px; height: auto; border-radius: 10px; display: block; }
+    
+        /* Document Section Styles */
+        .doc-header-title {
+            font-size: 1.5rem; font-weight: 600; color: var(--text-main); margin-bottom: 20px;
+            display: inline-block; border-bottom: 4px solid var(--primary-color);
+            padding-bottom: 5px; text-align: left; width: 100%;
         }
-        .preview-tooltip img {
-            width: 200px;
-            height: auto;
-            border-radius: 10px;
-            display: block;
+        body.theme-dark .doc-header-title { color: #4ade80; border-bottom-color: #6366f1; }
+
+        .doc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 15px; }
+
+        .doc-card {
+            background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px;
+            padding: 20px; display: flex; align-items: center; justify-content: space-between;
+            transition: all 0.3s ease; box-shadow: var(--shadow); backdrop-filter: blur(10px);
         }
+        body.theme-dark .doc-card { background: rgba(30, 41, 59, 0.7); border-color: rgba(255, 255, 255, 0.05); }
+
+        .doc-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); border-color: var(--primary-color); }
+        .doc-card-left { display: flex; align-items: center; gap: 15px; }
+        .doc-icon-wrapper {
+            width: 50px; height: 50px; background: rgba(255, 255, 255, 0.1); border-radius: 12px;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        .doc-icon-wrapper img { width: 70%; height: 70%; object-fit: contain; }
+        .doc-title { font-weight: 600; font-size: 1.1rem; color: var(--text-main); margin: 0; }
+
+        .doc-btn {
+            background: #4f46e5; color: white; border: none; padding: 8px 20px; border-radius: 50rem;
+            font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 5px;
+            transition: all 0.3s; text-decoration: none;
+        }
+        .doc-btn:hover { background: #4338ca; color: white; transform: scale(1.05); }
     </style>
+
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('user_selected_theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('theme-dark');
+            }
+        })();
+    </script>
 </head>
 
 <body style="display: none;">
@@ -248,84 +417,74 @@
 <div class="slip-shell">
 
   <aside class="slip-sidebar">
-    <div class="sidebar-brand text-center">
-      <img src="assets/image/logo1/logo-h2o.png" alt="Slip H2O" style="max-width: 180px; width: 100%; object-fit: contain;">
+
+    <div class="profile-card">
+        <div class="profile-user-info">
+            <div class="profile-avatar">
+                <i class="bi bi-person-fill"></i>
+            </div>
+            <div class="profile-text-group">
+                <span class="profile-label">เข้าสู่ระบบโดย</span>
+                <span class="profile-name" id="userProfileName">กำลังดึงข้อมูล...</span>
+            </div>
+        </div>
+        
+        <div class="profile-status-box">
+            <div class="status-header">
+                <span class="status-dot"></span> สถานะ: ปกติ
+            </div>
+            <div class="status-info-row">
+                <span class="info-title">วันหมดอายุ</span>
+                <span class="info-value" id="userExpireDate">ดึงข้อมูลเวลา...</span>
+            </div>
+            <div class="status-info-row mt-1">
+                <span class="info-title">เหลือเวลา</span>
+                <span class="info-value info-highlight" id="userTimeLeft">กำลังคำนวณ...</span>
+            </div>
+        </div>
+        
+        <button class="btn-renew">
+            <i class="bi bi-plus-lg me-1"></i> ต่ออายุการใช้งาน
+        </button>
     </div>
 
+<!-- เมนูด้านซ้าย  -->
     <nav class="sidebar-menu">
-      <a href="index.html" class="sidebar-link active mb-2">
-          <i class="bi bi-grid-1x2-fill"></i> หน้าแรก (เมนู)
+      <a href="javascript:void(0)" onclick="switchSection('slip', this)" class="sidebar-link active mb-2">
+          <i class="bi bi-receipt"></i> <span class="link-text">สลิปโอนเงิน</span>
+          <div class="cyber-line"></div>
+          <div class="cyber-bg"></div>
       </a>
 
-      <a data-bs-toggle="collapse" href="#menuSlips" role="button" aria-expanded="true" class="sidebar-link d-flex justify-content-between align-items-center mb-1">
-          <span><i class="bi bi-receipt me-2"></i> สลิปโอนเงิน</span>
-          <i class="bi bi-chevron-down toggle-icon"></i>
+      <a href="javascript:void(0)" onclick="switchSection('notify', this)" class="sidebar-link mb-2">
+          <i class="bi bi-bell-fill"></i> <span class="link-text">แจ้งเตือนเงินเข้า</span>
+          <div class="cyber-line"></div>
+          <div class="cyber-bg"></div>
       </a>
-      <div class="collapse show" id="menuSlips">
-          <div class="d-flex flex-column gap-1 mt-1 mb-3 ms-3 ps-3 border-start border-secondary border-opacity-25">
-              <a href="slip_kbank.html" class="sidebar-link sub-link"><img src="assets/image/logo1/p-kbank.png" class="sidebar-icon-img"> กสิกรไทย</a>
-              <a href="slip_scb.html" class="sidebar-link sub-link"><img src="assets/image/logo1/p-scb.png" class="sidebar-icon-img"> ไทยพาณิชย์</a>
-              <a href="slip_ktb.html" class="sidebar-link sub-link"><img src="assets/image/logo1/p-kt.png" class="sidebar-icon-img"> กรุงไทย</a>
-              <a href="slip_bay.html" class="sidebar-link sub-link"><img src="assets/image/logo1/p-kung.png" class="sidebar-icon-img"> กรุงศรี</a>
-              <a href="slip_bbl.html" class="sidebar-link sub-link"><img src="assets/image/logo1/p-bl.png" class="sidebar-icon-img"> กรุงเทพ</a>
-              <a href="slip_ttb.html" class="sidebar-link sub-link"><img src="assets/image/logo1/p-ttb.png" class="sidebar-icon-img"> TTB</a>
-              <a href="slip_gsb.html" class="sidebar-link sub-link"><img src="assets/image/logo1/p-o.png" class="sidebar-icon-img"> ออมสิน</a>
-              <a href="slip_kkp.html" class="sidebar-link sub-link"><img src="assets/image/logo1/p-kpp.png" class="sidebar-icon-img"> KKP</a>
-              <a href="slip_cimb.html" class="sidebar-link sub-link"><img src="assets/image/logo1/p-cimb.png" class="sidebar-icon-img"> CIMB</a>
-              <a href="slip_baac.html" class="sidebar-link sub-link"><img src="assets/image/logo1/p-tks.png" class="sidebar-icon-img"> ธ.ก.ส.</a>
-              <a href="slip_linebk.html" class="sidebar-link sub-link"><img src="assets/image/logo1/p-linebk.png" class="sidebar-icon-img"> LINE BK</a>
-              <a href="slip_make.html" class="sidebar-link sub-link"><img src="assets/image/logo1/p-make.png" class="sidebar-icon-img"> MAKE</a>
-          </div>
-      </div>
 
-      <a data-bs-toggle="collapse" href="#menuNotify" role="button" aria-expanded="false" class="sidebar-link d-flex justify-content-between align-items-center mb-1">
-          <span><i class="bi bi-bell-fill me-2"></i> แจ้งเตือนเงินเข้า</span>
-          <i class="bi bi-chevron-down toggle-icon"></i>
+      <a href="javascript:void(0)" onclick="switchSection('document', this)" class="sidebar-link mb-2">
+          <i class="bi bi-file-earmark-text-fill"></i> <span class="link-text">เอกสารซ่อม</span>
+          <div class="cyber-line"></div>
+          <div class="cyber-bg"></div>
       </a>
-      <div class="collapse" id="menuNotify">
-          <div class="d-flex flex-column gap-1 mt-1 mb-3 ms-3 ps-3 border-start border-secondary border-opacity-25">
-              <a href="notify_kbank1.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb1.png" class="sidebar-icon-img"> KBank แจ้งเตือน 1</a>
-              <a href="notify_kbank2.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb1.png" class="sidebar-icon-img"> KBank แจ้งเตือน 2</a>
-              <a href="notify_kbank3.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb1.png" class="sidebar-icon-img"> KBank แจ้งเตือน 3</a>
-              <a href="notify_kbank4.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb1.png" class="sidebar-icon-img"> KBank แจ้งเตือน 4</a>
-              <a href="notify_kbank5.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb1.png" class="sidebar-icon-img"> KBank แจ้งเตือน 5</a>
-              
-              <a href="notify_scb1.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb9.png" class="sidebar-icon-img"> SCB แจ้งเตือน 1</a>
-              <a href="notify_scb2.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb9.png" class="sidebar-icon-img"> SCB แจ้งเตือน 2</a>
-              <a href="notify_scb3.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb9.png" class="sidebar-icon-img"> SCB  ถอน 2 ยอด</a>
-              <a href="notify_scb4.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb9.png" class="sidebar-icon-img"> SCB แจ้งเตือน 4</a>
-              
-              <a href="notify_ktb1.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb5.png" class="sidebar-icon-img"> กรุงไทย แจ้งเตือน 1</a>
-              <a href="notify_ktb2.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb5.png" class="sidebar-icon-img"> กรุงไทย แจ้งเตือน 2</a>
-              <a href="notify_ktb3.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb5.png" class="sidebar-icon-img"> กรุงไทย แจ้งเตือน 3</a>
-              <a href="notify_ktb4.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb5.png" class="sidebar-icon-img"> กรุงไทย ถอน 2 ยอด</a>
-              <a href="notify_ktb5.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb5.png" class="sidebar-icon-img"> กรุงไทย แจ้งเตือน 5</a>
 
-              <a href="notify_bay1.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb2.png" class="sidebar-icon-img"> กรุงศรี แจ้งเตือน 1</a>
-              <a href="notify_bay2.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb2.png" class="sidebar-icon-img"> กรุงศรี แจ้งเตือน 2</a>
-              <a href="notify_bay3.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb2.png" class="sidebar-icon-img"> กรุงศรี แจ้งเตือน 3</a>
+      <!-- เมนูใหม่: AI SMART CONTRACT (อยู่เหนือเมนูสั่งจ่าย) -->
+      <a href="javascript:void(0)" onclick="switchSection('smartcontract', this)" class="sidebar-link mb-2">
+          <img src="assets/images/logoai.png" alt="AI Smart Contract" style="width: 20px; height: 20px; object-fit: contain; margin-right: 4px; vertical-align: middle;">
+          <span class="link-text">AI SMART CONTRACT</span>
+          <div class="cyber-line"></div>
+          <div class="cyber-bg"></div>
+      </a>
 
-              <a href="notify_bbl1.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb10.png" class="sidebar-icon-img"> กรุงเทพ แจ้งเตือน 1</a>
-              <a href="notify_bbl2.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb10.png" class="sidebar-icon-img"> กรุงเทพ แจ้งเตือน 2</a>
-
-              <a href="notify_ttb1.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb11.png" class="sidebar-icon-img"> ธนชาต แจ้งเตือน 1</a>
-              <a href="notify_ttb2.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb11.png" class="sidebar-icon-img"> ธนชาต แจ้งเตือน 2</a>
-              <a href="notify_ttb3.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb11.png" class="sidebar-icon-img"> ธนชาต แจ้งเตือน 3</a>
-
-              <a href="notify_gsb1.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb6.png" class="sidebar-icon-img"> ออมสิน แจ้งเตือน 1</a>
-              <a href="notify_gsb2.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb6.png" class="sidebar-icon-img"> ออมสิน แจ้งเตือน 2</a>
-
-              <a href="notify_baac1.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb8.png" class="sidebar-icon-img"> BAAC แจ้งเตือน 1</a>
-
-              <a href="notify_linebk.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb3.png" class="sidebar-icon-img"> LINE BK แจ้งเตือน</a>
-              <a href="notify_make.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb7.png" class="sidebar-icon-img"> MAKE แจ้งเตือน</a>
-              <a href="notify_kkp.html" class="sidebar-link sub-link"><img src="assets/image/logo1/mb4.png" class="sidebar-icon-img"> KKP แจ้งเตือน</a>
-          </div>
-      </div>
+      <a href="javascript:void(0)" onclick="switchSection('payout', this)" class="sidebar-link mb-2">
+          <i class="bi bi-cash-coin"></i> <span class="link-text">สั่งจ่าย</span>
+          <div class="cyber-line"></div>
+          <div class="cyber-bg"></div>
+      </a>
     </nav>
 
     <div class="mt-auto pb-3 pt-4">
-      <a href="https://t.me/Hy666B" class="btn btn-outline-danger btn-sm w-100 rounded-pill mb-2 py-2 fw-medium">
+      <a href="#" class="btn btn-outline-danger btn-sm w-100 rounded-pill mb-2 py-2 fw-medium">
         <i class="bi bi-headset me-1"></i> ติดต่อผู้ดูแลระบบ
       </a>
       <a href="login.html" onclick="logoutApp()" class="btn btn-theme-toggle btn-sm w-100 rounded-pill py-2 fw-medium">
@@ -337,20 +496,13 @@
   <div class="slip-main">
 
     <nav class="navbar navbar-expand-lg slip-navbar mb-4 d-flex justify-content-between align-items-center">
-      <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center">
+        <!-- โลโก้ถูกย้ายมาอยู่ตรงนี้ -->
+        <img src="assets/image/logo1/logo-h2o.png" class="navbar-brand-logo" alt="Slip H2O">
         <h5 class="mb-0 fw-bold" style="color: var(--text-main);"> Slip-H2o ยินดีต้อนรับ</h5>
       </div>
 
       <div class="d-flex align-items-center gap-3">
-        
-        <div class="expire-badge">
-            <i class="bi bi-hourglass-split expire-icon"></i>
-            <div class="d-flex flex-column text-start" style="line-height: 1.1;">
-                <span style="font-size: 0.7rem; color: var(--text-muted);">เวลาใช้งานคงเหลือ</span>
-                <span class="fw-bold" id="timeLeftDisplay" style="font-size: 0.85rem; color: var(--text-main);">กำลังโหลดข้อมูล...</span>
-            </div>
-        </div>
-
         <button id="themeToggleBtn" class="btn btn-theme-toggle rounded-pill px-4 py-2 fw-medium">
           <i class="bi bi-moon-stars-fill me-2" id="themeIcon"></i>
           <span id="themeText">สลับธีม</span>
@@ -359,15 +511,6 @@
     </nav>
 
     <div class="container-fluid p-0 text-center">
-
-      <div class="tab-switcher">
-          <button class="tab-btn active" onclick="switchSection('slip', this)">
-              <i class="bi bi-receipt"></i> สลิปรายการโอนเงิน
-          </button>
-          <button class="tab-btn" onclick="switchSection('notify', this)">
-              <i class="bi bi-bell-fill"></i> แจ้งเตือนรายการเงินเข้า
-          </button>
-      </div>
 
       <div class="slip-card mb-4" id="section-slip">
         <div class="app-section-header text-center mb-2">
@@ -433,6 +576,151 @@
         </div>
       </div>
 
+      
+      <div class="slip-card mb-4" id="section-document" style="display: none;">
+        <h4 class="doc-header-title" style="text-align: left;">รายการเอกสารของระบบ</h4>
+        
+        <div class="doc-grid">
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper">
+                        <img src="assets/images3/logo1.png" alt="icon">
+                    </div>
+                    <h5 class="doc-title">ซ่อม 3%</h5>
+                </div>
+                <a href="repair3.html" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper">
+                        <img src="assets/images3/logo1.png" alt="icon">
+                    </div>
+                    <h5 class="doc-title">ซ่อมบันทึก</h5>
+                </div>
+                <a href="repair.html" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper">
+                        <img src="assets/images3/logo1.png" alt="icon">
+                    </div>
+                    <h5 class="doc-title">ขยายเวลา</h5>
+                </div>
+                <a href="time.html" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper">
+                        <img src="assets/images3/logo1.png" alt="icon">
+                    </div>
+                    <h5 class="doc-title">เอกสาร</h5>
+                </div>
+                <a href="https://img1.pic.in.th/images/image60268dad00c62729.md.png" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+        </div>
+      </div>
+
+      <!-- ส่วนเนื้อหาใหม่: AI SMART CONTRACT (แบบ HTML โครงสร้างแข็ง) -->
+      <div class="slip-card mb-4" id="section-smartcontract" style="display: none;">
+        <h4 class="doc-header-title" style="text-align: left;">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">AI SMART CONTRACT</span>
+        </h4>
+        
+        <div class="doc-grid">
+            
+            <!-- รายการที่ 1 -->
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper">
+                        <img src="assets/images3/logo1.png" alt="PREMIUM KIDS">
+                    </div>
+                    <h5 class="doc-title">PREMIUM KIDS</h5>
+                </div>
+                <a href="ai_contract.html" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <!-- รายการที่ 2 (ว่าง) -->
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper">
+                        <!-- รอใส่ชื่อไฟล์รูปใน src="" ด้านล่างนี้ -->
+                        <img src="https://img2.pic.in.th/imagefef1890aba258a29.md.png" alt="icon">
+                    </div>
+                    <h5 class="doc-title">ว่าง </h5>
+                </div>
+                <a href="#" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <!-- รายการที่ 3 (ว่าง) -->
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper">
+                        <!-- รอใส่ชื่อไฟล์รูปใน src="" ด้านล่างนี้ -->
+                        <img src="https://img2.pic.in.th/imagefef1890aba258a29.md.png" alt="icon">
+                    </div>
+                    <h5 class="doc-title">ว่าง </h5>
+                </div>
+                <a href="#" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <!-- รายการที่ 4 (ว่าง) -->
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper">
+                        <!-- รอใส่ชื่อไฟล์รูปใน src="" ด้านล่างนี้ -->
+                        <img src="https://img2.pic.in.th/imagefef1890aba258a29.md.png" alt="icon">
+                    </div>
+                    <h5 class="doc-title">ว่าง </h5>
+                </div>
+                <a href="#" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+        </div>
+      </div>
+
+      <!-- ส่วนเนื้อหาใหม่: สั่งจ่าย -->
+      <div class="slip-card mb-4" id="section-payout" style="display: none;">
+        <h4 class="doc-header-title" style="text-align: left;">ระบบสั่งจ่าย & สเตทเม้น</h4>
+        
+        <div class="doc-grid">
+            <!-- 1. สั่งจ่าย K-bank -->
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper" style="background: rgba(0, 169, 80, 0.1);">
+                        <img src="assets/image/logo1/p-kbank.png" alt="K-Bank">
+                    </div>
+                    <h5 class="doc-title">สั่งจ่าย K-Bank</h5>
+                </div>
+                <a href="payout_kbank.html" class="doc-btn" style="background: #00a950;">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <!-- 2. สั่งจ่าย SCB -->
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper" style="background: rgba(78, 42, 132, 0.1);">
+                        <img src="assets/image/logo1/p-scb.png" alt="SCB">
+                    </div>
+                    <h5 class="doc-title">สั่งจ่าย SCB</h5>
+                </div>
+                <a href="payout_scb.html" class="doc-btn" style="background: #4e2a84;">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <!-- 3. สเตทเม้น -->
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper" style="background: rgba(99, 102, 241, 0.1);">
+                        <i class="bi bi-file-earmark-spreadsheet-fill" style="font-size: 1.5rem; color: #6366f1;"></i>
+                    </div>
+                    <h5 class="doc-title">สเตทเม้น</h5>
+                </div>
+                <a href="statement.html" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+        </div>
+      </div>
+
     </div>
 
     <footer class="text-center mt-4 mb-3">
@@ -445,26 +733,29 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+    // ฟังก์ชันจัดการสลับหน้า
     function switchSection(sectionId, btnElement) {
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        btnElement.classList.add('active');
+        if(btnElement) {
+            document.querySelectorAll('.sidebar-link').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+        }
 
-        if (sectionId === 'slip') {
-            document.getElementById('section-slip').style.display = 'block';
-            document.getElementById('section-notify').style.display = 'none';
+        // เพิ่ม 'section-smartcontract' เข้ามาใน array นี้แล้วครับ เพื่อให้มันซ่อน/แสดง สลับกับอันอื่นได้สมบูรณ์
+        const sections = ['section-slip', 'section-notify', 'section-document', 'section-payout', 'section-smartcontract'];
+        
+        sections.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.style.display = 'none';
+                el.style.animation = 'none'; 
+            }
+        });
 
-            if(!document.getElementById('menuSlips').classList.contains('show')) new bootstrap.Collapse(document.getElementById('menuSlips')).show();
-            if(document.getElementById('menuNotify').classList.contains('show')) new bootstrap.Collapse(document.getElementById('menuNotify')).hide();
-            document.querySelector('[href="#menuSlips"]').setAttribute('aria-expanded', 'true');
-            document.querySelector('[href="#menuNotify"]').setAttribute('aria-expanded', 'false');
-        } else {
-            document.getElementById('section-slip').style.display = 'none';
-            document.getElementById('section-notify').style.display = 'block';
-
-            if(!document.getElementById('menuNotify').classList.contains('show')) new bootstrap.Collapse(document.getElementById('menuNotify')).show();
-            if(document.getElementById('menuSlips').classList.contains('show')) new bootstrap.Collapse(document.getElementById('menuSlips')).hide();
-            document.querySelector('[href="#menuNotify"]').setAttribute('aria-expanded', 'true');
-            document.querySelector('[href="#menuSlips"]').setAttribute('aria-expanded', 'false');
+        const activeSection = document.getElementById('section-' + sectionId);
+        if(activeSection) {
+            activeSection.style.display = 'block';
+            void activeSection.offsetWidth; 
+            activeSection.style.animation = 'popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards';
         }
     }
 
@@ -476,17 +767,23 @@
     themeText.innerText = "สลับธีม";
     themeIcon.className = 'bi bi-moon-stars-fill me-2';
 
+    const savedTheme = localStorage.getItem('user_selected_theme');
+    if (savedTheme === 'dark') {
+        body.classList.add('theme-dark');
+        themeIcon.className = 'bi bi-brightness-high-fill me-2';
+        themeIcon.style.color = "#f59e0b";
+    }
+    
     themeToggleBtn.addEventListener('click', () => {
         body.classList.toggle('theme-dark'); 
-        
         if (body.classList.contains('theme-dark')) {
             themeIcon.className = 'bi bi-brightness-high-fill me-2';
             themeIcon.style.color = "#f59e0b"; 
-            themeText.innerText = "สลับธีม";
+            localStorage.setItem('user_selected_theme', 'dark');
         } else {
             themeIcon.className = 'bi bi-moon-stars-fill me-2';
             themeIcon.style.color = "inherit";
-            themeText.innerText = "สลับธีม";
+            localStorage.setItem('user_selected_theme', 'light');
         }
     });
 
@@ -515,9 +812,47 @@
     });
 </script>
 
+<script type="module">
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    
+    import { auth, dbFirestore } from "./js/firebase-config.js"; 
+    
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            try {
+                const docRef = doc(dbFirestore, "users", user.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const userData = docSnap.data();
+                    let username = userData.username || user.email.split('@')[0];
+                    document.getElementById('userProfileName').innerText = username.toUpperCase();
+
+                    if (userData.expireAt) {
+                        let realExpireDate = new Date(userData.expireAt);
+                        
+                        if (window.expireUtils) {
+                            document.getElementById('userExpireDate').innerText = window.expireUtils.formatExpireAt(realExpireDate, {withTime: true});
+                            document.getElementById('userTimeLeft').innerText = window.expireUtils.getTimeLeftText(realExpireDate);
+                        }
+                    } else {
+                        document.getElementById('userExpireDate').innerText = "ยังไม่มีข้อมูล";
+                        document.getElementById('userTimeLeft').innerText = "กรุณาเติมเวลา";
+                    }
+                }
+            } catch (error) {
+                console.error("❌ เกิดข้อผิดพลาด:", error);
+            }
+        }
+    });
+</script>
+
 <script src="js/utils.js"></script>
 <script src="js/security.js"></script>
 <script type="module" src="js/backend-auth.js"></script>
+
+<script src="js/exp.js"></script> 
 
 </body>
 </html>

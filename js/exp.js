@@ -1,7 +1,6 @@
 (function (window) {
   'use strict';
 
-
   function parseDateSafe(value) {
     if (!value) return null;
 
@@ -14,17 +13,11 @@
     return d;
   }
 
-  /**
-   * @param {string|Date} value
-   * @param {Object} opts  
-   * @returns {string}
-   */
   function formatExpireAt(value, opts) {
     opts = opts || {};
     var d = value instanceof Date ? value : parseDateSafe(value);
     if (!d) return '-';
 
-    // วันที่แบบไทย
     var dateStr = d.toLocaleDateString('th-TH', {
       day: '2-digit',
       month: '2-digit',
@@ -42,10 +35,6 @@
     return dateStr;
   }
 
-  /**
-   * @param {string|Date} value
-   * @returns {"expired"|"active"|"none"}
-   */
   function getExpireStatus(value) {
     var d = value instanceof Date ? value : parseDateSafe(value);
     if (!d) return 'none';
@@ -58,25 +47,34 @@
     return 'active';
   }
 
+  function getTimeLeftText(value) {
+    var d = value instanceof Date ? value : parseDateSafe(value);
+    if (!d) return 'ไม่พบข้อมูล';
+
+    var now = new Date();
+    var diffMs = d.getTime() - now.getTime();
+
+    if (diffMs <= 0) return "หมดอายุแล้ว";
+
+    var diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    var diffHrs = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+    return diffDays + " วัน " + diffHrs + " ชม.";
+  }
+
   function renderExpireAt(data, type, row) {
     if (type === 'display' || type === 'filter') {
       var status = getExpireStatus(data);
       var text = formatExpireAt(data);
 
-
       if (status === 'expired') {
-        return '<span class="badge bg-danger-subtle text-danger">' +
-               text +
-               '</span>';
+        return '<span class="badge bg-danger-subtle text-danger">' + text + '</span>';
       }
       if (status === 'active') {
-        return '<span class="badge bg-success-subtle text-success">' +
-               text +
-               '</span>';
+        return '<span class="badge bg-success-subtle text-success">' + text + '</span>';
       }
       return '<span class="text-muted">-</span>';
     }
-
     return data;
   }
 
@@ -84,6 +82,7 @@
     parseDateSafe: parseDateSafe,
     formatExpireAt: formatExpireAt,
     getExpireStatus: getExpireStatus,
-    renderExpireAt: renderExpireAt
+    renderExpireAt: renderExpireAt,
+    getTimeLeftText: getTimeLeftText 
   };
 })(window);

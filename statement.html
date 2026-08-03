@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สเตทเม้น</title>
+    
+    <link rel="stylesheet" href="css/fonts1.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- ป้องกันการแคช -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <style>
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            background-color: #0f172a; 
+            color: white; 
+            display: flex; 
+            padding: 30px; 
+            gap: 30px; 
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            gap: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .form-container { 
+            background: #1e293b; 
+            padding: 25px; 
+            border-radius: 16px; 
+            width: 400px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            min-height: 850px;
+            box-sizing: border-box;
+            border: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0;
+        }
+
+        .form-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-grow: 1;
+        }
+
+        .form-container h1 {
+            margin: 0 0 5px 0;
+            font-size: 1.2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .display-container { 
+            flex-grow: 1;
+            background: #1e293b; 
+            padding: 20px; 
+            border-radius: 16px; 
+            text-align: center; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        canvas { 
+            max-width: 100%; 
+            height: auto; 
+            background: #fff; 
+            border-radius: 8px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        label { 
+            font-size: 0.85rem; 
+            font-weight: 500; 
+            color: #cbd5e1;
+        }
+
+        input, textarea, select { 
+            width: 100%; 
+            padding: 10px 12px; 
+            border-radius: 8px; 
+            border: 1px solid #334155; 
+            background: #0f172a; 
+            color: white; 
+            box-sizing: border-box; 
+            font-family: 'Kanit', sans-serif;
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+
+        /* ปุ่มคัดลอกรูปภาพ (ด้านบนสุด) */
+        .btn-copy {
+            background: #10b981;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-family: 'Kanit', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            transition: all 0.2s ease;
+        }
+        .btn-copy:hover { background: #059669; transform: translateY(-1px); }
+
+        /* ปุ่มเปิด/ปิดการเบลอ */
+        #blurButton {
+            background: #3b82f6;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-family: 'Kanit', sans-serif;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 5px;
+            width: 100%;
+        }
+        #blurButton:hover { opacity: 0.9; }
+
+        /* ปุ่มกลับหน้าหลัก (ซ้ายล่างสุด) */
+        .btn-dashboard {
+            background: #0f172a;
+            color: #cbd5e1;
+            padding: 10px 15px;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            font-weight: 500;
+            font-family: 'Kanit', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: auto;
+            text-decoration: none;
+            justify-content: center;
+        }
+        .btn-dashboard:hover {
+            background: #334155;
+            color: white;
+            border-color: #475569;
+        }
+    </style>
+</head>
+<body onload="updateDisplay()">
+
+    <div class="container">
+        <div class="form-container">
+
+            <button class="btn-copy" onclick="copyImageToClipboard()">
+                📷 คัดลอกรูปภาพ
+            </button>
+
+            <div class="form-content-wrapper">
+                <h1>สเตทเม้น</h1>
+                <div class="form" style="display: flex; flex-direction: column; gap: 12px;">
+                    
+                    <div>
+                        <label for="datetime">วันที่ออก</label>
+                        <input type="datetime-local" id="datetime" step="1" required oninput="updateDisplay()">
+                    </div>
+
+                    <div>
+                        <label for="accountNumber">เลขบัญชี</label>
+                        <input type="text" id="accountNumber" name="accountNumber" placeholder="เลขบัญชี" oninput="updateDisplay()">
+                    </div>
+
+                    <div>
+                        <label for="accountName">ชื่อบัญชี</label>
+                        <input type="text" id="accountName" name="accountName" placeholder="ชื่อบัญชี" oninput="updateDisplay()">
+                    </div>
+
+                    <div>
+                        <label for="name10">ธนาคารที่ทำรายการ</label>
+                        <input type="text" id="name10" name="name10" placeholder="สาขาธนาคาร" oninput="updateDisplay()">
+                    </div>
+                    
+                    <button onclick="toggleBlur()" id="blurButton">เปิดการเบลอ</button>
+
+                </div>
+            </div>
+            <a href="index.html" class="btn-dashboard">
+                <img src="assets/image/logo1/logoSlipH2o.png" alt="icon" style="width: 24px; height: 24px; object-fit: contain;">
+                กลับหน้าหลัก (Dashboard)
+            </a>
+        </div>
+
+        <div class="display-container">
+            <div class="display" id="display" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                <canvas id="canvas" width="1382" height="1280"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyImageToClipboard() {
+            const canvas = document.getElementById('canvas');
+            canvas.toBlob(async blob => {
+                try {
+                    await navigator.clipboard.write([
+                        new ClipboardItem({ 'image/png': blob })
+                    ]);
+                    alert('คัดลอกรูปภาพแล้ว!');
+                } catch (err) {
+                    console.error('ไม่สามารถคัดลอกรูปภาพได้: ', err);
+                    alert('เบราว์เซอร์ไม่อนุญาตให้คัดลอกอัตโนมัติ');
+                }
+            });
+        }
+    </script>
+
+    <script src="js/dclStatement.js"></script>
+
+    <script>
+        function saveTemporaryData() {
+            const formContainer = document.querySelector('.form-container');
+            if (!formContainer) return;
+            const formData = {};
+            const inputs = formContainer.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.type === 'file') return;
+                const value = input.type === 'checkbox' ? input.checked : input.value;
+                if (input.id || input.name) {
+                    const key = input.id || input.name;
+                    formData[key] = value;
+                }
+            });
+            const pageName = window.location.pathname.split('/').pop().replace('.html', '');
+            const dataToSave = { data: formData, timestamp: Date.now(), pageName: pageName };
+            try {
+                localStorage.setItem('temp_data_' + pageName, JSON.stringify(dataToSave));
+            } catch (e) {
+                console.error('Error saving temporary data:', e);
+            }
+        }
+        function loadTemporaryData() {
+            try {
+                const pageName = window.location.pathname.split('/').pop().replace('.html', '');
+                const savedData = localStorage.getItem('temp_data_' + pageName);
+                if (!savedData) return;
+                const parsed = JSON.parse(savedData);
+                const now = Date.now();
+                const thirtyMinutes = 30 * 60 * 1000;
+                if (now - parsed.timestamp > thirtyMinutes) {
+                    localStorage.removeItem('temp_data_' + pageName);
+                    return;
+                }
+                const formContainer = document.querySelector('.form-container');
+                if (!formContainer) return;
+                const formData = parsed.data;
+                const inputs = formContainer.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    if (input.type === 'file') return;
+                    const key = input.id || input.name;
+                    if (key && formData.hasOwnProperty(key)) {
+                        if (input.type === 'checkbox') {
+                            input.checked = formData[key];
+                        } else {
+                            input.value = formData[key];
+                        }
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                });
+                if (typeof updateDisplay === 'function') {
+                    setTimeout(updateDisplay, 100);
+                }
+            } catch (e) {
+                console.error('Error loading temporary data:', e);
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadTemporaryData);
+        } else {
+            loadTemporaryData();
+        }
+    </script>
+
+    <script type="module" src="js/backend-auth.js"></script>
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/security.js"></script>
+</body>
+</html>

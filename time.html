@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit document</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/imagestime/logo.png">
+    
+    <!-- เชื่อมโยงไฟล์ CSS -->
+    <link rel="stylesheet" href="css/time.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+    <div id="copy-toast">✅ คัดลอกรูปภาพแล้ว</div>
+
+    <!-- เมนูคลิกขวา -->
+    <div id="custom-context-menu">
+        <div class="menu-item" id="copy-via-menu">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            คัดลอกรูปภาพ
+        </div>
+    </div>
+
+    <!-- Sidebar ด้านซ้าย -->
+    <aside class="sidebar">
+        <button class="btn-copy-top" id="btn-copy" onclick="copyDocumentAsImage()">
+    📸 คัดลอกรูปภาพ
+</button>
+
+        <div class="form-container">
+            <div class="form-group">
+                <label>เลขที่เอกสาร</label>
+                <input type="text" id="in-doc-no" value="">
+            </div>
+            <div class="form-group">
+                <label>วันที่มุมขวาบน</label>
+                <input type="text" id="in-date" value="">
+            </div>
+            <div class="form-group">
+                <label>เรียน (ชื่อลูกค้า)</label>
+                <input type="text" id="in-customer" value="ชื่อลูกค้า">
+            </div>
+            <div class="form-group">
+                <label>ผู้ใช้งาน</label>
+                <input type="text" id="in-userid" value="รหัสร้านค้า">
+            </div>
+            
+            <div class="form-group">
+                <label>รายละเอียดดำเนินการ</label>
+                <input type="text" id="in-action-text" value="แก้ไขร้านค้าครั้งสุดท้าย">
+            </div>
+            
+            <div class="form-group">
+                <label>ยอดเงินที่ต้องดำเนินการ</label>
+                <input type="text" id="in-amount" value="00,000 บาท">
+            </div>
+            
+            <div class="flex-row">
+                <div class="form-group">
+                    <label>กำหนดเวลาใหม่ (วันที่)</label>
+                    <input type="text" id="in-deadline-date" value="">
+                </div>
+                <div class="form-group">
+                    <label>(เวลา)</label>
+                    <input type="text" id="in-deadline-time" value="11:30">
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-dashboard" onclick="window.location.href='index.html'">
+            <img src="assets/imagestime/logo.png" alt="icon" style="width: 24px; height: 24px; object-fit: contain;">
+            กลับหน้าหลัก (Dashboard)
+        </button>
+    </aside>
+
+    <!-- หน้าเอกสาร A4 -->
+    <main class="workspace">
+        <div class="a4-paper" id="document-paper">
+            
+            <img class="main-background" src="assets/imagestime/logo.png" alt="Watermark" crossorigin="anonymous">
+
+            <div class="content">
+                
+                <div class="header">
+                    <div class="doc-no">เลขที่ <span id="out-doc-no" contenteditable="true"></span></div>
+                    
+                    <!-- โลโก้หัวกระดาษ -->
+                    <img class="logo-img" src="assets/imagestime/logo.png" alt="Logo" crossorigin="anonymous">
+                    <br><br>
+                    <div class="comp-info" contenteditable="true">
+                        บริษัท 21 อิลิเมนส์ จำกัด<br>
+                        21 ELEMENTS CO., LTD.<br><br>
+                        84/64 หมู่ที่ 8 ตำบลเกาะพะงัน อำเภอเกาะพะงัน จ.สุราษฎร์ธานี 84280
+                    </div>
+                </div>
+
+                <div class="date-text" contenteditable="true"><span id="out-date"></span></div>
+
+                <div class="subject-to">
+                    เรื่อง: <span contenteditable="true">ยื่นเรื่องขยายเวลา</span><br>
+                    เรียน: <span id="out-customer" contenteditable="true">ชื่อลูกค้า</span>
+                </div>
+
+                <div class="body-text" contenteditable="true">
+                    ตามที่สมาชิกได้ยื่นคำร้องขอการขยายระยะเวลาในการดำเนินการ ทางผู้อนุมัติได้พิจารณาคำร้องขอ และเห็นชอบให้มีการขยายระยะเวลาเพิ่มเติมตามที่ระบุ เพื่อให้สมาชิกสามารถดำเนินการได้อย่างครบถ้วนและสมบูรณ์
+                </div>
+
+                <div class="list-box">
+                    <div contenteditable="true">รายละเอียดการขยายเวลา:</div>
+                    <div>- ผู้ใช้งาน : <span id="out-userid" contenteditable="true">รหัสร้านค้า</span></div>
+                    <div>- ชื่อ-นามสกุล : <span id="out-customer2" contenteditable="true">ชื่อลูกค้า</span></div>
+                    
+                    <div>- ยอดเงินที่ต้องดำเนินการ<span id="out-action-text" contenteditable="true">แก้ไขร้านค้าครั้งสุดท้าย</span> : <span id="out-amount" contenteditable="true">00,000 บาท</span></div>
+                    
+                    <div>- กำหนดเวลาใหม่ : <span id="out-deadline-date" contenteditable="true"></span> ก่อนเวลา <span id="out-deadline-time" contenteditable="true">11:30</span> น.</div>
+                </div>
+
+                <div class="note" contenteditable="true">
+                    หมายเหตุ : โปรดเก็บเอกสารฉบับนี้ไว้เป็นหลักฐานยืนยันการช่วยเหลือของระบบแพลตฟอร์ม ห้ามใช้ในทางที่ผิดหรือแอบอ้างโดยเด็ดขาด
+                </div>
+
+                <div class="signature-box">
+                    <div contenteditable="true">ขอแสดงความนับถือ</div>
+                    <!-- ลายเซ็น -->
+                    <img class="sig-img" src="assets/imagestime/logo1.png" alt="Signature" crossorigin="anonymous">
+                    <div contenteditable="true">(นางสาว ณพัชชนันท์ ใจสา)</div>
+                    <div contenteditable="true">ผู้จัดการ บริษัท 21 อิลิเมนส์ จำกัด</div>
+                    <div contenteditable="true">ออก ณ วันที่ <span id="out-sig-date"></span></div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- ระบบสคริปต์ต่างๆ -->
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth.js"></script> 
+    <script type="module" src="js/security.js"></script>
+    
+    <script src="js/time.js"></script> 
+</body>
+</html>

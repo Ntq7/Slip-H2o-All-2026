@@ -4,12 +4,13 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.1/firebase
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyARW02U4K0Ucx9Eq8IWfeR6pVMerfo0v7A",
-    authDomain: "slip-premium-app.firebaseapp.com",
-    projectId: "slip-premium-app",
-    storageBucket: "slip-premium-app.firebasestorage.app",
-    messagingSenderId: "217644633711",
-    appId: "1:217644633711:web:645b3e0fa46d2232fbc79a"
+    apiKey: "AIzaSyBX4Ohc17a-HUKAaOtWCAZSz7DJF4rCVks",
+    authDomain: "ai-smart-987db.firebaseapp.com",
+    projectId: "ai-smart-987db",
+    storageBucket: "ai-smart-987db.firebasestorage.app",
+    messagingSenderId: "350442779731",
+    appId: "1:350442779731:web:3821926e65265da8d1c2a6",
+    measurementId: "G-XRGZMQ8655"
 };
 
 export const app = initializeApp(firebaseConfig);

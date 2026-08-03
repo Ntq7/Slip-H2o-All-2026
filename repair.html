@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ซ่อมบันทึก Premium kids</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <link rel="icon" type="image/png" href="assets/imagesrepair/logo1.png">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=Kanit:wght@400;500;600;800&display=swap" rel="stylesheet">
+    
+    <!-- ลิงก์ CSS ที่แยกไว้ -->
+    <link rel="stylesheet" href="css/repair.css">
+</head>
+
+<body x-data="repairApp" x-cloak @click="showMenu = false">
+
+    <!-- ป๊อปอัปเมนู & โหลด -->
+    <div x-show="showMenu" class="custom-menu" :style="`top: ${menuY}px; left: ${menuX}px`" @click.stop>
+        <div class="menu-item font-kanit" @click="copyImageToClipboard()"><span>📸</span> คัดลอกรูปภาพ</div>
+        <hr class="border-gray-700 my-1"><div class="menu-item font-kanit text-gray-400" @click="showMenu = false"><span>❌</span> ปิดเมนู</div>
+    </div>
+    <div x-show="isUploading" class="loader-overlay">
+        <div class="spinner"></div><p class="mt-4 font-kanit text-orange-500 text-lg">กำลังประมวลผล...</p>
+    </div>
+
+    <div class="flex h-screen w-full bg-[#0f141f] overflow-hidden">
+        
+        <!-- ============================== -->
+        <!-- 1. เมนูด้านซ้าย -->
+        <!-- ============================== -->
+        <div class="sidebar-left p-5">
+            <div class="mb-5">
+                <button @click="copyImageToClipboard()" :disabled="isCopying" :class="isCopying ? 'bg-gray-600 cursor-wait' : 'bg-emerald-600 hover:bg-emerald-500 border-b-4 border-emerald-800'" class="w-full text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 group cursor-pointer relative overflow-hidden">
+                    <span x-show="!isCopying" class="flex items-center gap-2">📸 คัดลอกรูปภาพ</span>
+                    <span x-show="isCopying" class="animate-pulse">กำลังประมวลผล...</span>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-2">
+                <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                    <p class="text-xs text-gray-400 mb-1.5 font-bold uppercase">วันที่ในเอกสาร</p>
+                    <input type="text" x-model="docDate" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-sm text-gray-300 outline-none focus:border-orange-500">
+                </div>
+                <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                    <p class="text-xs text-gray-400 mb-1.5 font-bold uppercase">ชื่อผู้ลงนาม</p>
+                    <input type="text" x-model="signer" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-sm text-gray-300 outline-none focus:border-orange-500">
+                </div>
+                <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                    <p class="text-xs text-gray-400 mb-1.5 font-bold uppercase">วันที่ REF NO</p>
+                    <input type="text" x-model="refDate" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-sm text-gray-300 outline-none focus:border-orange-500">
+                </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-gray-800">
+                <a href="dashboard.html" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-3 border border-gray-600">
+                    <img src="assets/imagesrepair/logo1.png" alt="icon" class="w-7 h-7 object-contain">                
+                    <span class="text-sm">กลับหน้าหลัก (Dashboard)</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- 2. พื้นที่ตรงกลาง (กระดาษ A4) -->
+        <!-- ============================== -->
+        <div class="flex-1 flex justify-center items-start overflow-y-auto overflow-x-hidden p-6 custom-scrollbar" @contextmenu.prevent="openContextMenu($event)">
+
+            <div class="origin-top transform scale-[0.70] md:scale-[0.80] lg:scale-[0.90] 2xl:scale-100 transition-transform duration-200 pb-20 mt-2">
+                
+                <div id="capture-area" class="document-page relative">
+                    <img src="assets/imagesrepair/logo1.png" class="bg-watermark">
+
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <img src="assets/imagesrepair/logo1.png" alt="Logo" class="w-16 h-16 object-contain rounded-lg shadow-sm">
+                            </div>
+                            <div class="flex flex-col justify-center">
+                                <h1 class="text-[#1a4f9c] font-black text-2xl tracking-tight leading-none">PREMIUM KIDS SERVICE</h1>
+                                <p class="text-[#4a90e2] text-[10px] font-bold tracking-[0.15em] uppercase mt-1">Standard Digital Compliance</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <h2 class="text-gray-900 font-black text-lg leading-tight">ใบแจ้งสถานะและแผนงานแก้ไข</h2>
+                            <p class="text-gray-500 text-[10px] font-bold mt-0.5">REF NO:&nbsp;<span x-text="refDate + '/'"></span></p>
+                        </div>
+                    </div>
+
+                    <div class="border-l-[5px] border-[#0047AB] pl-4 mb-3 relative z-10">
+                        <p class="text-[11px] blue-primary font-bold uppercase">เรียน ร้านค้าสมาชิกผู้รับบริการ</p>
+                        <h2 class="text-2xl font-black mt-0.5" x-text="shopName"></h2>
+                    </div>
+                    
+                    <div class="relative z-10 mb-3">
+                        <h3 class="flex items-center gap-2 blue-primary font-bold text-[13px] mb-1">🔍 ข้อมูลการตรวจสอบระบบ</h3>
+                        <p class="text-[14px] leading-relaxed text-gray-800 text-left">
+                            จากการตรวจสอบแล้วสมาชิก&nbsp;<span class="font-bold underline text-[#0047AB]" x-text="shopName"></span>&nbsp;ได้ทำรายการแก้ไขทั้งหมดแล้วตามแผนการแก้ไข แต่ระบบตรวจพบว่าสมาชิกไม่ได้บันทึกช่วยจำตามที่ระบบกำหนดจึงทำให้ระบบร้านค้าและระบบถอนเงินของสมาชิกถูกอายัดการถอนเงินไว้ตอนนี้
+                        </p>
+                        <div class="red-alert mt-2">
+                            <p class="text-[13.5px] text-red-700 font-bold leading-relaxed text-left">
+                                <span x-text="smartFormat(limit2)"></span>. ห้ามดำเนินการใด ๆ ด้วยตนเองโดยไม่ได้รับอนุญาต โดยเฉพาะกรณีเข้ารับการยืนยันตัวตนบัญชีร้านค้ารอบสุดท้าย ต้องบันทึกช่วยจำตามที่เจ้าหน้าที่แจ้งเท่านั้น (หากไม่ปฏิบัติตามระบบที่กำหนด จะต้องดำเนินการแก้ไขตามแผนที่ระบบแจ้ง และหากเกิดความผิดพลาด ต้องแก้ไขยอดวงเงินเบิกถอนในอัตรา&nbsp;<span x-text="smartFormat(limit1)"></span>&nbsp;-&nbsp;<span x-text="smartFormat(multiplier)"></span>&nbsp;เท่าตามที่ระบบกำหนด)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10 mb-3">
+                        <h3 class="flex items-center gap-2 blue-primary font-bold text-[13px] mb-1">⚙️ มาตรการ การแก้ไขเพื่อเบิกถอนเงิน</h3>
+                        <p class="text-[13.5px] leading-relaxed text-gray-800 text-left">
+                            สมาชิกต้องดำเนินการแก้ไขตาม กฎเงื่อนไขข้อควรระวังที่แจ้งไว้ก่อนเริ่มการยืนยันร้านค้า <br> 
+                            โดยปกติสมาชิกจะต้องถูกปรับ&nbsp;<span class="font-bold" x-text="smartFormat(editableAmount)"></span>&nbsp;<span class="font-bold" x-show="amountX2_manual > 0">+&nbsp;<span x-text="smartFormat(amountX2_manual)"></span></span>&nbsp;คูณ&nbsp;<span class="font-bold" x-text="smartFormat(multiplier)"></span>&nbsp;เท่ากับ&nbsp;<span class="font-bold" x-text="smartFormat(totalMultiplied)"></span>&nbsp;บาท แต่เนื่องด้วยเป็นสมาชิกใหม่ที่ทำรายการผิดพลาดครั้งแรก เลยเป็นยอดปรับแก้ไข&nbsp;<span class="font-bold" x-text="smartFormat(editableAmount)"></span>&nbsp;<span class="font-bold" x-show="amountX2_manual > 0">+&nbsp;<span x-text="smartFormat(amountX2_manual)"></span></span>&nbsp;<span class="font-bold" x-show="multiplierRepair > 1">x&nbsp;<span x-text="multiplierRepair"></span></span>&nbsp;=&nbsp;<span class="text-blue-600 font-bold" x-text="smartFormat(baseRepair)"></span>&nbsp;บาท เพียงเท่านั้น
+                        </p>
+                    </div>
+
+                    <div class="relative z-10 mb-4">
+                        <h3 class="blue-primary font-bold text-[13px] mb-1">📋 ขั้นตอนและเงื่อนไขการปฏิบัติ</h3>
+                        <table class="rules-table">
+                            <tr>
+                                <td class="w-4 align-top">•</td>
+                                <td class="text-[13.5px]">แผนการแก้ไขระบบร้านค้าของ สมาชิก&nbsp;<span class="font-bold" x-text="shopName"></span></td>
+                            </tr>
+                            <tr>
+                                <td class="align-top">•</td>
+                                <td class="text-[13.5px]">
+                                    รหัสแผนการแก้ไขระบบร้านค้าใหม่หนึ่งแผน&nbsp;<span x-text="memoText1"></span>&nbsp;ต้องเข้าทำรายการแก้ไขให้เสร็จสิ้นภายใน&nbsp;<span class="font-bold" x-text="limitHours"></span>&nbsp;ชั่วโมง
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-top">•</td>
+                                <td class="text-[13.5px] leading-relaxed">
+                                    ต้องทำการฝากซ่อมแก้ไขบิล <span class="font-bold" x-text="smartFormat(editableAmount)"></span> <span class="font-bold" x-show="amountX2_manual > 0">+ <span x-text="smartFormat(amountX2_manual)"></span></span> <span class="font-bold" x-show="multiplierRepair > 1">x <span x-text="multiplierRepair"></span></span> = <span class="text-blue-600 font-bold" x-text="smartFormat(baseRepair)"></span> บาท<span x-show="profitPercent > 0"> จะได้กำไรสมนาคุณ <span class="font-bold" x-text="profitPercent"></span>% <br> รวมจะได้ทั้งหมด <span class="font-bold" x-text="smartFormat(grandTotal)"></span> + ยอดเงินในระบบของสมาชิก</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-top">•</td>
+                                <td class="text-[13.5px]">ทาง PREMIUM KIDS MARKETPLACE SERVICE ได้วางเงินประกันจำนวนเงินไว้กับแพลตฟอร์มของเราเป็นที่เรียบร้อยแล้ว แผนการซ่อมแก้ไขบิลแบบยืนยันใหม่เป็นเงิน&nbsp;<span class="text-blue-600 font-bold" x-text="smartFormat(baseRepair)"></span>&nbsp;บาท บันทึกช่วยจำ :&nbsp;<span class="font-bold" x-text="memoText"></span></td>
+                            </tr>
+                            <tr>
+                                <td class="align-top">•</td>
+                                <td class="py-2">
+                                    <p class="text-[14.0px] mt-1 font-medium text-gray-700 leading-tight">
+                                        หากไม่ปฏิบัติตามระบบจะพิจารณาค่าปรับตามที่ระบบกำหนด <br>
+                                        รับประกันหากทำรายการแก้ไขระบบร้านค้าเสร็จสิ้นสามารถถอนทุนได้ทันทีประกันรายได้ที่มั่นคง
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="relative z-10 mb-4">
+                        <h3 class="flex items-center gap-2 blue-primary font-bold text-[13px] mb-1">✔️ สรุปยอดเงินหลังดำเนินการ</h3>
+                        <ul class="list-none ml-2 space-y-1 text-[13.5px] text-gray-800">
+                            <li class="flex gap-2"><span class="blue-primary font-bold">•</span> <span>สมาชิกต้องทำรายการฝากยอด&nbsp;<span class="text-blue-600 font-bold" x-text="smartFormat(baseRepair)"></span>&nbsp;บาท เพื่อแก้ไขบันทึกช่วยจำ :&nbsp;<span class="font-bold" x-text="memoText"></span></span></li>
+                            <li class="flex gap-2"><span class="blue-primary font-bold">•</span> <span>หากสมาชิกแก้ไขเสร็จสิ้น ยอดเงินจะถูกประเข้าสู่ร้านค้าสมาชิกและสามารถเบิกถอนได้ทั้งหมด</span></li>
+                            <li class="flex gap-2"><span class="blue-primary font-bold">•</span> <span>สมาชิกฝากยอด&nbsp;<span class="text-blue-600 font-bold" x-text="smartFormat(baseRepair)"></span>&nbsp;บาท เพื่อทำการแก้ไขระบบครั้งนี้ เมื่อทำการแก้ไขเสร็จสิ้นแล้วจะสามารถถอนเงินทั้งหมดได้ทันทีโดยไม่ต้องหักใดๆทั้งสิ้น</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-area">
+                        <div class="bg-gray-900 text-white text-center py-2.5 rounded-lg mb-6">
+                            <p class="text-[18px] font-bold tracking-[0.05em]">บริษัทรับประกันความปลอดภัยของเงินทุนสูงสุด&nbsp;<span x-text="smartFormat(guaranteeAmount)"></span>,000,000 บาท</p>
+                            <p class="text-[13px] opacity-60 mt-0.5">เอกสารฉบับนี้ได้รับการรับรองจากฝ่ายตรวจสอบดิจิทัลอย่างเป็นทางการ</p>
+                        </div>
+
+                        <div class="flex justify-between items-end relative">
+                            <div class="pb-1">
+                                <p class="text-[12px] text-gray-400 font-bold uppercase mb-1">ออกเอกสารรับรอง ณ วันที่ :</p>
+                                <p class="text-[16px] font-bold text-black" x-text="docDate"></p>
+                            </div>
+                            
+                            <div class="text-center relative min-w-[200px]">
+                                <img src="assets/imagesrepair/logo3.png" class="absolute w-[210px] -top-24 left-1/2 -translate-x-1/2 opacity-60 pointer-events-none z-10">
+                                <img src="assets/imagesrepair/logo2.png" class="absolute w-[290px] -top-28 left-1/2 -translate-x-[50%] -rotate-12 opacity-100 pointer-events-none z-50">
+                                <div class="relative z-40 mt-2">
+                                    <p class="font-bold text-base border-b border-gray-300 pb-1 mb-1 px-4 inline-block text-black" x-text="'( ' + signer + ' )'"></p>
+                                    <p class="text-[10px] text-gray-500 font-bold uppercase leading-tight">ผู้อำนวยการฝ่ายตรวจสอบระบบและคณะกรรมการบริษัท</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+        </div>
+
+        <!-- ============================== -->
+        <!-- 3. เมนูด้านขวา -->
+        <!-- ============================== -->
+        <div class="sidebar-right p-5">
+            <div class="mb-4 border-b border-gray-700 pb-3 text-center">
+                <h2 class="text-xl font-black text-orange-500 font-kanit">ใบแจ้งซ่อมบันทึก </h2>
+            </div>
+
+            <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-4 mt-2">
+                
+                <div class="input-group">
+                    <label class="label-tag">🏪 ชื่อร้านค้าสมาชิก</label>
+                    <input type="text" x-model="shopName" class="input-box text-center text-base font-bold text-orange-300 border-gray-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 w-full mt-4">
+                    <div class="flex flex-col">
+                        <label class="label-tag">💰 ยอดฝากบิลแรก</label>
+                        <input type="number" x-model.number="editableAmount" class="input-box text-center px-1">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="label-tag">💰 ยอดฝากบิลสอง</label>
+                        <div class="relative flex items-center">
+                            <span class="absolute left-3 text-gray-400 font-bold">+</span>
+                            <input type="number" x-model.number="amountX2_manual" class="input-box pl-7" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="input-group">
+                        <label class="label-tag">📈 กำไรสมนาคุณ (%)</label>
+                        <input type="number" x-model.number="profitPercent" class="input-box text-center">
+                    </div>
+                    <div class="input-group">
+                        <label class="label-tag">🛡️ เงินประกันกี่ล้าน</label>
+                        <input type="number" x-model.number="guaranteeAmount" class="input-box font-bold text-center">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 p-3 bg-gray-800/30 rounded-xl border border-gray-800">
+                    <div class="input-group">
+                        <label class="label-tag">📝 บันทึกช่วยจำ</label>
+                        <input type="text" x-model="memoText" class="input-box">
+                    </div>
+                    <div class="input-group">
+                        <label class="label-tag">📝 1 แผนทำกี่ครั้ง</label>
+                        <input type="text" x-model="memoText1" class="input-box text-center">
+                    </div>
+                    <div class="input-group">
+                        <label class="label-tag">⏰ กำหนดเวลา (ชั่วโมง)</label>
+                        <input type="number" x-model="limitHours" class="input-box text-center">
+                    </div>
+                    <div class="input-group">
+                        <label class="label-tag">⚠️ ข้อควรระวังข้อที่</label>
+                        <input type="number" x-model.number="limit2" class="input-box text-center">
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <div class="flex items-center justify-between gap-4 py-2 border-t border-gray-800">
+                        <label class="text-[13px] text-orange-400 whitespace-nowrap font-bold">✖️ ตัวคูณบิลแรก</label>
+                        <input type="number" x-model.number="multiplierRepair" class="w-20 p-1.5 text-center bg-gray-800 border border-orange-900/50 rounded-lg text-white focus:border-orange-500 outline-none">
+                    </div>
+
+                    <div class="flex items-center justify-between gap-2 py-2 border-t border-gray-800/50">
+                        <label class="text-[13px] text-gray-400 whitespace-nowrap">✖️ ช่วงการปรับ (เริ่ม)</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" x-model.number="limit1" class="w-14 p-1.5 text-center bg-gray-800 border border-gray-600 rounded text-white focus:border-orange-500 outline-none font-bold">
+                            <span class="text-gray-500 text-[11px] font-bold">ถึง</span>
+                            <input type="number" x-model.number="multiplier" class="w-14 p-1.5 text-center bg-gray-800 border border-gray-600 rounded text-white focus:border-orange-500 outline-none font-bold">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="h-6"></div>
+            </div>
+        </div>
+        
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth.js"></script> 
+    <script src="js/repair.js"></script> 
+    <script type="module" src="js/security.js"></script>
+</body>
+</html>

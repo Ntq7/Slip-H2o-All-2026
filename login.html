@@ -248,10 +248,11 @@
         </div>
     </div>
 
+    <!-- เอาโค้ดชุดนี้ ไปวางทับ <script type="module"> อันเดิมในหน้า login.html -->
     <script type="module">
         import { auth, dbFirestore } from "./js/firebase-config.js"; 
         import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         // กดปุ่ม Enter เพื่อ Login
         document.addEventListener('keydown', function(event) {
@@ -284,16 +285,24 @@
                 if (userSnap.exists()) {
                     const data = userSnap.data();
                     const now = new Date();
-                    const expiry = (data.expiredAt && typeof data.expiredAt.toDate === 'function') 
-                                   ? data.expiredAt.toDate() 
-                                   : new Date(data.expiredAt);
+                    
+                    // 🟢 1. เช็คสถานะการแบน (ถ้าไม่มีฟิลด์ status ถือว่าใช้งานได้ปกติ)
+                    const isBanned = (data.status !== undefined && data.status !== 'active');
+                    if (isBanned) throw new Error("บัญชีถูกระงับการใช้งาน");
+
+                    // 🟢 2. ดึงวันหมดอายุให้ตรงกับฐานข้อมูลใหม่ (รองรับทั้ง expireAt และ expiredAt)
+                    const dbExpireDate = data.expireAt || data.expiredAt || 0;
+                    const expiry = (dbExpireDate && typeof dbExpireDate.toDate === 'function') 
+                                   ? dbExpireDate.toDate() 
+                                   : new Date(dbExpireDate);
                 
-                    if (data.status !== 'active') throw new Error("บัญชีถูกระงับการใช้งาน");
                     if (now > expiry) throw new Error("บัญชีหมดอายุ โปรดติดต่อผู้ดูแลระบบ");
                     
+                    // 🟢 3. อัปเดต Session ป้องกันการเข้าซ้อน
                     const sessionId = Date.now().toString() + Math.random().toString(36).substring(2);
                     localStorage.setItem('currentSessionId', sessionId);
-                    await updateDoc(userRef, { currentSessionId: sessionId });
+                    
+                    await setDoc(userRef, { currentSessionId: sessionId }, { merge: true });
                 
                     statusMsg.className = 'loading'; 
                     statusMsg.style.color = '#34d399';

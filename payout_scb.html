@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ใบสั่งจ่าย SCB</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            background-color: #0f172a; 
+            color: white; 
+            display: flex; 
+            padding: 30px; 
+            gap: 30px; 
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .form-container { 
+            background: #1e293b; 
+            padding: 25px; 
+            border-radius: 16px; 
+            width: 380px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            min-height: 800px; /* ให้ความสูงพอดีและดันปุ่มกลับหน้าหลักไปไว้ล่างสุด */
+            box-sizing: border-box;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .form-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex-grow: 1;
+        }
+
+        .form-container h2 {
+            margin: 0 0 5px 0;
+            font-size: 1.2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        .canvas-container { 
+            flex-grow: 1;
+            background: #1e293b; 
+            padding: 20px; 
+            border-radius: 16px; 
+            text-align: center; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        canvas { 
+            max-width: 100%; 
+            height: auto; 
+            background: #fff; 
+            border-radius: 8px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label { 
+            font-size: 0.85rem; 
+            font-weight: 500; 
+            color: #cbd5e1;
+        }
+
+        input, textarea { 
+            width: 100%; 
+            padding: 10px 12px; 
+            border-radius: 8px; 
+            border: 1px solid #334155; 
+            background: #0f172a; 
+            color: white; 
+            box-sizing: border-box; 
+            font-family: 'Kanit', sans-serif;
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        /* ปุ่มคัดลอกรูปภาพ (ด้านบนสุด) */
+        .btn-copy {
+            background: #10b981;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-family: 'Kanit', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            transition: all 0.2s ease;
+        }
+        .btn-copy:hover { background: #059669; transform: translateY(-1px); }
+
+        /* ปุ่มกลับหน้าหลักต้นฉบับ (ตรึงไว้ซ้ายล่างสุด) */
+        .btn-dashboard {
+            background: #0f172a;
+            color: #cbd5e1;
+            padding: 10px 15px;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            font-weight: 500;
+            font-family: 'Kanit', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: auto; /* ดันลงมาล่างสุดของฟอร์มเสมอ */
+        }
+        .btn-dashboard:hover {
+            background: #334155;
+            color: white;
+            border-color: #475569;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ฟอร์มกรอกข้อมูล (ด้านซ้าย) -->
+    <div class="container form-container">
+        
+        <!-- 1. ปุ่มคัดลอกรูปภาพ (อยู่บนสุด) -->
+        <button class="btn-copy" onclick="copyImageToClipboard()">
+            📷 คัดลอกรูปภาพ
+        </button>
+
+        <div class="form-content-wrapper">
+            <h2>ใบสั่งจ่าย SCB</h2>
+            
+            <div class="form-group">
+                <label for="Companyaccount">บัญชีบริษัท</label>
+                <input type="text" id="Companyaccount" value="xxx-xxx944-0" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label for="Companymoney">เงินในระบบบริษัท</label>
+                <input type="text" id="Companymoney" value="9,168,580.00" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label for="accountNumber1">เลขบัญชี-ชื่อนามสกุล</label>
+                <input type="text" id="accountNumber1" placeholder="1234567890 - สมชาย พิมพ์ลง" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label for="savings">จำนวนเงินที่สั่งจ่าย</label>
+                <input type="text" id="savings" placeholder="ระบุจำนวนเงิน" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label for="Dateandtime">เวลาสั่งจ่าย (วันที่และเวลา)</label>
+                <input type="text" id="Dateandtime" placeholder="01/01/2567 10:00:00" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label for="notes">หมายเหตุ (ปุ่มสเปซบาร์ให้คำท้ายไปบรรทัดใหม่)</label>
+                <textarea id="notes" rows="3" oninput="updateDisplay()">บัญชีของผู้กู้ไม่ตรงกับข้อมูลของผู้ยืมกู้ ธนาคารทำการโอนซ้ำหลายรอบ ไม่สามารถโอนเงินเข้าได้ ตามกฎระเบียบของธนาคาร กฎหมายความมั่นคงของกองทุนผู้กู้ ถูกอายัดชั่วคราว</textarea>
+            </div>
+        </div>
+
+        <!-- 2. ปุ่มกลับหน้าหลัก (อยู่ซ้ายล่างสุด ตามต้นฉบับ) -->
+        <button class="btn-dashboard" onclick="window.location.href='index.html'">
+            <img src="assets/image/logo1/logoSlipH2o.png" alt="icon" style="width: 24px; height: 24px; object-fit: contain;">
+            กลับหน้าหลัก (Dashboard)
+        </button>
+
+    </div>
+
+    <!-- พื้นที่แสดงรูปภาพ (ด้านขวา) -->
+    <div class="canvas-container">
+        <canvas id="canvas" width="1270" height="933"></canvas>
+    </div>
+
+    <!-- จาวาสคริปต์สำหรับคัดลอกรูปภาพ -->
+    <script>
+        function copyImageToClipboard() {
+            const canvas = document.getElementById('canvas');
+            canvas.toBlob(async blob => {
+                try {
+                    await navigator.clipboard.write([
+                        new ClipboardItem({ 'image/png': blob })
+                    ]);
+                    alert('คัดลอกรูปภาพแล้ว!');
+                } catch (err) {
+                    console.error('ไม่สามารถคัดลอกรูปภาพได้: ', err);
+                    alert('เบราว์เซอร์ไม่อนุญาตให้คัดลอกอัตโนมัติ');
+                }
+            });
+        }
+    </script>
+
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/security.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>
