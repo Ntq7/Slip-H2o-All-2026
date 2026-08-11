@@ -373,7 +373,7 @@
                 drawText(ctx, `${AideMemoire}`,942.9, 1183,39, 'DXKrungthaiMedium', '#000000', 'right', 1.5, 1, 0, 0, 800, -1.5);
                 
             } else {
-                if(bankLogoImg) ctx.drawImage(bankLogoImg, 31, 651, 117.5, 117.5); 
+                if(bankLogoImg) ctx.drawImage(bankLogoImg, 26.2, 651, 126.5, 126.5);
                 drawText(ctx, `${formattedDate} - ${formattedTime}`, 942.9, 1114.0, 39, 'DXKrungthaiMedium', '#000000', 'right', 1.5, 3, 0, 0, 800, -1.5);
                 drawText(ctx, `${generateUniqueID() }`, 337.7, 342.2, 32.5, 'DXKrungthaiMedium', '#586970', 'left', 1.5, 1, 0, 0, 500, -0.5);
                 drawText(ctx, `${sendername}`, 178.3, 495.1, 43.7, 'DXKrungthaiBold', '#000000', 'left', 1.5, 3, 0, 0, 800, -0.7);
@@ -387,7 +387,7 @@
                 drawText(ctx, `${amount11}`, 868.8, 972.3, 52.50, 'DXKrungthaiBold', '#000000', 'right', 1.5, 3, 0, 0, 500, -1.5);
                 drawText(ctx, `0.00 บาท`, 942.9, 1046, 39, 'DXKrungthaiMedium', '#000000', 'right', 1.5, 3, 0, 0, 500, -1.5);
                 drawText(ctx, `${QRCode}`, 238.9, 599.0, 33, 'DXKrungthaiMedium', '#4e4e4e', 'left', 1.5, 5, 0, 0, 500, 0);
-                drawImage(ctx, 'assets/image/logo/KTB3.png', 31.2, 406, 126.5, 126.5);  
+                drawImage(ctx, 'assets/image/logo/KTB3.png', 26.2, 378, 126.5, 126.5);  
                 drawText(ctx, `${AideMemoire}`, 942.9, 1194, 39, 'DXKrungthaiMedium', '#000000', 'right', 1.5, 1, 0, 0, 800, -1.5);
             }
 
