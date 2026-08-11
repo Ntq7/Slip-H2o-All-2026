@@ -13,7 +13,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap');
 
         :root {
-            /* 🌤️ ธีมเริ่มต้น: ไล่เฉดสีพาสเทล (Aurora Glassmorphism) */
             --bg-main: linear-gradient(135deg, #fda1d4 0%, #c2e9fb 50%, #e0c3fc 100%);
             --card-bg: rgba(255, 255, 255, 0.45);
             --card-border: rgba(255, 255, 255, 0.6);
@@ -31,7 +30,6 @@
             --input-bg: rgba(255, 255, 255, 0.7);
         }
 
-        /* 🌙 ธีมกลางคืน: เข้ม ดุดัน */
         body.theme-dark {
             --bg-main: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
             --card-bg: rgba(255, 255, 255, 0.03);
@@ -273,6 +271,7 @@
                         <div class="col-md-6">
                             <label for="bg_note" class="form-label text-warning">พื้นหลังโน้ต</label>
                             <select class="form-select" id="bg_note" onchange="syncNormalBackground(); triggerUpdate()">
+                                <option value="assets/image/bs/KTB22T.jpg">วันแม่</option>
                                 <option value="assets/image/bs/KTB20T.jpg">ต้นฉบับ</option>
                                 <option value="assets/image/bs/KTB21T.jpg">สงกรานต์</option>
                             </select>
@@ -404,6 +403,7 @@
                     <div class="col-md-6">
                         <label for="backgroundSelect" class="form-label">พื้นหลัง (ปกติ)</label>
                         <select class="form-select" id="backgroundSelect" onchange="syncNoteBackground(); triggerUpdate()">
+                            <option value="assets/image/bs/KTB22.jpg">วันแม่</option>
                             <option value="assets/image/bs/KTB20.jpg">ต้นฉบับ</option>
                             <option value="assets/image/bs/KTB21.jpg">สงกรานต์</option>
                         </select>
