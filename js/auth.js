@@ -1,7 +1,7 @@
-// ดึงการตั้งค่า Firebase
 import { auth, db } from './firebase-config.js';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+// ✨ เพิ่ม updateDoc และ onSnapshot เข้ามาสำหรับการทำระบบ 1 เครื่อง
+import { doc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 let timerInterval;
 
@@ -13,19 +13,30 @@ onAuthStateChanged(auth, async (user) => {
     const isDashboard = document.getElementById('dash-username') !== null;
 
     if (user) {
-        // ถ้าล็อกอินแล้ว แต่อยู่หน้า index ให้ส่งไป Dashboard
         if (isLoginPage) {
             window.location.replace("dashboard.html");
             return;
         }
 
-        // ==========================================
-        // ส่วนเสริมสำหรับหน้า Dashboard: ดึงข้อมูลและเริ่มจับเวลา
-        // ==========================================
         if (isDashboard) {
             try {
-                // ไปดึงข้อมูลจาก Firestore ตาม UID
-                const userDoc = await getDoc(doc(db, "users", user.uid));
+                const userRef = doc(db, "users", user.uid);
+
+                onSnapshot(userRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const userData = docSnap.data();
+                        const dbSessionId = userData.currentSessionId;
+                        const mySessionId = localStorage.getItem("myLocalSessionId");
+
+                        if (dbSessionId && dbSessionId !== mySessionId) {
+                            alert("⚠️ มีการล็อคอินซ้อน กำลังออกจากระบบ...");
+                            window.logoutUser(); 
+                            return; 
+                        }
+                    }
+                });
+
+                const userDoc = await getDoc(userRef);
                 
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
@@ -35,35 +46,31 @@ onAuthStateChanged(auth, async (user) => {
                     
                     if (userData.expireAt) {
                         document.getElementById('dash-expire-date').textContent = formatDate(userData.expireAt);
-                        startTimer(userData.expireAt); // เริ่มนับถอยหลัง
+                        startTimer(userData.expireAt); 
                     } else {
                         document.getElementById('dash-expire-date').textContent = "ไม่ได้กำหนดวันหมดอายุ";
                         document.getElementById('dash-countdown').textContent = "-";
                     }
 
-                    // ----------------------------------------------------
-                    // ✨ NEW: โค้ดสำหรับเปิดหน้า PREMIUM KIDS อัตโนมัติ ✨
-                    // ----------------------------------------------------
                     setTimeout(() => {
                         const premiumBtn = document.getElementById('btn-mode-premium');
                         if (premiumBtn) {
-                            premiumBtn.click(); // สั่งให้จำลองการกดปุ่ม
+                            premiumBtn.click(); 
                         } else if (typeof switchSystemMode === 'function') {
-                            switchSystemMode('premium'); // สำรองในกรณีที่หาปุ่มไม่เจอ
+                            switchSystemMode('premium'); 
                         }
-                    }, 300); // หน่วงเวลา 0.3 วินาทีให้หน้าเว็บโหลดโครงสร้างเสร็จก่อน
+                    }, 300); 
 
                 } else {
                     document.getElementById('dash-username').textContent = user.email;
                     document.getElementById('dash-countdown').textContent = "⚠️ ไม่พบข้อมูลเวลา";
                 }
             } catch (error) {
-                console.error("เกิดข้อผิดพลาดในการดึงข้อมูลเวลา:", error);
+                console.error("เกิดข้อผิดพลาดในการดึงข้อมูล:", error);
             }
         }
 
     } else {
-        // ถ้ายังไม่ล็อกอิน แต่แอบเข้าหน้าอื่น ให้เตะกลับหน้าแรก
         if (!isLoginPage) {
             localStorage.setItem('auth_error_alert', 'true');
             window.location.replace("index.html");
@@ -136,7 +143,8 @@ if (loginBtn) {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-            const userDoc = await getDoc(doc(db, "users", user.uid));
+            const userRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userRef);
             
             if (userDoc.exists()) {
                 const userData = userDoc.data();
@@ -144,6 +152,14 @@ if (loginBtn) {
                     showError("⚠️ วันใช้งานของคุณหมดอายุ ติดต่อผู้ดูแล");
                     await signOut(auth);
                 } else {
+                    // ----------------------------------------------------
+                    // ✨ NEW: สร้าง Session ID ใหม่ตอนล็อกอิน และบันทึก
+                    // ----------------------------------------------------
+                    const newSessionId = "SESSION_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
+                    localStorage.setItem("myLocalSessionId", newSessionId); 
+                    
+                    await updateDoc(userRef, { currentSessionId: newSessionId });
+                    
                     window.location.replace("dashboard.html");
                 }
             } else {
@@ -175,6 +191,8 @@ if (loginBtn) {
 // ==========================================
 window.logoutUser = async function() {
     try {
+        localStorage.removeItem("myLocalSessionId"); 
+        
         await signOut(auth);
         window.location.replace("index.html");
     } catch (error) {

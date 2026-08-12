@@ -5,16 +5,41 @@ import { doc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebas
 window.currentUserUid = null;
 
 // ==========================================
-// 🔐 ระบบตรวจสอบสถานะล็อกอิน (อัปเดตให้รองรับ DB ใหม่)
+// 🛡️ Helper Functions สำหรับระบบความปลอดภัย
+// ==========================================
+
+
+function parseExpiryDate(dbExpireDate) {
+    if (dbExpireDate && typeof dbExpireDate.toDate === 'function') {
+        return dbExpireDate.toDate(); 
+    }
+    return new Date(dbExpireDate); 
+}
+
+
+async function handleAuthError(message) {
+    alert(message);
+
+    localStorage.removeItem('currentSessionId');
+    try {
+        await signOut(auth);
+    } catch (error) {
+        console.error("Signout error during auth failure:", error);
+    }
+    window.location.replace('login.html');
+}
+
+// ==========================================
+// 🔐 ระบบตรวจสอบสถานะล็อกอินแบบ Real-time
 // ==========================================
 onAuthStateChanged(auth, (user) => {
-    // 1. ถ้ายังไม่ล็อกอิน ให้เตะกลับไปหน้า login ทันที
+
     if (!user) {
+        localStorage.removeItem('currentSessionId');
         window.location.replace('login.html');
         return;
     }
 
-    // 2. ถ้าล็อกอินแล้ว ดึงข้อมูลสิทธิ์และเวลาจาก Database
     window.currentUserUid = user.uid; 
     const userRef = doc(db, "users", user.uid);
     
@@ -23,57 +48,51 @@ onAuthStateChanged(auth, (user) => {
             const data = docSnap.data();
             const localSession = localStorage.getItem('currentSessionId');
 
-            // 🛑 เช็คการล็อกอินซ้อน (เครื่องอื่นเข้าใช้งาน)
             if (data.allowMultiSession === false && localSession && data.currentSessionId && data.currentSessionId !== localSession) {
-                alert("⚠️ มีการเข้าสู่ระบบจากอุปกรณ์อื่น กำลังออกจากระบบ...");
-                await signOut(auth);
-                window.location.replace('login.html');
+                await handleAuthError("⚠️ มีการล็อคอินซ้อน กำลังออกจากระบบ...");
                 return;
             }
 
-            // 🛑 เช็คสถานะ และ เวลาหมดอายุ
             const now = new Date();
-            
-            // ดึงเวลาจากฐานข้อมูล รองรับทั้งฟิลด์ expireAt และ expiredAt
-            const dbExpireDate = data.expireAt || data.expiredAt || 0;
-            const expiryDate = (dbExpireDate && typeof dbExpireDate.toDate === 'function') 
-                               ? dbExpireDate.toDate() 
-                               : new Date(dbExpireDate);
 
-            // 🟢 เช็คว่ามีสถานะแบนหรือไม่ (ถ้าไม่มีฟิลด์ status ให้ถือว่าใช้งานได้)
+            const dbExpireDate = data.expireAt || data.expiredAt || 0;
+            const expiryDate = parseExpiryDate(dbExpireDate);
+
             const isBanned = (data.status !== undefined && data.status !== 'active');
 
-            if (isBanned || now > expiryDate) {
-                alert("⚠️ เซสชันของคุณหมดอายุ หรือบัญชีถูกระงับ");
-                await signOut(auth);
-                window.location.replace('login.html');
+            if (isBanned) {
+                await handleAuthError("⚠️ บัญชีของคุณถูกระงับการใช้งาน ติดต่อผู้ดูแลระบบ");
                 return;
             }
 
-            // 🟢 อัปเดตเวลาบนหน้าจอ (ถ้ามี)
-            const diffMs = expiryDate - now;
-            const diffDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
-            const diffHours = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
-            
+            if (now > expiryDate) {
+                await handleAuthError("⚠️ ระยะเวลาใช้งานของคุณหมดอายุแล้ว กรุณาต่ออายุ");
+                return;
+            }
+
             const timeLeftElem = document.getElementById('timeLeftDisplay');
             if(timeLeftElem) {
+                const diffMs = expiryDate - now;
+                const diffDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+                const diffHours = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
                 timeLeftElem.innerText = `${diffDays} วัน ${diffHours} ชม.`;
             }
-            
-            // 🟢 ปลดล็อกหน้าจอขาว!
+
             document.body.style.display = ''; 
 
         } else {
-            // ไม่มีข้อมูลในระบบ เตะออก
-            alert("⚠️ ไม่พบข้อมูลผู้ใช้ในระบบฐานข้อมูล");
-            await signOut(auth);
-            window.location.replace('login.html');
+
+            await handleAuthError("⚠️ ไม่พบข้อมูลสิทธิ์การใช้งานของคุณในระบบ");
         }
+    }, (error) => {
+
+        console.error("onSnapshot Security Error:", error);
+        handleAuthError("⚠️ เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์แบบ Real-time");
     });
 });
 
 // ==========================================
-// 🚪 ระบบออกจากระบบ
+// 🚪 ระบบออกจากระบบ (Manual Logout)
 // ==========================================
 window.logoutApp = () => {
     signOut(auth).then(() => {
@@ -81,58 +100,81 @@ window.logoutApp = () => {
         window.location.replace('login.html');
     }).catch((error) => {
         console.error("Logout Error:", error);
+        localStorage.removeItem('currentSessionId');
         window.location.replace('login.html');
     });
 };
 
 // ==========================================
-// ☁️ ระบบบันทึก / โหลด รายการโปรด (Save to Cloud)
+// ☁️ Helper Functions สำหรับ Save/Load รายการโปรด
 // ==========================================
+
+const getVal = (id) => document.getElementById(id)?.value || '';
+// ดึงค่า checked จาก checkbox
+const getCheck = (id) => document.getElementById(id)?.checked || false;
+
+const setVal = (id, value) => {
+    const elem = document.getElementById(id);
+    if (elem && value !== undefined) elem.value = value;
+};
+
+const setCheck = (id, value) => {
+    const elem = document.getElementById(id);
+    if (elem && value !== undefined) elem.checked = value;
+};
+
 window.saveFavoriteToCloud = async function() {
     if (!window.currentUserUid) {
         alert("⚠️ กรุณาเข้าสู่ระบบก่อนทำการบันทึก");
         return;
     }
-    
+
     const bankKey = window.CURRENT_BANK || 'GENERAL'; 
     
     const favData = {
-        noteMode: document.getElementById('modeSwitch')?.checked || false,
-        noteText: document.getElementById('AideMemoire')?.value || '',
-        bgNote: document.getElementById('bg_note')?.value || '',
-        sName: document.getElementById('sendername')?.value || '',
-        sAccount: document.getElementById('senderaccount')?.value || '',
-        rName: document.getElementById('receivername')?.value || '',
-        rAccount: document.getElementById('receiveraccount')?.value || '',
-        bank: document.getElementById('bank')?.value || '',
-        amount: document.getElementById('amount11')?.value || '',
-        sticker: document.getElementById('imageSelect')?.value || '',
-        bgNormal: document.getElementById('backgroundSelect')?.value || '',
-        money01: document.getElementById('money01')?.value || '',
-        money02: document.getElementById('money02')?.value || '',
-        sAcc1: document.getElementById('senderaccount1')?.value || '',
-        sAcc2: document.getElementById('senderaccount2')?.value || '',
-        mMy: document.getElementById('monthmonthyear')?.value || '',
-        may: document.getElementById('monthandyear')?.value || '',
-        name1: document.getElementById('name1')?.value || '',
-        nametext1: document.getElementById('nametext1')?.value || '',
-        text1: document.getElementById('text1')?.value || '',
-        activeBgMode: document.getElementById('activeBgMode')?.value || 'system',
-        customImageDataUrl: document.getElementById('customImageDataUrl')?.value || ''
+
+        noteMode: getCheck('modeSwitch'),
+        noteText: getVal('AideMemoire'),
+        sName: getVal('sendername'),
+        sAccount: getVal('senderaccount'),
+        rName: getVal('receivername'),
+        rAccount: getVal('receiveraccount'),
+        bank: getVal('bank'),
+        amount: getVal('amount11'),
+        sticker: getVal('imageSelect'),
+        
+        bgNote: getVal('bg_note'),
+        bgNormal: getVal('backgroundSelect'),
+        money01: getVal('money01'),
+        money02: getVal('money02'),
+        sAcc1: getVal('senderaccount1'),
+        sAcc2: getVal('senderaccount2'),
+        mMy: getVal('monthmonthyear'),
+        may: getVal('monthandyear'),
+        name1: getVal('name1'),
+        nametext1: getVal('nametext1'),
+        text1: getVal('text1'),
+        
+        activeBgMode: getVal('activeBgMode') || 'system',
+        customImageDataUrl: getVal('customImageDataUrl')
     };
 
     try {
         const userRef = doc(db, "users", window.currentUserUid);
         const updateData = {};
         updateData[`slipFav_${bankKey}`] = favData;
+        
         await setDoc(userRef, updateData, { merge: true });
         alert("✅ บันทึกรายการโปรดเรียบร้อยแล้ว!");
     } catch (error) {
         console.error("Error saving to cloud:", error);
-        alert("❌ เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+        alert("❌ เกิดข้อผิดพลาดในการบันทึกข้อมูลไปยังคลาวด์");
     }
 };
 
+// ==========================================
+// ☁️ ระบบโหลดรายการโปรดจากคลาวด์
+// ==========================================
 window.loadFavoriteFromCloud = async function() {
     if (!window.currentUserUid) {
         alert("⚠️ กรุณาเข้าสู่ระบบก่อนทำการโหลดข้อมูล");
@@ -153,24 +195,30 @@ window.loadFavoriteFromCloud = async function() {
                 document.getElementById('modeSwitch').checked = favData.noteMode;
                 if(typeof toggleMode === 'function') toggleMode();
             }
-            if(favData.noteText !== undefined && document.getElementById('AideMemoire')) document.getElementById('AideMemoire').value = favData.noteText;
-            if(favData.bgNote !== undefined && document.getElementById('bg_note')) document.getElementById('bg_note').value = favData.bgNote;
-            if(favData.sName !== undefined && document.getElementById('sendername')) document.getElementById('sendername').value = favData.sName;
-            if(favData.sAccount !== undefined && document.getElementById('senderaccount')) document.getElementById('senderaccount').value = favData.sAccount;
-            if(favData.rName !== undefined && document.getElementById('receivername')) document.getElementById('receivername').value = favData.rName;
-            if(favData.rAccount !== undefined && document.getElementById('receiveraccount')) document.getElementById('receiveraccount').value = favData.rAccount;
-            if(favData.bank !== undefined && document.getElementById('bank')) document.getElementById('bank').value = favData.bank;
-            if(favData.amount !== undefined && document.getElementById('amount11')) document.getElementById('amount11').value = favData.amount;
-            if(favData.sticker !== undefined && document.getElementById('imageSelect')) document.getElementById('imageSelect').value = favData.sticker;
-            if(favData.bgNormal !== undefined && document.getElementById('backgroundSelect')) document.getElementById('backgroundSelect').value = favData.bgNormal;
+            
+            setVal('AideMemoire', favData.noteText);
+            setVal('sendername', favData.sName);
+            setVal('senderaccount', favData.sAccount);
+            setVal('receivername', favData.rName);
+            setVal('receiveraccount', favData.rAccount);
+            setVal('bank', favData.bank);
+            setVal('amount11', favData.amount);
+            setVal('imageSelect', favData.sticker);
+            
+            setVal('bg_note', favData.bgNote);
+            setVal('backgroundSelect', favData.bgNormal);
+            setVal('money01', favData.money01);
+            setVal('money02', favData.money02);
+            setVal('senderaccount1', favData.sAcc1);
+            setVal('senderaccount2', favData.sAcc2);
+            setVal('monthmonthyear', favData.mMy);
+            setVal('monthandyear', favData.may);
+            setVal('name1', favData.name1);
+            setVal('nametext1', favData.nametext1);
+            setVal('text1', favData.text1);
 
-            if(favData.customImageDataUrl !== undefined && document.getElementById('customImageDataUrl')) {
-                document.getElementById('customImageDataUrl').value = favData.customImageDataUrl;
-            }
-            if(favData.activeBgMode !== undefined && document.getElementById('activeBgMode')) {
-                document.getElementById('activeBgMode').value = favData.activeBgMode;
-            }
-
+            setVal('customImageDataUrl', favData.customImageDataUrl);
+            setVal('activeBgMode', favData.activeBgMode);
             if(favData.activeBgMode === 'custom' && favData.customImageDataUrl) {
                 if(typeof window.activateCustomMode === 'function') window.activateCustomMode();
             } else {
@@ -181,10 +229,10 @@ window.loadFavoriteFromCloud = async function() {
             if(typeof window.updateDisplay === 'function') window.updateDisplay();
             
         } else {
-            alert("⚠️ ยังไม่ได้บันทึกรายการโปรดสำหรับรูปแบบนี้");
+            alert(`⚠️ ยังไม่ได้บันทึกรายการโปรดสำหรับรูปแบบธนาคาร ${bankKey}`);
         }
     } catch (error) {
         console.error("Error loading from cloud:", error);
-        alert("❌ เกิดข้อผิดพลาดในการดึงข้อมูล");
+        alert("❌ เกิดข้อผิดพลาดในการดึงข้อมูลจากคลาวด์");
     }
 };
