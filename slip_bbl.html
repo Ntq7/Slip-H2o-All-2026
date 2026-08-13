@@ -351,7 +351,7 @@
                         <label for="receivername" class="form-label text-primary">ชื่อผู้รับ</label>
                         <input type="text" class="form-control mb-3" id="receivername" name="receivername" value="นาย กบ เขียด" oninput="triggerUpdate()">
                         <label for="receiveraccount" class="form-label text-primary">เลขบัญชีผู้รับ</label>
-                        <input type="text" class="form-control mb-3" id="receiveraccount" name="receiveraccount" value="426-1-xxx426" oninput="triggerUpdate()">
+                        <input type="text" class="form-control mb-3" id="receiveraccount" name="receiveraccount" value="000-0-xxx000" oninput="triggerUpdate()">
                         
                         <label for="bank" class="form-label text-primary">ธนาคารปลายทาง</label>
                         <select class="form-select" id="bank" name="bank" onchange="autoFormatAccount(); triggerUpdate()">
@@ -525,10 +525,10 @@
             accInput.value = '00000-000-000-0000';
         } else if (bank === 'พร้อมเพย์') {
             accInput.value = 'xxx-xxx-0000';
-        } else if (bank === 'ธนาคารออมสิน' || bank === 'ธนาคารเพื่อการเกษตรและ') {
+        } else if (bank === 'ธนาคารออมสิน' || bank === 'ธนาคารเพื่อการเกษตรและ' || bank === 'ธนาคารอาคารสงเคราะห์') {
             accInput.value = '000-0-xxxxx0-00';
         } else {
-            accInput.value = '426-1-xxx426';
+            accInput.value = '000-0-xxx000';
         }
     }
 
@@ -567,7 +567,7 @@
         document.getElementById('sendername').value = 'น.ส. บุษบา';
         document.getElementById('senderaccount').value = '869-3-xxx302';
         document.getElementById('receivername').value = 'นาย กบ เขียด';
-        document.getElementById('receiveraccount').value = '426-1-xxx426';
+        document.getElementById('receiveraccount').value = '000-0-xxx000';
         document.getElementById('amount11').value = '3,300.00';
         
         // เซ็ตให้กลับไปหน้าแรกคือ กรุงเทพ

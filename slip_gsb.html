@@ -304,7 +304,6 @@
                             <option value="ธนาคารไอซีบีซี">ธ.ไอซีบีซี</option>
                             <option value="พร้อมเพย์">พร้อมเพย์</option>
                             <option value="เติมเงินพร้อมเพย์">พร้อมเพย์วอลเล็ท</option>
-                            <option value="MetaAds">MetaAds</option>
                         </select>
                     </div>
                 </div>
@@ -415,14 +414,14 @@
     function autoFormatAccount() {
         const bank = document.getElementById('bank').value;
         const accInput = document.getElementById('receiveraccount');
-        if (bank === 'ธนาคารออมสิน' || bank === 'ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร') {
+        if (bank === 'ธนาคารออมสิน' || bank === 'ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร' || bank === 'ธนาคารอาคารสงเคราะห์') {
             accInput.value = '0000xxxx0000';
         } else if (bank === 'พร้อมเพย์') {
             accInput.value = 'xxx-xxx-0000';
         } else if (bank === 'เติมเงินพร้อมเพย์') {
             accInput.value = '000000xxxxx0000';
         } else {
-            accInput.value = '0000xxxx0000';
+            accInput.value = '00xxxx0000';
         }
     }
 

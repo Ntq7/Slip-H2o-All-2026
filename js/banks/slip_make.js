@@ -88,7 +88,7 @@
         if (bank.includes('วอลเล็ท') || bank.includes('เติมเงินพร้อมเพย์')) {
             rawVal = rawVal.padStart(15, '0');
             accInput.value = `${rawVal.substring(0,3)}-xxxxxxxx-${rawVal.slice(-4)}`;
-        } else if (bank === 'ธ.ออมสิน' || bank === 'ธ.ก.ส.' || rawVal.length === 12) {
+        } else if (bank === 'ธ.ออมสิน' || bank === 'ธ.ก.ส.' || bank === 'ธ.อาคารสงเคราะห์' || rawVal.length === 12) {
             rawVal = rawVal.padStart(12, '0');
             accInput.value = `xxx-x-x${rawVal.substring(5, 9)}-xxx`;
         } else if (bank === 'พร้อมเพย์' || bank === 'รหัสพร้อมเพย์') {

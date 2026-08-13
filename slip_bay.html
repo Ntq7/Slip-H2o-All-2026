@@ -290,7 +290,7 @@
                         <label for="receivername" class="form-label text-primary">ชื่อผู้รับ</label>
                         <input type="text" class="form-control mb-3" id="receivername" name="receivername" value="นาย กบ เขียด" oninput="triggerUpdate()">
                         <label for="receiveraccount" class="form-label text-primary">เลขบัญชีผู้รับ</label>
-                        <input type="text" class="form-control mb-3" id="receiveraccount" name="receiveraccount" value="XXX-9-90142-X" oninput="triggerUpdate()">
+                        <input type="text" class="form-control mb-3" id="receiveraccount" name="receiveraccount" value="XXX-0-00000-X" oninput="triggerUpdate()">
                         
                         <label for="bank" class="form-label text-primary">ธนาคารปลายทาง</label>
                         <select class="form-select" id="bank" name="bank" onchange="autoFormatAccount(); triggerUpdate()">
@@ -421,10 +421,10 @@
     function autoFormatAccount() {
         const bank = document.getElementById('bank').value;
         const accInput = document.getElementById('receiveraccount');
-        if (bank === 'GSB' || bank === 'BAAC') accInput.value = 'XXX-0-00000-X00';
+        if (bank === 'GSB' || bank === 'BAAC' || bank === 'GHB') accInput.value = 'XXX-0-00000-X00';
         else if (bank === 'PromptPay') accInput.value = 'XXX-XXX-0000';
         else if (bank === 'PromptPay TrueMoney') accInput.value = '000-000-0-XXXX000-0';
-        else accInput.value = 'XXX-9-90142-X';
+        else accInput.value = 'XXX-0-00000-X';
     }
 
     function syncNoteBackground() {
@@ -462,7 +462,7 @@
         document.getElementById('sendername').value = 'น.ส. ยูรีนา อาดตันตรา';
         document.getElementById('senderaccount').value = 'XXX-1-05009-X';
         document.getElementById('receivername').value = 'นาย กบ เขียด';
-        document.getElementById('receiveraccount').value = 'XXX-9-90142-X';
+        document.getElementById('receiveraccount').value = 'XXX-0-00000-X';
         document.getElementById('amount11').value = '3,300.00';
         document.getElementById('bank').selectedIndex = 4; 
         document.getElementById('imageSelect').selectedIndex = 0;

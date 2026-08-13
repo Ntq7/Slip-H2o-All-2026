@@ -293,7 +293,7 @@
                         <label for="receivername" class="form-label text-primary">ชื่อผู้รับ</label>
                         <input type="text" class="form-control mb-3" id="receivername" value="นาย กบ เขียด" oninput="triggerUpdate()">
                         <label for="receiveraccount" class="form-label text-primary">เลขบัญชีผู้รับ</label>
-                        <input type="text" class="form-control mb-3" id="receiveraccount" value="XXX-X-XX142-6" oninput="triggerUpdate()">
+                        <input type="text" class="form-control mb-3" id="receiveraccount" value="XXX-X-XX000-0" oninput="triggerUpdate()">
                         
                         <label for="bank" class="form-label text-primary">ธนาคารปลายทาง</label>
                         <select class="form-select" id="bank" onchange="autoFormatAccount(); triggerUpdate()">
@@ -450,12 +450,12 @@
     function autoFormatAccount() {
         const bank = document.getElementById('bank').value;
         const accInput = document.getElementById('receiveraccount');
-        if (bank === 'ออมสิน' || bank === 'ธ.ก.ส.') accInput.value = 'XXX-X-XX000-0';
+        if (bank === 'ออมสิน' || bank === 'ธ.ก.ส.'|| bank === 'ธ.อ.ส.') accInput.value = 'XXX-X-XXXX0-000';
         else if (bank === 'พร้อมเพย์') accInput.value = 'XXX XXX 0000';
         else if (bank === 'พร้อมเพย์ ') accInput.value = 'X XXXX XXXX0 00 0';
         else if (bank === 'พร้อมเพย์  ') accInput.value = 'XXX-XXXXXXXX-0000';
         else if (bank === 'ChillPay') accInput.value = '(010553509091216)';
-        else accInput.value = 'XXX-X-XX142-6';
+        else accInput.value = 'XXX-X-XX000-0';
     }
 
     function syncNoteBackground() {
@@ -493,7 +493,7 @@
         document.getElementById('sendername').value = 'น.ส. บุษบา บ';
         document.getElementById('senderaccount').value = 'XXX-X-XX629-8';
         document.getElementById('receivername').value = 'นาย กบ เขียด';
-        document.getElementById('receiveraccount').value = 'XXX-X-XX142-6';
+        document.getElementById('receiveraccount').value = 'XXX-X-XX000-0';
         document.getElementById('amount11').value = '3,300.00';
         document.getElementById('Itemcode').value = '0027095496';
         

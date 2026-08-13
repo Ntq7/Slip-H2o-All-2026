@@ -278,7 +278,7 @@
                         <label for="receivername" class="form-label text-primary">ชื่อผู้รับ</label>
                         <input type="text" class="form-control mb-3" id="receivername" name="receivername" value="นาย กบ เขียด" oninput="triggerUpdate()">
                         <label for="receiveraccount" class="form-label text-primary">เลขบัญชีผู้รับ</label>
-                        <input type="text" class="form-control mb-3" id="receiveraccount" name="receiveraccount" value="XX-XXXX142-6" oninput="triggerUpdate()">
+                        <input type="text" class="form-control mb-3" id="receiveraccount" name="receiveraccount" value="XX-XXXX000-0" oninput="triggerUpdate()">
                         
                         <label for="bank" class="form-label text-primary">ธนาคารปลายทาง</label>
                         <select class="form-select" id="bank" name="bank" onchange="autoFormatAccount(); triggerUpdate()">
@@ -372,7 +372,7 @@
         let rawVal = accInput.value.replace(/[^0-9]/g, '');
         if (rawVal.length === 0) rawVal = "0000000000";
 
-        if (bank === 'ธ.ออมสิน' || bank === 'ธ.ก.ส.') {
+        if (bank === 'ธ.ออมสิน' || bank === 'ธ.ก.ส.' || bank === 'ธ.อาคารสงเคราะห์') {
             rawVal = rawVal.padStart(12, '0');
             accInput.value = `${rawVal.substring(0, 4)}-${rawVal.substring(4, 8)}000-0`; // รูปแบบ 12 หลัก
         } else if (bank === 'พร้อมเพย์' || bank === 'รหัสพร้อมเพย์') {
@@ -408,7 +408,7 @@
         document.getElementById('sendername').value = 'น.ส. ยูรีนา อาดตันตรา';
         document.getElementById('senderaccount').value = 'XX-XXXX1549';
         document.getElementById('receivername').value = 'นาย กบ เขียด';
-        document.getElementById('receiveraccount').value = 'XX-XXXX142-6';
+        document.getElementById('receiveraccount').value = 'XX-XXXX000-0';
         document.getElementById('amount11').value = '3,300.00';
         
         document.getElementById('bank').value = 'ธ.ซีไอเอ็มบีไทย';

@@ -92,7 +92,7 @@
         if (bank.includes('วอลเล็ท') || bank.includes('เติมเงินพร้อมเพย์') || rawVal.length >= 15) {
             rawVal = rawVal.padStart(15, '0');
             accInput.value = `XXXXXXXXXXX${rawVal.slice(-4)}`;
-        } else if (bank === 'ออมสิน' || bank === 'ธ.ก.ส.' || rawVal.length === 12) {
+        } else if (bank === 'ออมสิน' || bank === 'ธ.ก.ส.' || bank === 'อาคารสงเคราะห์' || rawVal.length === 12) {
             rawVal = rawVal.padStart(12, '0');
             accInput.value = `XXXXXXXX${rawVal.slice(-4)}`;
         } else {

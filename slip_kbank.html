@@ -339,13 +339,13 @@
                         <label for="sendername" class="form-label" style="color: #10b981;">ชื่อผู้โอน</label>
                         <input type="text" class="form-control mb-3" id="sendername" value="น.ส. บุษบา บ" oninput="triggerUpdate()">
                         <label for="senderaccount" class="form-label" style="color: #10b981;">เลขบัญชีผู้โอน</label>
-                        <input type="text" class="form-control" id="senderaccount" value="xxx-x-x5269-x" oninput="triggerUpdate()">
+                        <input type="text" class="form-control" id="senderaccount" value="xxx-x-x0000-x" oninput="triggerUpdate()">
                     </div>
                     <div class="col-md-6">
                         <label for="receivername" class="form-label text-primary">ชื่อผู้รับ</label>
                         <input type="text" class="form-control mb-3" id="receivername" value="นาย กบ เขียด" oninput="triggerUpdate()">
                         <label for="receiveraccount" class="form-label text-primary">เลขบัญชีผู้รับ</label>
-                        <input type="text" class="form-control mb-3" id="receiveraccount" value="xxx-x-x0142-x" oninput="triggerUpdate()">
+                        <input type="text" class="form-control mb-3" id="receiveraccount" value="xxx-x-x0000-x" oninput="triggerUpdate()">
                         
                         <label for="bank" class="form-label text-primary">ธนาคารปลายทาง</label>
                         <select class="form-select" id="bank" onchange="autoFormatAccount(); triggerUpdate()">
@@ -554,10 +554,10 @@
     function autoFormatAccount() {
         const bank = document.getElementById('bank').value;
         const accInput = document.getElementById('receiveraccount');
-        if (bank === 'ธ.ออมสิน' || bank === 'ธ.ก.ส.') accInput.value = 'xxx-x-x0000-xxx';
+        if (bank === 'ธ.ออมสิน' || bank === 'ธ.ก.ส.'|| bank === 'ธ.อาคารสงเคราะห์') accInput.value = 'xxx-x-x0000-xxx';
         else if (bank === 'รหัสพร้อมเพย์') accInput.value = 'xxx-xxx-0000';
         else if (bank === 'พร้อมเพย์วอลเล็ท') accInput.value = '000-xxxxxxxx-0000';
-        else accInput.value = 'xxx-x-x5269-x';
+        else accInput.value = 'xxx-x-x0000-x';
     }
 
     function syncNoteBackground() {
@@ -593,9 +593,9 @@
     window.clearForm = function() {
         document.getElementById('AideMemoire').value = 'ค่าเหล้าค่าเบียร์';
         document.getElementById('sendername').value = 'น.ส. บุษบา บ';
-        document.getElementById('senderaccount').value = 'xxx-x-x5269-x';
+        document.getElementById('senderaccount').value = 'xxx-x-x0000-x';
         document.getElementById('receivername').value = 'นาย กบ เขียด';
-        document.getElementById('receiveraccount').value = 'xxx-x-x0142-x';
+        document.getElementById('receiveraccount').value = 'xxx-x-x0000-x';
         document.getElementById('amount11').value = '3,300.00';
         document.getElementById('bank').selectedIndex = 0; 
         document.getElementById('imageSelect').selectedIndex = 0;

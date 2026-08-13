@@ -303,7 +303,7 @@
                         <label for="receivername" class="form-label text-primary">ชื่อผู้รับ</label>
                         <input type="text" class="form-control mb-3" id="receivername" value="นาย กบ เขียด" oninput="triggerUpdate()">
                         <label for="receiveraccount" class="form-label text-primary">เลขบัญชีผู้รับ</label>
-                        <input type="text" class="form-control mb-3" id="receiveraccount" value="x-5317" oninput="triggerUpdate()">
+                        <input type="text" class="form-control mb-3" id="receiveraccount" value="x-0000" oninput="triggerUpdate()">
                         
                         <label for="bank" class="form-label text-primary">ธนาคารปลายทาง</label>
                         <select class="form-select" id="bank" onchange="autoFormatAccount(); triggerUpdate()">
@@ -435,7 +435,7 @@
         else if (bank === 'พร้อมเพย์เบอร์') accInput.value = 'xxx-xxx-0000';
         else if (bank === 'พร้อมเพย์บัตรประชาชน') accInput.value = '0-0000-0000x-xx-x';
         else if (bank.includes('e-Wallet')) accInput.value = '000000000000000';
-        else accInput.value = 'x-5317';
+        else accInput.value = 'x-0000';
     }
 
     function syncNoteBackground() {
@@ -473,7 +473,7 @@
         document.getElementById('sendername').value = 'น.ส. ยูรีนา อ.';
         document.getElementById('senderaccount').value = 'xxx-xxx563-2';
         document.getElementById('receivername').value = 'นาย กบ เขียด';
-        document.getElementById('receiveraccount').value = 'x-5317';
+        document.getElementById('receiveraccount').value = 'x-0000';
         document.getElementById('amount11').value = '3,300.00';
         document.getElementById('bank').selectedIndex = 0; 
         document.getElementById('imageSelect').selectedIndex = 0;

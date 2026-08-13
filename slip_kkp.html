@@ -278,7 +278,7 @@
                         <label for="receivername" class="form-label text-primary">ชื่อผู้รับ</label>
                         <input type="text" class="form-control mb-3" id="receivername" name="receivername" value="นาย กบ เขียด" oninput="triggerUpdate()">
                         <label for="receiveraccount" class="form-label text-primary">เลขบัญชีผู้รับ</label>
-                        <input type="text" class="form-control mb-3" id="receiveraccount" name="receiveraccount" value="xxxxxx1426" oninput="triggerUpdate()">
+                        <input type="text" class="form-control mb-3" id="receiveraccount" name="receiveraccount" value="xxxxxx0000" oninput="triggerUpdate()">
                         
                         <label for="bank" class="form-label text-primary">ธนาคารปลายทาง</label>
                         <select class="form-select" id="bank" name="bank" onchange="autoFormatAccount(); triggerUpdate()">
@@ -392,18 +392,24 @@
         if (!bank || !accInput) return;
 
         let rawVal = accInput.value.replace(/[^0-9]/g, '');
-        if (rawVal.length === 0) rawVal = "0000000000";
+        if (rawVal.length === 0) rawVal = "xxxxxx0000";
 
         if (bank === 'พร้อมเพย์') {
-            rawVal = rawVal.padStart(4, '0');
-            accInput.value = `xxx-xxx-${rawVal.slice(-4)}`;
+            rawVal = rawVal.padStart(4, 'xxxxxx0000');
+            accInput.value = `xxxxxx${rawVal.slice(-4)}`;
         } 
         else if (bank.includes('วอลเล็ท') || bank === 'เติมเงินพร้อมเพย์ วอลเล็ท') {
-            rawVal = rawVal.padStart(15, '0'); 
+            rawVal = rawVal.padStart(15, 'xxxxxxxxxxx0000'); 
             accInput.value = `${rawVal.substring(0, 11)}${rawVal.slice(-4)}`;
         } 
+        else if (bank === 'ออมสิน' || bank === 'ธ.ก.ส.' || bank === 'ธ.อาคารสงเคราะห์') {
+            if (rawVal === "xxxxxx0000") rawVal = "xxxxxxxx0000"; 
+            rawVal = rawVal.padStart(12, 'xxxxxxxx0000');
+            accInput.value = `${rawVal.substring(0, 8)}${rawVal.slice(-4)}`;
+        }
+
         else {
-            rawVal = rawVal.padStart(10, '0');
+            rawVal = rawVal.padStart(10, 'xxxxxx0000');
             accInput.value = `${rawVal.substring(0, 6)}${rawVal.slice(-4)}`;
         }
     }
@@ -432,7 +438,7 @@
         document.getElementById('sendername').value = 'น.ส. ยูรีนา อาดตันตรา';
         document.getElementById('senderaccount').value = 'xxxxxx1451';
         document.getElementById('receivername').value = 'นาย กบ เขียด';
-        document.getElementById('receiveraccount').value = 'xxxxxx1426';
+        document.getElementById('receiveraccount').value = 'xxxxxx0000';
         document.getElementById('amount11').value = '3,300.00';
         
         document.getElementById('bank').selectedIndex = 9; 
