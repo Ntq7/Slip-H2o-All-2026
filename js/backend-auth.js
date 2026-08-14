@@ -284,14 +284,8 @@ setTimeout(() => {
             </div>
             
             <p style="color: #4b5563; font-size: 14px; line-height: 1.6; margin-bottom: 15px;">
-                สำหรับบัญชีที่เข้าใช้งานร่วมกันหลายคน ข้อมูล <b>"รายการโปรด"</b> จะถูกบันทึกแยกไว้ในเครื่องของแต่ละคนโดยอัตโนมัติ เพื่อป้องกันปัญหาข้อมูลทับกัน
+                อัปเดตล่าสุด: อัปเดตธีมใหม่ล่าสุดสำหรับธนาคารกรุงไทย ( KTB )
             </p>
-            
-            <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 12px; border-radius: 6px; margin-bottom: 20px;">
-                <p style="margin: 0; color: #991b1b; font-size: 13px; line-height: 1.5;">
-                    ⚠️ <b>คำเตือน:</b> กรุณาอย่ากดล้างประวัติเบราว์เซอร์ (Clear Data) เพราะจะทำให้ข้อมูลที่บันทึกไว้ในอุปกรณ์นี้หายไป
-                </p>
-            </div>
             
             <div style="text-align: right;">
                 <button id="close-popup-btn" style="
