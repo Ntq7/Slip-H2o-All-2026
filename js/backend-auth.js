@@ -1,6 +1,6 @@
 import { auth, dbFirestore as db } from "./firebase-config.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { doc, onSnapshot, setDoc, getDoc, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { doc, getDoc, setDoc, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 window.currentUserUid = null;
 window.allowMultiSession = false; 
@@ -24,7 +24,7 @@ async function handleAuthError(message) {
 }
 
 // ==========================================
-// 🔐 ระบบตรวจสอบสถานะแบบ Real-time
+// 🔐 ระบบตรวจสอบสถานะแบบ Real-time 
 // ==========================================
 onAuthStateChanged(auth, (user) => {
     if (!user) {
@@ -36,16 +36,18 @@ onAuthStateChanged(auth, (user) => {
     window.currentUserUid = user.uid; 
     const userRef = doc(db, "users", user.uid);
     
-    // ------------------------------------------------
-    // 💓 1. ระบบส่งสัญญาณว่าออนไลน์อยู่ (Heartbeat)
-    // ------------------------------------------------
     let localSession = localStorage.getItem('currentSessionId');
     if (!localSession) {
         localSession = "SID_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
         localStorage.setItem('currentSessionId', localSession);
     }
 
+    // ------------------------------------------------
+    // 💓 1. ระบบส่งสัญญาณว่าออนไลน์อยู่ (เช็ค Ghost Tabs)
+    // ------------------------------------------------
     const updatePresence = async () => {
+        if (document.hidden) return; // 
+        
         try {
             await setDoc(userRef, {
                 activeSessions: {
@@ -55,81 +57,90 @@ onAuthStateChanged(auth, (user) => {
         } catch(e) { console.error("Presence Error:", e); }
     };
 
-    updatePresence(); 
-    presenceInterval = setInterval(updatePresence, 60000); 
-    
     // ------------------------------------------------
-    // 📡 2. ตรวจสอบข้อมูล Real-time 
+    // 📡 2. ตรวจสอบข้อมูลสิทธิ์ผู้ใช้งาน (ใช้ getDoc แทน onSnapshot)
     // ------------------------------------------------
-    onSnapshot(userRef, async (docSnap) => {
-        if (docSnap.exists()) {
-            const data = docSnap.data();
+    const checkUserData = async () => {
+        if (document.hidden) return; 
 
-            window.allowMultiSession = data.allowMultiSession === true;
+        try {
+            const docSnap = await getDoc(userRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
 
-            if (data.allowMultiSession === false && data.currentSessionId && data.currentSessionId !== localSession) {
-                await handleAuthError("⚠️ มีการล็อคอินซ้อน กำลังออกจากระบบ...");
-                return;
-            }
+                window.allowMultiSession = data.allowMultiSession === true;
 
-            const isBanned = (data.status !== undefined && data.status !== 'active');
-            if (isBanned) {
-                await handleAuthError("⚠️ บัญชีของคุณถูกระงับการใช้งาน");
-                return;
-            }
-
-            const userNameElem = document.getElementById('userProfileName');
-            if (userNameElem) {
-                userNameElem.innerText = data.username || user.email;
-            }
-
-            const now = new Date();
-            const dbExpireDate = data.expireAt || data.expiredAt; 
-            
-            const expireDateElem = document.getElementById('userExpireDate') || document.getElementById('dash-expire-date'); 
-            const countdownElem = document.getElementById('userTimeLeft') || document.getElementById('timeLeftDisplay') || document.getElementById('dash-countdown');
-
-            if (dbExpireDate) {
-                const expiryDate = parseExpiryDate(dbExpireDate);
-                if (now > expiryDate) {
-                    await handleAuthError("⚠️ ระยะเวลาใช้งานหมดอายุ");
+                if (data.allowMultiSession === false && data.currentSessionId && data.currentSessionId !== localSession) {
+                    await handleAuthError("⚠️ มีการล็อคอินซ้อน กำลังออกจากระบบ...");
                     return;
                 }
 
-                const diffMs = expiryDate - now;
-                const diffDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
-                const diffHours = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+                const isBanned = (data.status !== undefined && data.status !== 'active');
+                if (isBanned) {
+                    await handleAuthError("⚠️ บัญชีของคุณถูกระงับการใช้งาน");
+                    return;
+                }
+
+                const userNameElem = document.getElementById('userProfileName');
+                if (userNameElem) {
+                    userNameElem.innerText = data.username || user.email;
+                }
+
+                const now = new Date();
+                const dbExpireDate = data.expireAt || data.expiredAt; 
                 
-                if(countdownElem) countdownElem.innerText = `${diffDays} วัน ${diffHours} ชม.`;
-                if(expireDateElem) {
-                    const d = expiryDate;
-                    expireDateElem.innerText = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear() + 543} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')} น.`;
-                }
-            } else {
-                if(expireDateElem) expireDateElem.innerText = "กำลังโหลด...";
-                if(countdownElem) countdownElem.innerText = "กำลังโหลด...";
-            }
+                const expireDateElem = document.getElementById('userExpireDate') || document.getElementById('dash-expire-date'); 
+                const countdownElem = document.getElementById('userTimeLeft') || document.getElementById('timeLeftDisplay') || document.getElementById('dash-countdown');
 
-            // ------------------------------------------------
-            // 👥 3. ระบบนับจำนวนคนออนไลน์
-            // ------------------------------------------------
-            if (data.activeSessions) {
-                let activeCount = 0;
-                for (const [sid, timestamp] of Object.entries(data.activeSessions)) {
-                    if (now.getTime() - timestamp < 120000) { 
-                        activeCount++;
+                if (dbExpireDate) {
+                    const expiryDate = parseExpiryDate(dbExpireDate);
+                    if (now > expiryDate) {
+                        await handleAuthError("⚠️ ระยะเวลาใช้งานหมดอายุ");
+                        return;
                     }
+
+                    const diffMs = expiryDate - now;
+                    const diffDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+                    const diffHours = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+                    
+                    if(countdownElem) countdownElem.innerText = `${diffDays} วัน ${diffHours} ชม.`;
+                    if(expireDateElem) {
+                        const d = expiryDate;
+                        expireDateElem.innerText = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear() + 543} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')} น.`;
+                    }
+                } else {
+                    if(expireDateElem) expireDateElem.innerText = "กำลังโหลด...";
+                    if(countdownElem) countdownElem.innerText = "กำลังโหลด...";
                 }
-                const countElem = document.getElementById('active-devices-count');
-                if (countElem) countElem.innerText = activeCount;
+
+                if (data.activeSessions) {
+                    let activeCount = 0;
+                    for (const [sid, timestamp] of Object.entries(data.activeSessions)) {
+                        if (now.getTime() - timestamp < 360000) { // นับเฉพาะ 6 นาทีล่าสุด
+                            activeCount++;
+                        }
+                    }
+                    const countElem = document.getElementById('active-devices-count');
+                    if (countElem) countElem.innerText = activeCount;
+                }
+
+                document.body.style.display = ''; 
+
+            } else {
+                await handleAuthError("⚠️ ไม่พบข้อมูลสิทธิ์การใช้งานของคุณในระบบ");
             }
-
-            document.body.style.display = ''; 
-
-        } else {
-            await handleAuthError("⚠️ ไม่พบข้อมูลสิทธิ์การใช้งานของคุณในระบบ");
+        } catch (e) {
+            console.error(e);
         }
-    }, (error) => {});
+    };
+
+    updatePresence();
+    checkUserData();
+
+    presenceInterval = setInterval(() => {
+        updatePresence();
+        checkUserData();
+    }, 300000); 
 });
 
 // ==========================================
@@ -154,7 +165,6 @@ window.logoutApp = async () => {
         window.location.replace('login.html');
     });
 };
-
 
 const getVal = (id) => document.getElementById(id)?.value || '';
 const getCheck = (id) => document.getElementById(id)?.checked || false;
@@ -205,7 +215,6 @@ window.saveFavoriteToCloud = async function() {
             console.error(error); alert("❌ เกิดข้อผิดพลาดในการบันทึกข้อมูล"); 
         }
     } else {
-
         try {
             const userRef = doc(db, "users", window.currentUserUid);
             const updateData = {}; updateData[`slipFav_${bankKey}`] = favData;
@@ -250,70 +259,3 @@ window.loadFavoriteFromCloud = async function() {
         }
     }
 };
-// ==========================================
-// 📢 ระบบแจ้งเตือนอัปเดต (เด้งทุกครั้งที่เข้าสู่ระบบใหม่)
-// ==========================================
-setTimeout(() => {
-
-    const currentSession = localStorage.getItem('currentSessionId');
-
-    if (currentSession && sessionStorage.getItem('popup_shown_for_session') !== currentSession) {
-        
-        const overlay = document.createElement('div');
-        overlay.id = 'custom-update-popup';
-        overlay.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 9999; opacity: 0; transition: opacity 0.3s ease;
-            padding: 20px; box-sizing: border-box; font-family: 'Prompt', sans-serif;
-        `;
-
-        const modal = document.createElement('div');
-        modal.style.cssText = `
-            background: #ffffff; width: 100%; max-width: 450px;
-            border-radius: 16px; padding: 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            transform: translateY(-20px); transition: transform 0.3s ease;
-        `;
-
-        modal.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                <span style="font-size: 22px;">📢</span>
-                <h3 style="margin: 0; color: #1f2937; font-size: 18px; font-weight: 600;">อัปเดต!!!!!</h3>
-            </div>
-            
-            <p style="color: #4b5563; font-size: 14px; line-height: 1.6; margin-bottom: 15px;">
-                อัปเดตล่าสุด: อัปเดตธีมใหม่ล่าสุดสำหรับธนาคารกรุงไทย ( KTB )
-            </p>
-            
-            <div style="text-align: right;">
-                <button id="close-popup-btn" style="
-                    background: #4f46e5; color: white; border: none;
-                    padding: 10px 25px; border-radius: 50px; font-size: 14px; font-weight: 500;
-                    cursor: pointer; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
-                    transition: background 0.2s; font-family: 'Prompt', sans-serif;
-                ">ตกลง รับทราบ</button>
-            </div>
-        `;
-
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-
-        requestAnimationFrame(() => {
-            overlay.style.opacity = '1';
-            modal.style.transform = 'translateY(0)';
-        });
-
-        document.getElementById('close-popup-btn').addEventListener('click', () => {
-            overlay.style.opacity = '0';
-            modal.style.transform = 'translateY(-20px)';
-            
-            setTimeout(() => {
-                overlay.remove();
-
-                sessionStorage.setItem('popup_shown_for_session', currentSession);
-            }, 300);
-        });
-    }
-}, 1000);
