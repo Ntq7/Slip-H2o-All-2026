@@ -293,7 +293,8 @@
                 </div>
             </div>
 
-            <div class="form-section-card">
+            <!-- 👇 อัปเดต: เพิ่ม style="position: relative; z-index: 10;" เข้าไปที่กล่องนี้ 👇 -->
+            <div class="form-section-card" style="position: relative; z-index: 10;">
                 <div class="form-section-title"><i class="bi bi-person-vcard fs-5"></i> ข้อมูลบัญชี</div>
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -309,25 +310,36 @@
                         <input type="text" class="form-control mb-3" id="receiveraccount" name="receiveraccount" value="XXX-X-XX142-6" oninput="triggerUpdate()">
                         
                         <label for="bank" class="form-label text-primary">ธนาคารปลายทาง</label>
-                        <select class="form-select" id="bank" name="bank" onchange="autoFormatAccount(); triggerUpdate()">
-                            <option value="KBANK">ธ.กสิกรไทย</option>
-                            <option value="KTB">ธ.กรุงไทย</option>
-                            <option value="BBL">ธ.กรุงเทพ</option>
-                            <option value="SCB">ธ.ไทยพาณิชย์</option>
-                            <option value="BAY">ธ.กรุงศรีอยุธยา</option>
-                            <option value="ttb" selected>ธ.ทหารไทยธนชาต</option>
-                            <option value="GSB">ธ.ออมสิน</option>
-                            <option value="BAAC">ธ.ก.ส.</option>
-                            <option value="GHB">ธ.อาคารสงเคราะห์</option>
-                            <option value="KKP">ธ.เกียรตินาคินภัทร</option>
-                            <option value="CIMB">ธ.ซีไอเอ็มบี</option>
-                            <option value="UOB">ธ.ยูโอบี</option>
-                            <option value="LH BANK">ธ.แลนด์ แอนด์ เฮาส์</option>
-                            <option value="ICBC">ธ.ไอซีบีซี</option>
-                            <option value="PromptPay">พร้อมเพย์</option>
-                            <option value="PromptPay e-Wallet">พร้อมเพย์วอลเล็ท</option>
-                            <option value="ChillPay">ChillPay</option>
-                        </select>
+                        
+                        <input type="hidden" id="bank" name="bank" value="ttb">
+                        
+                        <div class="dropdown w-100">
+                            <button class="form-select d-flex align-items-center justify-content-between w-100" type="button" id="bankDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" style="text-align: left; background-color: var(--input-bg); border-color: var(--card-border); color: var(--text-main);">
+                                <div id="selectedBankDisplay" class="d-flex align-items-center">
+                                    <img src="assets/image/logo1/p-ttb.png" style="width: 22px; height: 22px; margin-right: 8px; object-fit: contain;">
+                                    <span>ธ.ทหารไทยธนชาต</span>
+                                </div>
+                            </button>
+                            <ul class="dropdown-menu w-100 shadow" aria-labelledby="bankDropdownBtn" style="max-height: 250px; overflow-y: auto; background-color: var(--input-bg); backdrop-filter: blur(25px);">
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="KBank" data-text="ธ.กสิกรไทย" data-img="assets/image/logo/KBANK1.3.png"><img src="assets/image/logo/KBANK1.3.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.กสิกรไทย</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="KTB" data-text="ธ.กรุงไทย" data-img="assets/image/logo/KTB2.png"><img src="assets/image/logo/KTB2.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.กรุงไทย</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="BBL" data-text="ธ.กรุงเทพ" data-img="assets/image/logo/BBL4.png"><img src="assets/image/logo/BBL4.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.กรุงเทพ</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="SCB" data-text="ธ.ไทยพาณิชย์" data-img="assets/image/logo/SCB.png"><img src="assets/image/logo/SCB.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ไทยพาณิชย์</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="BAY" data-text="ธ.กรุงศรี" data-img="assets/image/logo/BAY2.1.png"><img src="assets/image/logo/BAY2.1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.กรุงศรี</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ttb" data-text="ธ.ทหารไทยธนชาต" data-img="assets/image/logo/TTB2.png"><img src="assets/image/logo/TTB2.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ทหารไทยธนชาต</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="GSB" data-text="ธ.ออมสิน" data-img="assets/image/logo/O2.png"><img src="assets/image/logo/O2.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ออมสิน</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="BAAC" data-text="ธ.ก.ส." data-img="assets/image/logo/T2.png"><img src="assets/image/logo/T2.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ก.ส.</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="GHB" data-text="ธ.อาคารสงเคราะห์" data-img="assets/image/logo/C1.png"><img src="assets/image/logo/C1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.อาคารสงเคราะห์</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="KKP" data-text="ธ.เกียรตินาคินภัทร" data-img="assets/image/logo/K1.png"><img src="assets/image/logo/K1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.เกียรตินาคินภัทร</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="CIMB" data-text="ธ.ซีไอเอ็มบี" data-img="assets/image/logo/CIMB.png"><img src="assets/image/logo/CIMB.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ซีไอเอ็มบี</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="UOB" data-text="ธ.ยูโอบี" data-img="assets/image/logo/UOB4.png"><img src="assets/image/logo/UOB4.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ยูโอบี</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="LH BANK" data-text="ธ.แลนด์ แอนด์ เฮาส์" data-img="assets/image/logo/LHBANK1.png"><img src="assets/image/logo/LHBANK1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.แลนด์ แอนด์ เฮาส์</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ICBC" data-text="ธ.ไอซีบีซี" data-img="assets/image/logo/ICBC.png"><img src="assets/image/logo/ICBC.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ไอซีบีซี</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="PromptPay" data-text="พร้อมเพย์" data-img="assets/image/logo/P-TTB1.png"><img src="assets/image/logo/P-TTB1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> พร้อมเพย์</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="PromptPay e-Wallet" data-text="พร้อมเพย์วอลเล็ท" data-img="assets/image/logo/P-TTB1.png"><img src="assets/image/logo/P-TTB1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> พร้อมเพย์วอลเล็ท</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ChillPay" data-text="ChillPay" data-img="assets/image/logo/CP-TTB.png"><img src="assets/image/logo/CP-TTB.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ChillPay</a></li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="col-12 mt-1">
                         <label for="Itemcode" class="form-label" style="font-size: 0.75rem; color: var(--warning-color);">รหัสรายการ (เฉพาะ ChillPay)</label>
@@ -449,11 +461,47 @@
     // 🛑 กำหนดป้ายกำกับว่าหน้านี้คือธนาคาร TTB
     window.CURRENT_BANK = "TTB";
 
+    // 👇 ฟังก์ชันเพื่อให้รูปอัปเดตตรงกับธนาคารเสมอ 👇
+    function syncBankDropdown() {
+        const val = document.getElementById('bank').value;
+        const items = document.querySelectorAll('.bank-item');
+        items.forEach(item => {
+            if(item.getAttribute('data-val') === val) {
+                const text = item.getAttribute('data-text');
+                const img = item.getAttribute('data-img');
+                const display = document.getElementById('selectedBankDisplay');
+                if(img) {
+                    display.innerHTML = `<img src="${img}" style="width: 22px; height: 22px; margin-right: 8px; object-fit: contain;"> <span>${text}</span>`;
+                } else {
+                    display.innerHTML = `<span>${text}</span>`;
+                }
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         document.getElementById('datetime-input').value = now.toISOString().slice(0, 19);
         setTimeout(function() { triggerUpdate(); }, 500);
+
+        // จัดการเหตุการณ์เมื่อคลิกเลือกธนาคารจากลิสต์
+        const bankItems = document.querySelectorAll('.bank-item');
+        bankItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                // 1. นำค่าที่เลือกไปเก็บใน hidden input
+                document.getElementById('bank').value = this.getAttribute('data-val');
+                // 2. เปลี่ยนภาพและข้อความให้ตรงกับที่เลือก
+                syncBankDropdown();
+                // 3. สั่งรันระบบเปลี่ยนเลขบัญชีและรูปสลิป
+                autoFormatAccount();
+                triggerUpdate();
+            });
+        });
+        
+        // ดึงรูปและข้อความมาโชว์ในตอนโหลดหน้าเว็บครั้งแรก
+        syncBankDropdown();
     });
 
     function autoFormatAccount() {
@@ -513,8 +561,10 @@
         document.getElementById('amountDecimal').value = '.00';
         document.getElementById('Itemcode').value = '0027276046';
         
-        // เลื่อน dropdown กลับไปที่ TTB
+        // เด้งกลับมาที่ค่าเดิม และอัปเดตโชว์รูป TTB คืน
         document.getElementById('bank').value = 'ttb'; 
+        syncBankDropdown();
+        
         document.getElementById('imageSelect').selectedIndex = 0;
         document.getElementById('backgroundSelect').selectedIndex = 0;
         
@@ -537,6 +587,8 @@
     }
 
     window.triggerUpdate = function() {
+        syncBankDropdown(); // อัปเดตรูปโลโก้กันเหนียวกรณีโหลดข้อมูลรายการโปรดมาใส่
+        
         const mc = document.getElementById('modeSwitch');
         if (mc && mc.checked) {
             if (typeof window.updateDisplayNote === 'function') window.updateDisplayNote();

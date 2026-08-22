@@ -1,6 +1,3 @@
-// js/banks/slip_ttb.js
-// รวมระบบสร้างสลิป TTB (ทหารไทยธนชาต) ทั้งโหมดปกติ และ โหมดบันทึกช่วยจำ (Note)
-
 (function() {
     const fontPath = 'assets/fonts';
     let fontsLoaded = false;

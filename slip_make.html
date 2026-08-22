@@ -111,6 +111,13 @@
         }
         .preview-tooltip.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
         .preview-tooltip img { width: 200px; height: auto; border-radius: 10px; display: block; }
+
+        /* 👇 CSS เสริมเพื่อให้ Custom Dropdown สวยและเข้ากับ Theme 👇 */
+        .dropdown-item { color: var(--text-main); font-size: 0.9rem; padding: 10px 15px; }
+        .dropdown-item:hover { background-color: var(--primary-glow); color: var(--text-main); }
+        body.theme-dark .dropdown-menu { background-color: #1e293b; border-color: var(--card-border); }
+        body.theme-dark .dropdown-item { color: #f8fafc; }
+        body.theme-dark .dropdown-item:hover { background-color: rgba(6, 182, 212, 0.4); color: #fff; }
     </style>
 </head>
 <body style="display: none;">
@@ -265,7 +272,8 @@
                 </div>
             </div>
 
-            <div class="form-section-card">
+            <!-- 👇 อัปเดต: เพิ่ม z-index 10 ตรงนี้ เพื่อให้กล่องบัญชีอยู่เหนือกล่องอื่น 👇 -->
+            <div class="form-section-card" style="position: relative; z-index: 10;">
                 <div class="form-section-title"><i class="bi bi-person-vcard fs-5"></i> ข้อมูลบัญชี</div>
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -280,25 +288,42 @@
                         <label for="receiveraccount" class="form-label text-primary">เลขบัญชีผู้รับ</label>
                         <input type="text" class="form-control mb-3" id="receiveraccount" name="receiveraccount" value="xxx-x-x0000-x" oninput="triggerUpdate()">
                         
+                        <!-- 👇 เพิ่มระบบ Custom Dropdown แบบมีรูป ของ MAKE 👇 -->
                         <label for="bank" class="form-label text-primary">ธนาคารปลายทาง</label>
-                        <select class="form-select" id="bank" name="bank" onchange="autoFormatAccount(); triggerUpdate()">
-                            <option value="ธ.กสิกรไทย">ธ.กสิกรไทย</option>
-                            <option value="ธ.กรุงไทย">ธ.กรุงไทย</option>
-                            <option value="ธ.กรุงเทพ">ธ.กรุงเทพ</option>
-                            <option value="ธ.ไทยพาณิชย์">ธ.ไทยพาณิชย์</option>
-                            <option value="ธ.กรุงศรีอยุธยา">ธ.กรุงศรีอยุธยา</option>
-                            <option value="ธ.ทหารไทยธนชาต">ธ.ทหารไทยธนชาต</option>
-                            <option value="ธ.ออมสิน">ธ.ออมสิน</option>
-                            <option value="ธ.ก.ส.">ธ.ก.ส.</option>
-                            <option value="ธ.อาคารสงเคราะห์">ธ.อาคารสงเคราะห์</option>
-                            <option value="ธ.เกียรตินาคินภัทร">ธ.เกียรตินาคินภัทร</option>
-                            <option value="ธ.ซีไอเอ็มบีไทย">ธ.ซีไอเอ็มบีไทย</option>
-                            <option value="ธ.ยูโอบี">ธ.ยูโอบี</option>
-                            <option value="ธ.แลนด์ แอนด์ เฮ้าส์">ธ.แลนด์ แอนด์ เฮ้าส์</option>
-                            <option value="ธ.ไอซีบีซี">ธ.ไอซีบีซี</option>
-                            <option value="พร้อมเพย์">พร้อมเพย์</option>
-                            <option value="พร้อมเพย์วอลเล็ท">พร้อมเพย์วอลเล็ท</option>
-                        </select>
+                        
+                        <!-- ซ่อน Select เดิมไว้เพื่อเก็บค่า -->
+                        <input type="hidden" id="bank" name="bank" value="ธ.กสิกรไทย">
+                        
+                        <!-- สร้างปุ่ม Dropdown จำลองให้หน้าตาเหมือน select ของเดิม -->
+                        <div class="dropdown w-100">
+                            <button class="form-select d-flex align-items-center justify-content-between w-100" type="button" id="bankDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" style="text-align: left; background-color: var(--input-bg); border-color: var(--card-border); color: var(--text-main);">
+                                <div id="selectedBankDisplay" class="d-flex align-items-center">
+                                    <img src="assets/image/logo/KBANK1.3.png" style="width: 22px; height: 22px; margin-right: 8px; object-fit: contain;">
+                                    <span>ธ.กสิกรไทย</span>
+                                </div>
+                            </button>
+                            
+                            <!-- ลิสต์รายชื่อพร้อมรูปภาพ (ดึง Path รูปภาพจากโค้ดใหม่ทั้งหมด และยึด Value ตามเดิมเป๊ะๆ) -->
+                            <ul class="dropdown-menu w-100 shadow" aria-labelledby="bankDropdownBtn" style="max-height: 250px; overflow-y: auto; background-color: var(--input-bg); backdrop-filter: blur(25px);">
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.กสิกรไทย" data-text="ธ.กสิกรไทย" data-img="assets/image/logo/KBANK1.3.png"><img src="assets/image/logo/KBANK1.3.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.กสิกรไทย</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.กรุงไทย" data-text="ธ.กรุงไทย" data-img="assets/image/logo/KTB2.png"><img src="assets/image/logo/KTB2.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.กรุงไทย</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.กรุงเทพ" data-text="ธ.กรุงเทพ" data-img="assets/image/logo/BBL4.png"><img src="assets/image/logo/BBL4.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.กรุงเทพ</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.ไทยพาณิชย์" data-text="ธ.ไทยพาณิชย์" data-img="assets/image/logo/SCB.png"><img src="assets/image/logo/SCB.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ไทยพาณิชย์</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.กรุงศรีอยุธยา" data-text="ธ.กรุงศรีอยุธยา" data-img="assets/image/logo/BAY2.1.png"><img src="assets/image/logo/BAY2.1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.กรุงศรีอยุธยา</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.ทหารไทยธนชาต" data-text="ธ.ทหารไทยธนชาต" data-img="assets/image/logo/TTB2.png"><img src="assets/image/logo/TTB2.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ทหารไทยธนชาต</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.ออมสิน" data-text="ธ.ออมสิน" data-img="assets/image/logo/O2.png"><img src="assets/image/logo/O2.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ออมสิน</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.ก.ส." data-text="ธ.ก.ส." data-img="assets/image/logo/T2.png"><img src="assets/image/logo/T2.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ก.ส.</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.อาคารสงเคราะห์" data-text="ธ.อาคารสงเคราะห์" data-img="assets/image/logo/C1.png"><img src="assets/image/logo/C1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.อาคารสงเคราะห์</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.เกียรตินาคินภัทร" data-text="ธ.เกียรตินาคินภัทร" data-img="assets/image/logo/K1.png"><img src="assets/image/logo/K1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.เกียรตินาคินภัทร</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.ซีไอเอ็มบีไทย" data-text="ธ.ซีไอเอ็มบีไทย" data-img="assets/image/logo/CIMB.png"><img src="assets/image/logo/CIMB.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ซีไอเอ็มบีไทย</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.ยูโอบี" data-text="ธ.ยูโอบี" data-img="assets/image/logo/UOB4.png"><img src="assets/image/logo/UOB4.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ยูโอบี</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.แลนด์ แอนด์ เฮ้าส์" data-text="ธ.แลนด์ แอนด์ เฮ้าส์" data-img="assets/image/logo/LHBANK1.png"><img src="assets/image/logo/LHBANK1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.แลนด์ แอนด์ เฮ้าส์</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.ไอซีบีซี" data-text="ธ.ไอซีบีซี" data-img="assets/image/logo/ICBC.png"><img src="assets/image/logo/ICBC.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ไอซีบีซี</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="พร้อมเพย์" data-text="พร้อมเพย์" data-img="assets/image/logo/P-TTB1.png"><img src="assets/image/logo/P-TTB1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> พร้อมเพย์</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="พร้อมเพย์วอลเล็ท" data-text="พร้อมเพย์วอลเล็ท" data-img="assets/image/logo/P-TTB1.png"><img src="assets/image/logo/P-TTB1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> พร้อมเพย์วอลเล็ท</a></li>
+                            </ul>
+                        </div>
+                        <!-- 👆 สิ้นสุดการเพิ่ม Custom Dropdown 👆 -->
                     </div>
                 </div>
             </div>
@@ -369,11 +394,43 @@
     // 🛑 กำหนดป้ายกำกับว่าหน้านี้คือธนาคาร MAKE
     window.CURRENT_BANK = "MAKE";
 
+    // 👇 ฟังก์ชันเพื่อให้รูปอัปเดตตรงกับธนาคารเสมอ 👇
+    function syncBankDropdown() {
+        const val = document.getElementById('bank').value;
+        const items = document.querySelectorAll('.bank-item');
+        items.forEach(item => {
+            if(item.getAttribute('data-val') === val) {
+                const text = item.getAttribute('data-text');
+                const img = item.getAttribute('data-img');
+                const display = document.getElementById('selectedBankDisplay');
+                if(img) {
+                    display.innerHTML = `<img src="${img}" style="width: 22px; height: 22px; margin-right: 8px; object-fit: contain;"> <span>${text}</span>`;
+                } else {
+                    display.innerHTML = `<span>${text}</span>`;
+                }
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         document.getElementById('datetime-input').value = now.toISOString().slice(0, 19);
         setTimeout(function() { triggerUpdate(); }, 500);
+
+        // จัดการเหตุการณ์เมื่อคลิกเลือกธนาคารจากลิสต์
+        const bankItems = document.querySelectorAll('.bank-item');
+        bankItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('bank').value = this.getAttribute('data-val');
+                syncBankDropdown();
+                autoFormatAccount();
+                triggerUpdate();
+            });
+        });
+        
+        syncBankDropdown(); // ดึงรูปมาโชว์ในตอนโหลดหน้าเว็บครั้งแรก
     });
 
     function autoFormatAccount() {
@@ -418,7 +475,10 @@
         document.getElementById('receiveraccount').value = 'xxx-x-x0000-x';
         document.getElementById('amount11').value = '3,300.00';
         
-        document.getElementById('bank').selectedIndex = 0;
+        // เด้งกลับมาที่ค่าเดิม และอัปเดตโชว์รูป KBank คืน
+        document.getElementById('bank').value = 'ธ.กสิกรไทย'; 
+        syncBankDropdown();
+        
         document.getElementById('imageSelect').selectedIndex = 0;
         document.getElementById('backgroundSelect').selectedIndex = 0;
         
@@ -442,6 +502,8 @@
 
     // 🟢 เปลี่ยนจากของเก่า ให้วิ่งเข้าสู่ฟังก์ชันใหม่แทน
     window.triggerUpdate = function() {
+        syncBankDropdown(); // อัปเดตรูปโลโก้กันเหนียวกรณีโหลดข้อมูลรายการโปรดมาใส่
+
         const mc = document.getElementById('modeSwitch');
         if (mc && mc.checked) {
             if (typeof window.updateDisplayNote === 'function') window.updateDisplayNote();

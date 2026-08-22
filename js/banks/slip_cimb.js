@@ -221,8 +221,8 @@
             case 'ธ.ยูโอบี': bankLogoUrl = 'assets/image/logo/UOB.png'; break;
             case 'ธ.แลนด์ แอนด์ เฮาส์': bankLogoUrl = 'assets/image/logo/LHBANK.png'; break;
             case 'ธ.ไอซีบีซี': bankLogoUrl = 'assets/image/logo/ICBC.png'; break;
-            case 'พร้อมเพย์': bankLogoUrl = 'assets/image/logo/P-Krungsri.png'; break;
-            case 'พร้อมเพย์วอลเล็ท': bankLogoUrl = 'assets/image/logo/P-Krungsri1.png'; break;
+            case 'พร้อมเพย์': bankLogoUrl = 'assets/image/logo/P-cimb.png'; break;
+            case 'พร้อมเพย์วอลเล็ท': bankLogoUrl = 'assets/image/logo/P-cimb.png'; break;
             case 'MetaAds': bankLogoUrl = 'assets/image/logo/Meta3.png'; break;
             default: bankLogoUrl = '';
         }
