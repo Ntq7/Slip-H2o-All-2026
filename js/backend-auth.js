@@ -1,9 +1,9 @@
 import { auth, dbFirestore as db } from "./firebase-config.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { doc, getDoc, setDoc, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 window.currentUserUid = null;
-window.allowMultiSession = false; 
+window.maxSessions = 1; 
 let presenceInterval = null; 
 
 // ==========================================
@@ -26,7 +26,7 @@ async function handleAuthError(message) {
 }
 
 // ==========================================
-// 🔐 ระบบตรวจสอบสถานะผู้ใช้งาน (แบบประหยัดโควตา)
+// 🔐 ระบบตรวจสอบสถานะผู้ใช้งาน (พร้อม Auto-Healing)
 // ==========================================
 onAuthStateChanged(auth, (user) => {
     if (!user) {
@@ -51,12 +51,26 @@ onAuthStateChanged(auth, (user) => {
             const docSnap = await getDoc(userRef);
             if (docSnap.exists()) {
                 const data = docSnap.data();
+                let activeSessions = data.activeSessions || {};
+                
+                window.maxSessions = data.maxSessions || 1; 
 
-                window.allowMultiSession = data.allowMultiSession === true;
+                if (!activeSessions[localSession]) {
+                    const currentCount = Object.keys(activeSessions).length;
+                    
+                    if (currentCount < window.maxSessions) {
+                        activeSessions[localSession] = Date.now();
+                        await setDoc(userRef, { activeSessions: activeSessions }, { merge: true });
+                    } else {
 
-                if (data.allowMultiSession === false && data.currentSessionId && data.currentSessionId !== localSession) {
-                    await handleAuthError("⚠️ มีการล็อคอินซ้อน กำลังออกจากระบบ...");
-                    return;
+                        await handleAuthError("⚠️ บัญชีนี้มีคนใช้งานเต็มโควต้าแล้ว...");
+                        return;
+                    }
+                }
+
+                const activeCountElem = document.getElementById('active-devices-count');
+                if (activeCountElem) {
+                    activeCountElem.textContent = Object.keys(activeSessions).length;
                 }
 
                 const isBanned = (data.status !== undefined && data.status !== 'active');
@@ -70,9 +84,7 @@ onAuthStateChanged(auth, (user) => {
                     userNameElem.innerText = data.username || user.email;
                 }
 
-                // ========================================================
-                // 🕒 จัดการแสดงผลวันหมดอายุ
-                // ========================================================
+                // จัดการแสดงผลวันหมดอายุ
                 const now = new Date();
                 const dbExpireDate = data.expireAt || data.expiredAt || data.expireDate || data.expiryDate; 
                 
@@ -87,25 +99,34 @@ onAuthStateChanged(auth, (user) => {
                 };
 
                 if (dbExpireDate) {
-                    const expiryDate = parseExpiryDate(dbExpireDate);
-                    if (now > expiryDate) {
+                    let expVal = dbExpireDate;
+                    let realExpireDate;
+                    
+                    if (typeof expVal.toDate === 'function') {
+                        realExpireDate = expVal.toDate();
+                    } else if (!isNaN(expVal) && expVal !== null && expVal !== "") {
+                        realExpireDate = new Date(Number(expVal));
+                    } else {
+                        realExpireDate = new Date(expVal);
+                    }
+
+                    if (now > realExpireDate) {
                         await handleAuthError("⚠️ ระยะเวลาใช้งานหมดอายุ");
                         return;
                     }
 
-                    const diffMs = expiryDate - now;
+                    const diffMs = realExpireDate - now;
                     const diffDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
                     const diffHours = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
                     
                     setTexts(countdownIds, `${diffDays} วัน ${diffHours} ชม.`);
                     
-                    const d = expiryDate;
+                    const d = realExpireDate;
                     setTexts(expireIds, `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear() + 543} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')} น.`);
                 } else {
                     setTexts(expireIds, "ตลอดชีพ / ไม่จำกัด");
                     setTexts(countdownIds, "ใช้งานได้ถาวร");
                 }
-
                 document.body.style.display = ''; 
 
             } else {
@@ -116,20 +137,23 @@ onAuthStateChanged(auth, (user) => {
         }
     };
 
-    // รันเช็คข้อมูลครั้งแรก
     checkUserData();
-
-    // เช็คซ้ำทุกๆ 10 นาที (600,000 มิลลิวินาที) เพื่อประหยัดโควตาขั้นสุด
-    presenceInterval = setInterval(() => {
-        checkUserData();
-    }, 600000); 
+    presenceInterval = setInterval(() => { checkUserData(); }, 600000); 
 });
 
-// ==========================================
-// 🚪 ระบบออกจากระบบ 
-// ==========================================
 window.logoutApp = async () => {
     if (presenceInterval) clearInterval(presenceInterval);
+    const localSession = localStorage.getItem('currentSessionId');
+    
+    if (window.currentUserUid && localSession) {
+        try {
+            const userRef = doc(db, "users", window.currentUserUid);
+            const updateData = {};
+            updateData[`activeSessions.${localSession}`] = deleteField();
+            await updateDoc(userRef, updateData);
+        } catch(e) {}
+    }
+
     signOut(auth).then(() => {
         localStorage.removeItem('currentSessionId');
         window.location.replace('login.html');
@@ -179,13 +203,18 @@ window.saveFavoriteToCloud = async function() {
         customImageDataUrl: getVal('customImageDataUrl')
     };
 
-    try {
-        const userRef = doc(db, "users", window.currentUserUid);
-        const updateData = {}; updateData[`slipFav_${bankKey}`] = favData;
-        await setDoc(userRef, updateData, { merge: true });
-        alert("✅ บันทึกรายการโปรดแล้ว");
-    } catch (error) { 
-        console.error(error); alert("❌ เกิดข้อผิดพลาด"); 
+    if (window.maxSessions > 1) {
+        localStorage.setItem(`slipFav_${bankKey}`, JSON.stringify(favData));
+        alert("✅ บันทึกรายการโปรดแล้ว");//เครื่อง
+    } else {
+        try {
+            const userRef = doc(db, "users", window.currentUserUid);
+            const updateData = {}; updateData[`slipFav_${bankKey}`] = favData;
+            await setDoc(userRef, updateData, { merge: true });
+            alert("✅ บันทึกรายการโปรดแล้ว");//คลาวด์
+        } catch (error) { 
+            console.error(error); alert("❌ เกิดข้อผิดพลาด"); 
+        }
     }
 };
 
@@ -193,17 +222,26 @@ window.loadFavoriteFromCloud = async function() {
     if (!window.currentUserUid) return alert("⚠️ กรุณาเข้าสู่ระบบ");
     const bankKey = window.CURRENT_BANK || 'GENERAL'; 
     
-    try {
-        const userRef = doc(db, "users", window.currentUserUid);
-        const docSnap = await getDoc(userRef);
-        const favKey = `slipFav_${bankKey}`;
-        if (docSnap.exists() && docSnap.data()[favKey]) {
-            const f = docSnap.data()[favKey];
-            applyFavoriteDataToScreen(f);
-        } else { 
-            alert(`⚠️ ยังไม่ได้บันทึกรายการโปรด`); 
+    if (window.maxSessions > 1) {
+        const localData = localStorage.getItem(`slipFav_${bankKey}`);
+        if (localData) {
+            applyFavoriteDataToScreen(JSON.parse(localData));
+        } else {
+            alert(`⚠️ ยังไม่ได้บันทึกรายการโปรด`);
         }
-    } catch (error) { 
-        console.error(error); alert("❌ เกิดข้อผิดพลาด"); 
+    } else {
+        try {
+            const userRef = doc(db, "users", window.currentUserUid);
+            const docSnap = await getDoc(userRef);
+            const favKey = `slipFav_${bankKey}`;
+            if (docSnap.exists() && docSnap.data()[favKey]) {
+                const f = docSnap.data()[favKey];
+                applyFavoriteDataToScreen(f);
+            } else { 
+                alert(`⚠️ ยังไม่ได้บันทึกรายการโปรด`); 
+            }
+        } catch (error) { 
+            console.error(error); alert("❌ เกิดข้อผิดพลาดในการโหลด"); 
+        }
     }
 };

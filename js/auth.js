@@ -1,7 +1,6 @@
 import { auth, db } from './firebase-config.js';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-// ✨ เพิ่ม updateDoc และ onSnapshot เข้ามาสำหรับการทำระบบ 1 เครื่อง
-import { doc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { doc, getDoc, updateDoc, setDoc, onSnapshot, deleteField } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 let timerInterval;
 
@@ -14,8 +13,11 @@ onAuthStateChanged(auth, async (user) => {
 
     if (user) {
         if (isLoginPage) {
-            window.location.replace("dashboard.html");
-            return;
+            // อนุญาตให้เด้งไป Dashboard ก็ต่อเมื่อมี Session ฝังในเครื่องแล้วเท่านั้น
+            if (localStorage.getItem("currentSessionId")) {
+                window.location.replace("index.html"); 
+            }
+            return; 
         }
 
         if (isDashboard) {
@@ -25,65 +27,57 @@ onAuthStateChanged(auth, async (user) => {
                 onSnapshot(userRef, (docSnap) => {
                     if (docSnap.exists()) {
                         const userData = docSnap.data();
-                        const dbSessionId = userData.currentSessionId;
-                        const mySessionId = localStorage.getItem("myLocalSessionId");
+                        
+                        // ✨ อัปเดตตัวเลขจำนวนคนที่ออนไลน์
+                        const activeSessions = userData.activeSessions || {};
+                        const activeCountElem = document.getElementById('active-devices-count');
+                        if (activeCountElem) {
+                            activeCountElem.textContent = Object.keys(activeSessions).length;
+                        }
 
-                        if (dbSessionId && dbSessionId !== mySessionId) {
-                            alert("⚠️ มีการล็อคอินซ้อน กำลังออกจากระบบ...");
+                        // ✨ เช็คโดนเตะแบบทันที ไม่มีหน่วงเวลา
+                        const mySessionId = localStorage.getItem("currentSessionId");
+                        if (mySessionId && !activeSessions[mySessionId]) {
+                            alert("⚠️ เซสชั่นหมดอายุ กำลังออกจากระบบ...");
                             window.logoutUser(); 
-                            return; 
                         }
                     }
                 });
 
                 const userDoc = await getDoc(userRef);
-                
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    
-                    // เอาข้อมูลมาโชว์บนหน้าจอ
                     document.getElementById('dash-username').textContent = userData.username || user.email;
                     
                     if (userData.expireAt) {
                         document.getElementById('dash-expire-date').textContent = formatDate(userData.expireAt);
                         startTimer(userData.expireAt); 
                     } else {
-                        document.getElementById('dash-expire-date').textContent = "ไม่ได้กำหนดวันหมดอายุ";
-                        document.getElementById('dash-countdown').textContent = "-";
+                        document.getElementById('dash-expire-date').textContent = "ตลอดชีพ";
+                        document.getElementById('dash-countdown').textContent = "ไม่จำกัดเวลา";
                     }
 
                     setTimeout(() => {
                         const premiumBtn = document.getElementById('btn-mode-premium');
-                        if (premiumBtn) {
-                            premiumBtn.click(); 
-                        } else if (typeof switchSystemMode === 'function') {
-                            switchSystemMode('premium'); 
-                        }
+                        if (premiumBtn) premiumBtn.click(); 
+                        else if (typeof switchSystemMode === 'function') switchSystemMode('premium'); 
                     }, 300); 
 
-                } else {
-                    document.getElementById('dash-username').textContent = user.email;
-                    document.getElementById('dash-countdown').textContent = "⚠️ ไม่พบข้อมูลเวลา";
                 }
             } catch (error) {
                 console.error("เกิดข้อผิดพลาดในการดึงข้อมูล:", error);
             }
         }
-
     } else {
         if (!isLoginPage) {
             localStorage.setItem('auth_error_alert', 'true');
-            window.location.replace("index.html");
+            window.location.replace("login.html");
         }
     }
 });
 
-// ==========================================
-// 2. ฟังก์ชันจับเวลาถอยหลัง (ใช้เวลาจาก Server)
-// ==========================================
 function startTimer(expireAt) {
     clearInterval(timerInterval);
-    
     timerInterval = setInterval(() => {
         const now = Date.now(); 
         const remainingTime = expireAt - now;
@@ -92,7 +86,6 @@ function startTimer(expireAt) {
             document.getElementById('dash-countdown').textContent = "หมดเวลาการใช้งาน";
             document.getElementById('dash-countdown').className = "text-sm font-bold font-mono text-red-500 animate-pulse";
             clearInterval(timerInterval);
-            
             setTimeout(() => window.logoutUser(), 3000); 
         } else {
             const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
@@ -110,10 +103,9 @@ function startTimer(expireAt) {
     }, 1000); 
 }
 
-// แปลงตัวเลขเป็นวันที่สวยๆ
 function formatDate(timestamp) {
     const d = new Date(timestamp);
-    return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}  ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}  ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')} น.`;
 }
 
 // ==========================================
@@ -152,18 +144,33 @@ if (loginBtn) {
                     showError("⚠️ วันใช้งานของคุณหมดอายุ ติดต่อผู้ดูแล");
                     await signOut(auth);
                 } else {
-                    // ----------------------------------------------------
-                    // ✨ NEW: สร้าง Session ID ใหม่ตอนล็อกอิน และบันทึก
-                    // ----------------------------------------------------
+                    const activeSessions = userData.activeSessions || {};
+                    const currentActiveCount = Object.keys(activeSessions).length;
+                    
+                    const maxSessions = userData.maxSessions || 1;
+
+                    // ✨ [ระบบกฎเหล็ก] ถ้าเต็มโควต้า บล็อกทันที!
+                    if (currentActiveCount >= maxSessions) {
+                        showError(`⚠️ ใช้งานครบโควต้าแล้ว (${maxSessions} เครื่อง)`);
+                        await signOut(auth);
+                        return;
+                    }
+
                     const newSessionId = "SESSION_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
-                    localStorage.setItem("myLocalSessionId", newSessionId); 
+                    activeSessions[newSessionId] = Date.now(); 
+
+                    // บังคับสร้างข้อมูลกล่อง activeSessions
+                    await setDoc(userRef, { 
+                        activeSessions: activeSessions,
+                        currentSessionId: newSessionId 
+                    }, { merge: true });
                     
-                    await updateDoc(userRef, { currentSessionId: newSessionId });
+                    localStorage.setItem("currentSessionId", newSessionId); 
                     
-                    window.location.replace("dashboard.html");
+                    window.location.replace("index.html");
                 }
             } else {
-                showError("ไม่พบข้อมูลผู้ใช้งานในฐานข้อมูล");
+                showError("ไม่พบข้อมูล");
                 await signOut(auth);
             }
         } catch (error) {
@@ -187,14 +194,27 @@ if (loginBtn) {
 }
 
 // ==========================================
-// 4. ฟังก์ชันออกจากระบบ (Global)
+// 4. ฟังก์ชันออกจากระบบ 
 // ==========================================
 window.logoutUser = async function() {
     try {
-        localStorage.removeItem("myLocalSessionId"); 
+        const mySessionId = localStorage.getItem("currentSessionId");
+        const user = auth.currentUser;
         
+        // 1. สั่งลบข้อมูลออกจาก Firebase ให้เสร็จก่อน
+        if (user && mySessionId) {
+            const userRef = doc(db, "users", user.uid);
+            const updateData = {};
+            updateData[`activeSessions.${mySessionId}`] = deleteField();
+            await updateDoc(userRef, updateData);
+        }
+
+        // 2. เคลียร์ข้อมูลในความจำเครื่อง
+        localStorage.removeItem("currentSessionId"); 
+        
+        // 3. สั่งออกจากระบบ
         await signOut(auth);
-        window.location.replace("index.html");
+        window.location.replace("login.html");
     } catch (error) {
         console.error("Error logging out:", error);
     }
