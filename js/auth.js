@@ -13,37 +13,42 @@ onAuthStateChanged(auth, async (user) => {
 
     if (user) {
         if (isLoginPage) {
-            // อนุญาตให้เด้งไป Dashboard ก็ต่อเมื่อมี Session ฝังในเครื่องแล้วเท่านั้น
-            if (localStorage.getItem("currentSessionId")) {
+            if (sessionStorage.getItem("currentSessionId")) {
                 window.location.replace("index.html"); 
             }
             return; 
         }
 
+        const userRef = doc(db, "users", user.uid);
+
+        // 🔥 [ระบบใหญ่] ใช้ onSnapshot ดักจับการเปลี่ยนแปลงแบบ Real-time ตลอดเวลา
+        onSnapshot(userRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const userData = docSnap.data();
+                const activeSessions = userData.activeSessions || {};
+                
+                const activeCountElem = document.getElementById('active-devices-count');
+                if (activeCountElem) {
+                    activeCountElem.textContent = Object.keys(activeSessions).length;
+                }
+
+                // 🚨 ทันทีที่รหัสเครื่องนี้หายไปจากระบบ (โดนคนใหม่เตะ) ให้เด้งออกทันที!
+                const mySessionId = sessionStorage.getItem("currentSessionId");
+                if (mySessionId && !activeSessions[mySessionId]) {
+                    sessionStorage.removeItem("currentSessionId");
+                    
+                    // แจ้งเตือนแบบดุดัน
+                    alert("⚠️ โควต้าเต็ม! มีการล็อกอินจากเครื่องอื่น ระบบจึงปิดการใช้งานเครื่องนี้อัตโนมัติ");
+                    
+                    signOut(auth).then(() => {
+                        window.location.replace("login.html"); 
+                    });
+                }
+            }
+        });
+
         if (isDashboard) {
             try {
-                const userRef = doc(db, "users", user.uid);
-
-                onSnapshot(userRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        const userData = docSnap.data();
-                        
-                        // อัปเดตตัวเลขจำนวนคนที่ออนไลน์
-                        const activeSessions = userData.activeSessions || {};
-                        const activeCountElem = document.getElementById('active-devices-count');
-                        if (activeCountElem) {
-                            activeCountElem.textContent = Object.keys(activeSessions).length;
-                        }
-
-                        // เช็คโดนเตะแบบทันที (ถ้าเครื่องเก่าโดนแย่งล็อกอิน ID จะหายไปจากระบบ)
-                        const mySessionId = localStorage.getItem("currentSessionId");
-                        if (mySessionId && !activeSessions[mySessionId]) {
-                            alert("⚠️ เซสชั่นหมดอายุ หรือมีการล็อกอินจากอุปกรณ์อื่น กำลังออกจากระบบ...");
-                            window.logoutUser(); 
-                        }
-                    }
-                });
-
                 const userDoc = await getDoc(userRef);
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
@@ -62,15 +67,14 @@ onAuthStateChanged(auth, async (user) => {
                         if (premiumBtn) premiumBtn.click(); 
                         else if (typeof switchSystemMode === 'function') switchSystemMode('premium'); 
                     }, 300); 
-
                 }
             } catch (error) {
-                console.error("เกิดข้อผิดพลาดในการดึงข้อมูล:", error);
+                console.error("เกิดข้อผิดพลาด:", error);
             }
         }
     } else {
         if (!isLoginPage) {
-            localStorage.setItem('auth_error_alert', 'true');
+            sessionStorage.removeItem('currentSessionId');
             window.location.replace("login.html");
         }
     }
@@ -86,7 +90,9 @@ function startTimer(expireAt) {
             document.getElementById('dash-countdown').textContent = "หมดเวลาการใช้งาน";
             document.getElementById('dash-countdown').className = "text-sm font-bold font-mono text-red-500 animate-pulse";
             clearInterval(timerInterval);
-            setTimeout(() => window.logoutUser(), 3000); 
+            
+            sessionStorage.removeItem("currentSessionId");
+            signOut(auth).then(() => window.location.replace("login.html"));
         } else {
             const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
             const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -147,15 +153,11 @@ if (loginBtn) {
                     let activeSessions = userData.activeSessions || {};
                     const maxSessions = userData.maxSessions || 1;
 
-                    // ✨ [อัปเกรดใหม่: ระบบเตะเครื่องเก่าอัตโนมัติ]
                     let sessionEntries = Object.entries(activeSessions);
                     
-                    // ถ้าจำนวนเครื่องออนไลน์ เท่ากับหรือเกินกว่าโควต้าสูงสุด
+                    // ระบบเข้าแทรกแซงและเตะคนเก่า
                     if (sessionEntries.length >= maxSessions) {
-                        // เรียงลำดับจากเก่าสุด (น้อย) ไปหาใหม่สุด (มาก) โดยอ้างอิงจาก Timestamp
                         sessionEntries.sort((a, b) => a[1] - b[1]);
-                        
-                        // ลบเซสชั่นที่เก่าที่สุดออก จนกว่าจะมีพื้นที่ว่างให้เครื่องปัจจุบัน 1 ที่
                         while (sessionEntries.length >= maxSessions) {
                             const oldestSessionId = sessionEntries[0][0]; 
                             delete activeSessions[oldestSessionId]; 
@@ -163,18 +165,16 @@ if (loginBtn) {
                         }
                     }
 
-                    // สร้าง Session สำหรับคนกดเข้าสู่ระบบรอบนี้
-                    const newSessionId = "SESSION_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
+                    const newSessionId = "SID_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
                     activeSessions[newSessionId] = Date.now(); 
 
-                    // บันทึกทับขึ้น Firebase (ใครโดนเตะออก ตัว Snapshot ด้านบนจะทำงานแล้วเตะคนนั้นออกหน้าเว็บเอง)
-                    await setDoc(userRef, { 
+                    // สั่งเขียนทับ Database ทันที
+                    await updateDoc(userRef, { 
                         activeSessions: activeSessions,
                         currentSessionId: newSessionId 
-                    }, { merge: true });
+                    });
                     
-                    localStorage.setItem("currentSessionId", newSessionId); 
-                    
+                    sessionStorage.setItem("currentSessionId", newSessionId); 
                     window.location.replace("index.html");
                 }
             } else {
@@ -206,10 +206,9 @@ if (loginBtn) {
 // ==========================================
 window.logoutUser = async function() {
     try {
-        const mySessionId = localStorage.getItem("currentSessionId");
+        const mySessionId = sessionStorage.getItem("currentSessionId");
         const user = auth.currentUser;
         
-        // 1. สั่งลบข้อมูลออกจาก Firebase ให้เสร็จก่อน
         if (user && mySessionId) {
             const userRef = doc(db, "users", user.uid);
             const updateData = {};
@@ -217,10 +216,7 @@ window.logoutUser = async function() {
             await updateDoc(userRef, updateData);
         }
 
-        // 2. เคลียร์ข้อมูลในความจำเครื่อง
-        localStorage.removeItem("currentSessionId"); 
-        
-        // 3. สั่งออกจากระบบ
+        sessionStorage.removeItem("currentSessionId"); 
         await signOut(auth);
         window.location.replace("login.html");
     } catch (error) {
