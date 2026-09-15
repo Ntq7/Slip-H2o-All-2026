@@ -28,17 +28,17 @@ onAuthStateChanged(auth, async (user) => {
                     if (docSnap.exists()) {
                         const userData = docSnap.data();
                         
-                        // ✨ อัปเดตตัวเลขจำนวนคนที่ออนไลน์
+                        // อัปเดตตัวเลขจำนวนคนที่ออนไลน์
                         const activeSessions = userData.activeSessions || {};
                         const activeCountElem = document.getElementById('active-devices-count');
                         if (activeCountElem) {
                             activeCountElem.textContent = Object.keys(activeSessions).length;
                         }
 
-                        // ✨ เช็คโดนเตะแบบทันที ไม่มีหน่วงเวลา
+                        // เช็คโดนเตะแบบทันที (ถ้าเครื่องเก่าโดนแย่งล็อกอิน ID จะหายไปจากระบบ)
                         const mySessionId = localStorage.getItem("currentSessionId");
                         if (mySessionId && !activeSessions[mySessionId]) {
-                            alert("⚠️ เซสชั่นหมดอายุ กำลังออกจากระบบ...");
+                            alert("⚠️ เซสชั่นหมดอายุ หรือมีการล็อกอินจากอุปกรณ์อื่น กำลังออกจากระบบ...");
                             window.logoutUser(); 
                         }
                     }
@@ -144,22 +144,30 @@ if (loginBtn) {
                     showError("⚠️ วันใช้งานของคุณหมดอายุ ติดต่อผู้ดูแล");
                     await signOut(auth);
                 } else {
-                    const activeSessions = userData.activeSessions || {};
-                    const currentActiveCount = Object.keys(activeSessions).length;
-                    
+                    let activeSessions = userData.activeSessions || {};
                     const maxSessions = userData.maxSessions || 1;
 
-                    // ✨ [ระบบกฎเหล็ก] ถ้าเต็มโควต้า บล็อกทันที!
-                    if (currentActiveCount >= maxSessions) {
-                        showError(`⚠️ ใช้งานครบโควต้าแล้ว (${maxSessions} เครื่อง)`);
-                        await signOut(auth);
-                        return;
+                    // ✨ [อัปเกรดใหม่: ระบบเตะเครื่องเก่าอัตโนมัติ]
+                    let sessionEntries = Object.entries(activeSessions);
+                    
+                    // ถ้าจำนวนเครื่องออนไลน์ เท่ากับหรือเกินกว่าโควต้าสูงสุด
+                    if (sessionEntries.length >= maxSessions) {
+                        // เรียงลำดับจากเก่าสุด (น้อย) ไปหาใหม่สุด (มาก) โดยอ้างอิงจาก Timestamp
+                        sessionEntries.sort((a, b) => a[1] - b[1]);
+                        
+                        // ลบเซสชั่นที่เก่าที่สุดออก จนกว่าจะมีพื้นที่ว่างให้เครื่องปัจจุบัน 1 ที่
+                        while (sessionEntries.length >= maxSessions) {
+                            const oldestSessionId = sessionEntries[0][0]; 
+                            delete activeSessions[oldestSessionId]; 
+                            sessionEntries.shift(); 
+                        }
                     }
 
+                    // สร้าง Session สำหรับคนกดเข้าสู่ระบบรอบนี้
                     const newSessionId = "SESSION_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
                     activeSessions[newSessionId] = Date.now(); 
 
-                    // บังคับสร้างข้อมูลกล่อง activeSessions
+                    // บันทึกทับขึ้น Firebase (ใครโดนเตะออก ตัว Snapshot ด้านบนจะทำงานแล้วเตะคนนั้นออกหน้าเว็บเอง)
                     await setDoc(userRef, { 
                         activeSessions: activeSessions,
                         currentSessionId: newSessionId 
