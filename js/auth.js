@@ -3,7 +3,7 @@ import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https:/
 import { doc, getDoc, updateDoc, setDoc, onSnapshot, deleteField } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 let timerInterval;
-
+window.isLoggingOut = false;
 // ==========================================
 // 1. ระบบรักษาความปลอดภัย & ตรวจสอบการล็อกอิน
 // ==========================================
@@ -13,7 +13,7 @@ onAuthStateChanged(auth, async (user) => {
 
     if (user) {
         if (isLoginPage) {
-            if (sessionStorage.getItem("currentSessionId")) {
+            if (localStorage.getItem("deviceId")) {
                 window.location.replace("index.html"); 
             }
             return; 
@@ -23,6 +23,7 @@ onAuthStateChanged(auth, async (user) => {
 
         // 🔥 [ระบบใหญ่] ใช้ onSnapshot ดักจับการเปลี่ยนแปลงแบบ Real-time ตลอดเวลา
         onSnapshot(userRef, (docSnap) => {
+            if (window.isLoggingOut) return;
             if (docSnap.exists()) {
                 const userData = docSnap.data();
                 const activeSessions = userData.activeSessions || {};
@@ -33,12 +34,12 @@ onAuthStateChanged(auth, async (user) => {
                 }
 
                 // 🚨 ทันทีที่รหัสเครื่องนี้หายไปจากระบบ (โดนคนใหม่เตะ) ให้เด้งออกทันที!
-                const mySessionId = sessionStorage.getItem("currentSessionId");
-                if (mySessionId && !activeSessions[mySessionId]) {
-                    sessionStorage.removeItem("currentSessionId");
+                const myDeviceId = localStorage.getItem("deviceId");
+                if (myDeviceId && !activeSessions[myDeviceId]) {
+                    localStorage.removeItem("deviceId"); // เคลียร์เครื่องนี้
                     
                     // แจ้งเตือนแบบดุดัน
-                    alert("⚠️ โควต้าเต็ม! มีการล็อกอินจากเครื่องอื่น ระบบจึงปิดการใช้งานเครื่องนี้อัตโนมัติ");
+                    alert("⚠️ โควต้าเต็ม! มีการล็อกอินจากเครื่องอื่น ");
                     
                     signOut(auth).then(() => {
                         window.location.replace("login.html"); 
@@ -74,7 +75,7 @@ onAuthStateChanged(auth, async (user) => {
         }
     } else {
         if (!isLoginPage) {
-            sessionStorage.removeItem('currentSessionId');
+            localStorage.removeItem('deviceId');
             window.location.replace("login.html");
         }
     }
@@ -91,7 +92,7 @@ function startTimer(expireAt) {
             document.getElementById('dash-countdown').className = "text-sm font-bold font-mono text-red-500 animate-pulse";
             clearInterval(timerInterval);
             
-            sessionStorage.removeItem("currentSessionId");
+            localStorage.removeItem("deviceId");
             signOut(auth).then(() => window.location.replace("login.html"));
         } else {
             const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
@@ -153,28 +154,32 @@ if (loginBtn) {
                     let activeSessions = userData.activeSessions || {};
                     const maxSessions = userData.maxSessions || 1;
 
+                    // 💡 ใช้ localStorage: 1 เบราว์เซอร์เปิดกี่แท็บก็นับเป็น 1 เครื่อง
+                    let deviceId = localStorage.getItem("deviceId");
+                    if (!deviceId) {
+                        deviceId = "DEV_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
+                        localStorage.setItem("deviceId", deviceId); 
+                    }
+
+                    activeSessions[deviceId] = Date.now(); // อัปเดตเวลาล่าสุดให้เครื่องนี้
+
                     let sessionEntries = Object.entries(activeSessions);
                     
                     // ระบบเข้าแทรกแซงและเตะคนเก่า
-                    if (sessionEntries.length >= maxSessions) {
+                    if (sessionEntries.length > maxSessions) {
                         sessionEntries.sort((a, b) => a[1] - b[1]);
-                        while (sessionEntries.length >= maxSessions) {
+                        while (sessionEntries.length > maxSessions) {
                             const oldestSessionId = sessionEntries[0][0]; 
                             delete activeSessions[oldestSessionId]; 
                             sessionEntries.shift(); 
                         }
                     }
 
-                    const newSessionId = "SID_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
-                    activeSessions[newSessionId] = Date.now(); 
-
                     // สั่งเขียนทับ Database ทันที
                     await updateDoc(userRef, { 
-                        activeSessions: activeSessions,
-                        currentSessionId: newSessionId 
+                        activeSessions: activeSessions
                     });
                     
-                    sessionStorage.setItem("currentSessionId", newSessionId); 
                     window.location.replace("index.html");
                 }
             } else {
@@ -205,18 +210,19 @@ if (loginBtn) {
 // 4. ฟังก์ชันออกจากระบบ 
 // ==========================================
 window.logoutUser = async function() {
+    window.isLoggingOut = true;
     try {
-        const mySessionId = sessionStorage.getItem("currentSessionId");
+        const myDeviceId = localStorage.getItem("deviceId");
         const user = auth.currentUser;
         
-        if (user && mySessionId) {
+        if (user && myDeviceId) {
             const userRef = doc(db, "users", user.uid);
             const updateData = {};
-            updateData[`activeSessions.${mySessionId}`] = deleteField();
+            updateData[`activeSessions.${myDeviceId}`] = deleteField();
             await updateDoc(userRef, updateData);
         }
 
-        sessionStorage.removeItem("currentSessionId"); 
+        localStorage.removeItem("deviceId"); 
         await signOut(auth);
         window.location.replace("login.html");
     } catch (error) {

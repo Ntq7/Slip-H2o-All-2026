@@ -4,13 +4,14 @@ import { doc, getDoc, setDoc, updateDoc, deleteField, onSnapshot } from "https:/
 
 window.currentUserUid = null;
 window.maxSessions = 1; 
+window.isLoggingOut = false;
 
 // ==========================================
 // 🛡️ Helper Functions
 // ==========================================
 async function forceLogout(message) {
     if(message) alert(message);
-    sessionStorage.removeItem('currentSessionId');
+    localStorage.removeItem('deviceId');
     try { await signOut(auth); } catch (e) {}
     window.location.replace('login.html');
 }
@@ -26,12 +27,12 @@ onAuthStateChanged(auth, async (user) => {
     window.currentUserUid = user.uid; 
     const userRef = doc(db, "users", user.uid);
     
-    let localSession = sessionStorage.getItem('currentSessionId');
+    let deviceId = localStorage.getItem('deviceId');
     
-    // ถ้าหน้าต่างนี้ยังไม่มี Session (เช่น การเปิดแท็บใหม่) ให้สร้างใหม่
-    if (!localSession) {
-        localSession = "SID_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
-        sessionStorage.setItem('currentSessionId', localSession);
+    // ถ้าหน้าต่างนี้ยังไม่มี Session (เช่น การเปิดใหม่) ให้สร้างใหม่
+    if (!deviceId) {
+        deviceId = "DEV_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
+        localStorage.setItem('deviceId', deviceId);
         
         // ⚡ กระบวนการแทรกแซงและเตะคนเก่า
         try {
@@ -41,20 +42,20 @@ onAuthStateChanged(auth, async (user) => {
                 let activeSessions = data.activeSessions || {};
                 window.maxSessions = data.maxSessions || 1; 
 
-                if (!activeSessions[localSession]) {
+                if (!activeSessions[deviceId]) {
+                    activeSessions[deviceId] = Date.now();
+                    
                     let sessionEntries = Object.entries(activeSessions);
-                    if (sessionEntries.length >= window.maxSessions) {
+                    if (sessionEntries.length > window.maxSessions) {
                         sessionEntries.sort((a, b) => a[1] - b[1]); 
-                        while (sessionEntries.length >= window.maxSessions) {
+                        while (sessionEntries.length > window.maxSessions) {
                             const oldestSessionId = sessionEntries[0][0]; 
                             delete activeSessions[oldestSessionId]; 
                             sessionEntries.shift(); 
                         }
                     }
-                    activeSessions[localSession] = Date.now();
                     await updateDoc(userRef, { 
-                        activeSessions: activeSessions,
-                        currentSessionId: localSession
+                        activeSessions: activeSessions
                     });
                 }
             }
@@ -64,13 +65,14 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     onSnapshot(userRef, (docSnap) => {
+        if (window.isLoggingOut) return;
         if (!docSnap.exists()) return forceLogout();
 
         const data = docSnap.data();
         const activeSessions = data.activeSessions || {};
 
-        if (!activeSessions[localSession]) {
-            return forceLogout("⚠️ โควต้าเต็ม! มีการล็อกอินจากเครื่องอื่น ล็อคอินใหม่เพื่อใช้งาน");
+        if (!activeSessions[deviceId]) {
+            return forceLogout("⚠️ โควต้าเต็ม! มีการล็อกอินจากเครื่องอื่น");
         }
 
         const activeCountElem = document.getElementById('active-devices-count');
@@ -116,20 +118,21 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 window.logoutApp = async () => {
-    const localSession = sessionStorage.getItem('currentSessionId');
-    if (window.currentUserUid && localSession) {
+    window.isLoggingOut = true;
+    const deviceId = localStorage.getItem('deviceId');
+    if (window.currentUserUid && deviceId) {
         try {
             const userRef = doc(db, "users", window.currentUserUid);
             const updateData = {};
-            updateData[`activeSessions.${localSession}`] = deleteField();
+            updateData[`activeSessions.${deviceId}`] = deleteField();
             await updateDoc(userRef, updateData);
         } catch(e) {}
     }
     signOut(auth).then(() => {
-        sessionStorage.removeItem('currentSessionId');
+        localStorage.removeItem('deviceId');
         window.location.replace('login.html');
     }).catch(() => {
-        sessionStorage.removeItem('currentSessionId');
+        localStorage.removeItem('deviceId');
         window.location.replace('login.html');
     });
 };
@@ -174,7 +177,7 @@ window.saveFavoriteToCloud = async function() {
     };
 
     if (window.maxSessions > 1) {
-        sessionStorage.setItem(`slipFav_${bankKey}`, JSON.stringify(favData));
+        localStorage.setItem(`slipFav_${bankKey}`, JSON.stringify(favData));
         alert("✅ บันทึกรายการโปรดแล้ว");
     } else {
         try {
@@ -193,7 +196,7 @@ window.loadFavoriteFromCloud = async function() {
     const bankKey = window.CURRENT_BANK || 'GENERAL'; 
     
     if (window.maxSessions > 1) {
-        const localData = sessionStorage.getItem(`slipFav_${bankKey}`);
+        const localData = localStorage.getItem(`slipFav_${bankKey}`);
         if (localData) {
             applyFavoriteDataToScreen(JSON.parse(localData));
         } else {

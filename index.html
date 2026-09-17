@@ -491,9 +491,9 @@
       <a href="#" class="btn btn-outline-danger btn-sm w-100 rounded-pill mb-2 py-2 fw-medium">
         <i class="bi bi-headset me-1"></i> ติดต่อผู้ดูแลระบบ
       </a>
-      <a href="login.html" onclick="logoutApp()" class="btn btn-theme-toggle btn-sm w-100 rounded-pill py-2 fw-medium">
-        <i class="bi bi-box-arrow-right me-1"></i> ออกจากระบบ
-      </a>
+      <a href="javascript:void(0)" onclick="logoutApp()" class="btn btn-theme-toggle btn-sm w-100 rounded-pill py-2 fw-medium">
+   <i class="bi bi-box-arrow-right me-1"></i> ออกจากระบบ
+</a>
     </div>
   </aside>
 
@@ -809,42 +809,6 @@
             tooltip.classList.remove('show');
             previewImg.src = '';
         });
-    });
-</script>
-
-<script type="module">
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    
-    import { auth, dbFirestore } from "./js/firebase-config.js"; 
-    
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            try {
-                const docRef = doc(dbFirestore, "users", user.uid);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    const userData = docSnap.data();
-                    let username = userData.username || user.email.split('@')[0];
-                    document.getElementById('userProfileName').innerText = username.toUpperCase();
-
-                    if (userData.expireAt) {
-                        let realExpireDate = new Date(userData.expireAt);
-                        
-                        if (window.expireUtils) {
-                            document.getElementById('userExpireDate').innerText = window.expireUtils.formatExpireAt(realExpireDate, {withTime: true});
-                            document.getElementById('userTimeLeft').innerText = window.expireUtils.getTimeLeftText(realExpireDate);
-                        }
-                    } else {
-                        document.getElementById('userExpireDate').innerText = "ยังไม่มีข้อมูล";
-                        document.getElementById('userTimeLeft').innerText = "กรุณาเติมเวลา";
-                    }
-                }
-            } catch (error) {
-                console.error("❌ เกิดข้อผิดพลาด:", error);
-            }
-        }
     });
 </script>
 
