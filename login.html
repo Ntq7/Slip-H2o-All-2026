@@ -248,13 +248,24 @@
         </div>
     </div>
 
-    <!-- เอาโค้ดชุดนี้ ไปวางทับ <script type="module"> อันเดิมในหน้า login.html -->
     <script type="module">
         import { auth, dbFirestore } from "./js/firebase-config.js"; 
         import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // กดปุ่ม Enter เพื่อ Login
+        document.addEventListener("DOMContentLoaded", () => {
+            const allowAutofill = localStorage.getItem('H2O_ALLOW_AUTOFILL');
+            
+            if (allowAutofill === 'true') {
+                const savedEmail = localStorage.getItem('H2O_SAVED_EMAIL');
+                const savedPass = localStorage.getItem('H2O_SAVED_PASS');
+                if (savedEmail) document.getElementById('email').value = savedEmail;
+                if (savedPass) document.getElementById('password').value = savedPass;
+                
+                localStorage.removeItem('H2O_ALLOW_AUTOFILL');
+            }
+        });
+
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
                 window.handleLogin();
@@ -262,8 +273,8 @@
         });
 
         window.handleLogin = async () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
             const statusMsg = document.getElementById('status-msg');
 
             if(!email || !password) {
@@ -273,6 +284,7 @@
             }
 
             statusMsg.className = 'loading'; 
+            statusMsg.style.display = 'block';
             statusMsg.innerHTML = '<i class="bi bi-hourglass-split"></i> กำลังตรวจสอบข้อมูล...';
 
             try {
@@ -286,23 +298,33 @@
                     const data = userSnap.data();
                     const now = new Date();
                     
-                    // 🟢 1. เช็คสถานะการแบน (ถ้าไม่มีฟิลด์ status ถือว่าใช้งานได้ปกติ)
-                    const isBanned = (data.status !== undefined && data.status !== 'active');
-                    if (isBanned) throw new Error("บัญชีถูกระงับการใช้งาน");
+                    if (data.status !== undefined && data.status !== 'active') throw new Error("บัญชีถูกระงับการใช้งาน");
 
-                    // 🟢 2. ดึงวันหมดอายุให้ตรงกับฐานข้อมูลใหม่ (รองรับทั้ง expireAt และ expiredAt)
-                    const dbExpireDate = data.expireAt || data.expiredAt || 0;
-                    const expiry = (dbExpireDate && typeof dbExpireDate.toDate === 'function') 
-                                   ? dbExpireDate.toDate() 
-                                   : new Date(dbExpireDate);
-                
-                    if (now > expiry) throw new Error("บัญชีหมดอายุ โปรดติดต่อผู้ดูแลระบบ");
+                    if (data.expireAt) {
+                        const expireTimeMs = (typeof data.expireAt.toDate === 'function') 
+                            ? data.expireAt.toDate().getTime() 
+                            : Number(data.expireAt);
+                        if (now.getTime() > expireTimeMs) throw new Error("บัญชีหมดอายุ โปรดติดต่อผู้ดูแลระบบ");
+                    }
                     
-                    // 🟢 3. อัปเดต Session ป้องกันการเข้าซ้อน
-                    const sessionId = Date.now().toString() + Math.random().toString(36).substring(2);
-                    localStorage.setItem('currentSessionId', sessionId);
+                    let activeSessions = data.activeSessions || {};
+                    const allowMulti = data.allowMultiSession === true;
+                    if (!allowMulti) {
+                        activeSessions = {}; 
+                    }
+
+                    const sessionId = "DEV_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
+                    localStorage.setItem('H2O_SESSION_ID', sessionId);
                     
-                    await setDoc(userRef, { currentSessionId: sessionId }, { merge: true });
+
+                    localStorage.setItem('H2O_SAVED_EMAIL', email);
+                    localStorage.setItem('H2O_SAVED_PASS', password);
+                    
+                    activeSessions[sessionId] = Date.now();
+                    await updateDoc(userRef, { 
+                        activeSessions: activeSessions,
+                        currentSessionId: sessionId 
+                    });
                 
                     statusMsg.className = 'loading'; 
                     statusMsg.style.color = '#34d399';
@@ -315,7 +337,7 @@
                     }, 800);
                     
                 } else {
-                    throw new Error("ไม่พบข้อมูลผู้ใช้งานในระบบฐานข้อมูล");
+                    throw new Error("ไม่พบข้อมูลผู้ใช้งานในระบบ");
                 }
             } catch (error) {
                 statusMsg.className = 'error';

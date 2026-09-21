@@ -1,52 +1,66 @@
 import { auth, db } from './firebase-config.js';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { doc, getDoc, updateDoc, setDoc, onSnapshot, deleteField } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { doc, getDoc, updateDoc, onSnapshot, deleteField } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 let timerInterval;
-window.isLoggingOut = false;
-// ==========================================
-// 1. ระบบรักษาความปลอดภัย & ตรวจสอบการล็อกอิน
-// ==========================================
+window.isLoggingOut = window.isLoggingOut || false; 
+
 onAuthStateChanged(auth, async (user) => {
     const isLoginPage = document.getElementById('login-btn') !== null;
     const isDashboard = document.getElementById('dash-username') !== null;
 
     if (user) {
         if (isLoginPage) {
-            if (localStorage.getItem("deviceId")) {
+            if (localStorage.getItem("H2O_SESSION_ID")) {
                 window.location.replace("index.html"); 
             }
             return; 
         }
 
+        const mySessionId = localStorage.getItem("H2O_SESSION_ID");
+        if (!mySessionId) {
+            window.location.replace("login.html");
+            return;
+        }
+
+        document.body.style.display = '';
         const userRef = doc(db, "users", user.uid);
 
-        // 🔥 [ระบบใหญ่] ใช้ onSnapshot ดักจับการเปลี่ยนแปลงแบบ Real-time ตลอดเวลา
-        onSnapshot(userRef, (docSnap) => {
-            if (window.isLoggingOut) return;
-            if (docSnap.exists()) {
-                const userData = docSnap.data();
-                const activeSessions = userData.activeSessions || {};
-                
-                const activeCountElem = document.getElementById('active-devices-count');
-                if (activeCountElem) {
-                    activeCountElem.textContent = Object.keys(activeSessions).length;
+        if (!window.authListenerSetup) {
+            window.authListenerSetup = true;
+
+            onSnapshot(userRef, async (docSnap) => {
+                if (docSnap.metadata.fromCache) return; 
+                if (!docSnap.exists()) return;
+
+                const data = docSnap.data();
+                const activeSessions = data.activeSessions || {};
+
+                if (mySessionId && !activeSessions[mySessionId]) {
+                    try {
+                        const checkSnap = await getDoc(userRef);
+                        const checkData = checkSnap.data();
+                        if (checkData && checkData.activeSessions && checkData.activeSessions[mySessionId]) return; 
+                    } catch(e) { return; }
+
+                    if (window.isLoggingOut) return; 
+                    window.isLoggingOut = true;
+                    
+                    if (localStorage.getItem("H2O_SESSION_ID") === mySessionId) {
+                        localStorage.removeItem("H2O_SESSION_ID");
+                    }
+                    
+                    alert("⚠️ มีการล็อกอินเข้าสู่ระบบจากเครื่องอื่น ");
+                    
+                    localStorage.setItem('H2O_ALLOW_AUTOFILL', 'true');
+                    window.location.replace("login.html");
+                    return;
                 }
 
-                // 🚨 ทันทีที่รหัสเครื่องนี้หายไปจากระบบ (โดนคนใหม่เตะ) ให้เด้งออกทันที!
-                const myDeviceId = localStorage.getItem("deviceId");
-                if (myDeviceId && !activeSessions[myDeviceId]) {
-                    localStorage.removeItem("deviceId"); // เคลียร์เครื่องนี้
-                    
-                    // แจ้งเตือนแบบดุดัน
-                    alert("⚠️ โควต้าเต็ม! มีการล็อกอินจากเครื่องอื่น ");
-                    
-                    signOut(auth).then(() => {
-                        window.location.replace("login.html"); 
-                    });
-                }
-            }
-        });
+                const activeCountElem = document.getElementById('active-devices-count');
+                if (activeCountElem) activeCountElem.textContent = Object.keys(activeSessions).length;
+            });
+        }
 
         if (isDashboard) {
             try {
@@ -55,9 +69,14 @@ onAuthStateChanged(auth, async (user) => {
                     const userData = userDoc.data();
                     document.getElementById('dash-username').textContent = userData.username || user.email;
                     
+
                     if (userData.expireAt) {
-                        document.getElementById('dash-expire-date').textContent = formatDate(userData.expireAt);
-                        startTimer(userData.expireAt); 
+                        const expireTimeMs = (typeof userData.expireAt.toDate === 'function') 
+                            ? userData.expireAt.toDate().getTime() 
+                            : Number(userData.expireAt);
+
+                        document.getElementById('dash-expire-date').textContent = formatDate(expireTimeMs);
+                        startTimer(expireTimeMs); 
                     } else {
                         document.getElementById('dash-expire-date').textContent = "ตลอดชีพ";
                         document.getElementById('dash-countdown').textContent = "ไม่จำกัดเวลา";
@@ -69,30 +88,30 @@ onAuthStateChanged(auth, async (user) => {
                         else if (typeof switchSystemMode === 'function') switchSystemMode('premium'); 
                     }, 300); 
                 }
-            } catch (error) {
-                console.error("เกิดข้อผิดพลาด:", error);
-            }
+            } catch (error) { console.error(error); }
         }
     } else {
         if (!isLoginPage) {
-            localStorage.removeItem('deviceId');
+            localStorage.removeItem('H2O_SESSION_ID');
             window.location.replace("login.html");
         }
     }
 });
 
-function startTimer(expireAt) {
+function startTimer(expireTimeMs) {
     clearInterval(timerInterval);
     timerInterval = setInterval(() => {
         const now = Date.now(); 
-        const remainingTime = expireAt - now;
+        const remainingTime = expireTimeMs - now;
 
         if (remainingTime <= 0) {
             document.getElementById('dash-countdown').textContent = "หมดเวลาการใช้งาน";
             document.getElementById('dash-countdown').className = "text-sm font-bold font-mono text-red-500 animate-pulse";
             clearInterval(timerInterval);
             
-            localStorage.removeItem("deviceId");
+            localStorage.removeItem("H2O_SESSION_ID");
+            
+            localStorage.setItem('H2O_ALLOW_AUTOFILL', 'true');
             signOut(auth).then(() => window.location.replace("login.html"));
         } else {
             const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
@@ -115,9 +134,6 @@ function formatDate(timestamp) {
     return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}  ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')} น.`;
 }
 
-// ==========================================
-// 3. ระบบสำหรับปุ่ม "เข้าสู่ระบบ" (หน้า Login)
-// ==========================================
 const loginBtn = document.getElementById('login-btn');
 if (loginBtn) {
     const emailInput = document.getElementById('email');
@@ -130,7 +146,7 @@ if (loginBtn) {
         const password = passwordInput.value.trim();
 
         if (!email || !password) {
-            showError("กรุณากรอกอีเมลและรหัสผ่านให้ครบ");
+            showError("กรุณากรอกอีเมลและรหัสผ่านให้ถุกต้อง");
             return;
         }
 
@@ -147,37 +163,35 @@ if (loginBtn) {
             
             if (userDoc.exists()) {
                 const userData = userDoc.data();
-                if (userData.expireAt && Date.now() > userData.expireAt) {
-                    showError("⚠️ วันใช้งานของคุณหมดอายุ ติดต่อผู้ดูแล");
+                
+                let expireTimeMs = null;
+                if (userData.expireAt) {
+                    expireTimeMs = (typeof userData.expireAt.toDate === 'function') 
+                        ? userData.expireAt.toDate().getTime() 
+                        : Number(userData.expireAt);
+                }
+
+                if (expireTimeMs && Date.now() > expireTimeMs) {
+                    showError("⚠️ วันใช้งานของคุณหมดอายุ");
                     await signOut(auth);
                 } else {
-                    let activeSessions = userData.activeSessions || {};
-                    const maxSessions = userData.maxSessions || 1;
 
-                    // 💡 ใช้ localStorage: 1 เบราว์เซอร์เปิดกี่แท็บก็นับเป็น 1 เครื่อง
-                    let deviceId = localStorage.getItem("deviceId");
-                    if (!deviceId) {
-                        deviceId = "DEV_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
-                        localStorage.setItem("deviceId", deviceId); 
+                    let activeSessions = userData.activeSessions || {}; 
+
+                    const allowMulti = userData.allowMultiSession === true; 
+
+                    if (!allowMulti) {
+                        activeSessions = {}; 
                     }
 
-                    activeSessions[deviceId] = Date.now(); // อัปเดตเวลาล่าสุดให้เครื่องนี้
+                    const newSessionId = "DEV_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
+                    activeSessions[newSessionId] = Date.now(); 
 
-                    let sessionEntries = Object.entries(activeSessions);
-                    
-                    // ระบบเข้าแทรกแซงและเตะคนเก่า
-                    if (sessionEntries.length > maxSessions) {
-                        sessionEntries.sort((a, b) => a[1] - b[1]);
-                        while (sessionEntries.length > maxSessions) {
-                            const oldestSessionId = sessionEntries[0][0]; 
-                            delete activeSessions[oldestSessionId]; 
-                            sessionEntries.shift(); 
-                        }
-                    }
+                    localStorage.setItem("H2O_SESSION_ID", newSessionId); 
 
-                    // สั่งเขียนทับ Database ทันที
                     await updateDoc(userRef, { 
-                        activeSessions: activeSessions
+                        activeSessions: activeSessions,
+                        currentSessionId: newSessionId
                     });
                     
                     window.location.replace("index.html");
@@ -206,26 +220,27 @@ if (loginBtn) {
     }
 }
 
-// ==========================================
-// 4. ฟังก์ชันออกจากระบบ 
-// ==========================================
 window.logoutUser = async function() {
-    window.isLoggingOut = true;
     try {
-        const myDeviceId = localStorage.getItem("deviceId");
+        if (window.isLoggingOut) return; 
+        window.isLoggingOut = true; 
+
+        const mySessionId = localStorage.getItem("H2O_SESSION_ID");
         const user = auth.currentUser;
         
-        if (user && myDeviceId) {
+        if (user && mySessionId) {
             const userRef = doc(db, "users", user.uid);
             const updateData = {};
-            updateData[`activeSessions.${myDeviceId}`] = deleteField();
+
+            updateData[`activeSessions.${mySessionId}`] = deleteField();
             await updateDoc(userRef, updateData);
         }
 
-        localStorage.removeItem("deviceId"); 
-        await signOut(auth);
+        localStorage.removeItem("H2O_SESSION_ID"); 
+        
+
+        localStorage.setItem('H2O_ALLOW_AUTOFILL', 'true');
+        await signOut(auth); 
         window.location.replace("login.html");
-    } catch (error) {
-        console.error("Error logging out:", error);
-    }
+    } catch (error) { console.error("Error logging out:", error); }
 };

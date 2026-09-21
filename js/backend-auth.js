@@ -1,138 +1,135 @@
 import { auth, dbFirestore as db } from "./firebase-config.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { doc, getDoc, setDoc, updateDoc, deleteField, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { doc, getDoc, updateDoc, deleteField, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 window.currentUserUid = null;
-window.maxSessions = 1; 
-window.isLoggingOut = false;
+window.isLoggingOut = window.isLoggingOut || false; 
 
 // ==========================================
-// 🛡️ Helper Functions
-// ==========================================
-async function forceLogout(message) {
-    if(message) alert(message);
-    localStorage.removeItem('deviceId');
-    try { await signOut(auth); } catch (e) {}
-    window.location.replace('login.html');
-}
-
-// ==========================================
-// 🔐 ระบบตรวจสอบสถานะผู้ใช้งาน (Real-Time Auto-Kick)
+// 🔐 ระบบตรวจสอบสถานะ
 // ==========================================
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
-        return forceLogout();
+        if (window.location.pathname.indexOf("login.html") === -1) {
+            window.location.replace("login.html");
+        }
+        return;
     }
 
     window.currentUserUid = user.uid; 
     const userRef = doc(db, "users", user.uid);
-    
-    let deviceId = localStorage.getItem('deviceId');
-    
-    // ถ้าหน้าต่างนี้ยังไม่มี Session (เช่น การเปิดใหม่) ให้สร้างใหม่
-    if (!deviceId) {
-        deviceId = "DEV_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9);
-        localStorage.setItem('deviceId', deviceId);
-        
-        // ⚡ กระบวนการแทรกแซงและเตะคนเก่า
-        try {
-            const docSnap = await getDoc(userRef);
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                let activeSessions = data.activeSessions || {};
-                window.maxSessions = data.maxSessions || 1; 
+    const localSession = localStorage.getItem('H2O_SESSION_ID'); 
 
-                if (!activeSessions[deviceId]) {
-                    activeSessions[deviceId] = Date.now();
-                    
-                    let sessionEntries = Object.entries(activeSessions);
-                    if (sessionEntries.length > window.maxSessions) {
-                        sessionEntries.sort((a, b) => a[1] - b[1]); 
-                        while (sessionEntries.length > window.maxSessions) {
-                            const oldestSessionId = sessionEntries[0][0]; 
-                            delete activeSessions[oldestSessionId]; 
-                            sessionEntries.shift(); 
-                        }
-                    }
-                    await updateDoc(userRef, { 
-                        activeSessions: activeSessions
-                    });
-                }
-            }
-        } catch (e) {
-            console.error("Setup Error:", e);
-        }
+    if (!localSession) {
+        window.location.replace("login.html");
+        return;
     }
 
-    onSnapshot(userRef, (docSnap) => {
-        if (window.isLoggingOut) return;
-        if (!docSnap.exists()) return forceLogout();
+    document.body.style.display = '';
 
-        const data = docSnap.data();
-        const activeSessions = data.activeSessions || {};
+    if (!window.backendListenerSetup) {
+        window.backendListenerSetup = true;
 
-        if (!activeSessions[deviceId]) {
-            return forceLogout("⚠️ โควต้าเต็ม! มีการล็อกอินจากเครื่องอื่น");
-        }
+        onSnapshot(userRef, async (docSnap) => {
+            if (docSnap.metadata.fromCache) return;
+            if (!docSnap.exists()) return;
 
-        const activeCountElem = document.getElementById('active-devices-count');
-        if (activeCountElem) {
-            activeCountElem.textContent = Object.keys(activeSessions).length;
-        }
+            const data = docSnap.data();
+            const activeSessions = data.activeSessions || {}; 
 
-        const isBanned = (data.status !== undefined && data.status !== 'active');
-        if (isBanned) {
-            return forceLogout("⚠️ บัญชีของคุณถูกระงับการใช้งาน");
-        }
+            if (!activeSessions[localSession]) {
+                try {
+                    const checkSnap = await getDoc(userRef);
+                    const checkData = checkSnap.data();
+                    if (checkData && checkData.activeSessions && checkData.activeSessions[localSession]) return; 
+                } catch(e) { return; }
 
-        const userNameElem = document.getElementById('userProfileName');
-        if (userNameElem) {
-            userNameElem.innerText = data.username || user.email;
-        }
+                if (window.isLoggingOut) return;
+                window.isLoggingOut = true;
 
-        // จัดการแสดงผลวันหมดอายุ
-        const now = new Date();
-        const dbExpireDate = data.expireAt || data.expiredAt || data.expireDate || data.expiryDate; 
-        
-        if (dbExpireDate) {
-            let expVal = dbExpireDate;
-            let realExpireDate = (typeof expVal.toDate === 'function') ? expVal.toDate() : new Date(Number(expVal));
+                if (localStorage.getItem("H2O_SESSION_ID") === localSession) {
+                    localStorage.removeItem("H2O_SESSION_ID");
+                }
 
-            if (now > realExpireDate) return forceLogout("⚠️ ระยะเวลาใช้งานหมดอายุ");
+                alert("⚠️ มีการล็อกอินเข้าสู่ระบบจากเครื่องอื่น กำลังออกจากระบบ...");
+                
+                localStorage.setItem('H2O_ALLOW_AUTOFILL', 'true');
+                window.location.replace("login.html");
+                return;
+            }
 
-            const diffMs = realExpireDate - now;
-            const diffDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
-            const diffHours = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+            const activeCountElem = document.getElementById('active-devices-count');
+            if (activeCountElem) activeCountElem.textContent = Object.keys(activeSessions).length;
+
+            const isBanned = (data.status !== undefined && data.status !== 'active');
+            if (isBanned) {
+                alert("⚠️ บัญชีของคุณถูกระงับการใช้งาน");
+                
+
+                localStorage.setItem('H2O_ALLOW_AUTOFILL', 'true');
+                window.location.replace('login.html');
+                return;
+            }
+
+            const userNameElem = document.getElementById('userProfileName');
+            if (userNameElem) {
+                userNameElem.innerText = data.username || user.email;
+            }
+
+            const now = new Date();
+            const dbExpireDate = data.expireAt || data.expiredAt || data.expireDate || data.expiryDate; 
             
-            ['userTimeLeft', 'timeLeftDisplay', 'dash-countdown'].forEach(id => {
-                if(document.getElementById(id)) document.getElementById(id).innerText = `${diffDays} วัน ${diffHours} ชม.`;
-            });
-            
-            const d = realExpireDate;
-            ['userExpireDate', 'dash-expire-date', 'expireDisplay'].forEach(id => {
-                if(document.getElementById(id)) document.getElementById(id).innerText = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear() + 543} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')} น.`;
-            });
-        }
-        document.body.style.display = ''; 
-    });
+            if (dbExpireDate) {
+                let expVal = dbExpireDate;
+                let realExpireDate = (typeof expVal.toDate === 'function') ? expVal.toDate() : new Date(Number(expVal));
+
+                if (now > realExpireDate) {
+                    alert("⚠️ ระยะเวลาใช้งานหมดอายุ");
+                    
+
+                    localStorage.setItem('H2O_ALLOW_AUTOFILL', 'true');
+                    window.location.replace('login.html');
+                    return;
+                }
+
+                const diffMs = realExpireDate - now;
+                const diffDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+                const diffHours = Math.max(0, Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+                
+                ['userTimeLeft', 'timeLeftDisplay', 'dash-countdown'].forEach(id => {
+                    if(document.getElementById(id)) document.getElementById(id).innerText = `${diffDays} วัน ${diffHours} ชม.`;
+                });
+                
+                const d = realExpireDate;
+                ['userExpireDate', 'dash-expire-date', 'expireDisplay'].forEach(id => {
+                    if(document.getElementById(id)) document.getElementById(id).innerText = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear() + 543} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')} น.`;
+                });
+            }
+        });
+    }
 });
 
 window.logoutApp = async () => {
-    window.isLoggingOut = true;
-    const deviceId = localStorage.getItem('deviceId');
-    if (window.currentUserUid && deviceId) {
+    if (window.isLoggingOut) return;
+    window.isLoggingOut = true; 
+
+    const localSession = localStorage.getItem('H2O_SESSION_ID');
+    if (window.currentUserUid && localSession) {
         try {
             const userRef = doc(db, "users", window.currentUserUid);
             const updateData = {};
-            updateData[`activeSessions.${deviceId}`] = deleteField();
+
+            updateData[`activeSessions.${localSession}`] = deleteField();
             await updateDoc(userRef, updateData);
         } catch(e) {}
     }
     signOut(auth).then(() => {
-        localStorage.removeItem('deviceId');
+        localStorage.removeItem('H2O_SESSION_ID');
+        // 🟢 แจกตั๋วเติมข้อมูล (เพราะตั้งใจกดออกเอง)
+        localStorage.setItem('H2O_ALLOW_AUTOFILL', 'true');
         window.location.replace('login.html');
     }).catch(() => {
-        localStorage.removeItem('deviceId');
+        localStorage.removeItem('H2O_SESSION_ID');
         window.location.replace('login.html');
     });
 };
@@ -185,9 +182,7 @@ window.saveFavoriteToCloud = async function() {
             const updateData = {}; updateData[`slipFav_${bankKey}`] = favData;
             await setDoc(userRef, updateData, { merge: true });
             alert("✅ บันทึกรายการโปรดแล้ว");
-        } catch (error) { 
-            console.error(error); alert("❌ เกิดข้อผิดพลาด"); 
-        }
+        } catch (error) { console.error(error); alert("❌ เกิดข้อผิดพลาด"); }
     }
 };
 
@@ -197,24 +192,15 @@ window.loadFavoriteFromCloud = async function() {
     
     if (window.maxSessions > 1) {
         const localData = localStorage.getItem(`slipFav_${bankKey}`);
-        if (localData) {
-            applyFavoriteDataToScreen(JSON.parse(localData));
-        } else {
-            alert(`⚠️ ยังไม่ได้บันทึกรายการโปรด`);
-        }
+        if (localData) applyFavoriteDataToScreen(JSON.parse(localData));
+        else alert(`⚠️ ยังไม่ได้บันทึกรายการโปรด`);
     } else {
         try {
             const userRef = doc(db, "users", window.currentUserUid);
             const docSnap = await getDoc(userRef);
             const favKey = `slipFav_${bankKey}`;
-            if (docSnap.exists() && docSnap.data()[favKey]) {
-                const f = docSnap.data()[favKey];
-                applyFavoriteDataToScreen(f);
-            } else { 
-                alert(`⚠️ ยังไม่ได้บันทึกรายการโปรด`); 
-            }
-        } catch (error) { 
-            console.error(error); alert("❌ เกิดข้อผิดพลาดในการโหลด"); 
-        }
+            if (docSnap.exists() && docSnap.data()[favKey]) applyFavoriteDataToScreen(docSnap.data()[favKey]);
+            else alert(`⚠️ ยังไม่ได้บันทึกรายการโปรด`); 
+        } catch (error) { console.error(error); alert("❌ เกิดข้อผิดพลาดในการโหลด"); }
     }
 };
