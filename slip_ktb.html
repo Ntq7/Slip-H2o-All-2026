@@ -278,8 +278,8 @@
                         <div class="col-md-6">
                             <label for="bg_note" class="form-label text-warning">พื้นหลังโน้ต</label>
                             <select class="form-select" id="bg_note" onchange="syncNormalBackground(); triggerUpdate()">
-                                <option value="assets/image/bs/KTB24T.jpg">NEW</option>
                                 <option value="assets/image/bs/KTB23T.jpg">ต้นฉบับ</option>
+                                <option value="assets/image/bs/KTB24T.jpg">ไหว้พระจันทร์</option>
                                 <option value="assets/image/bs/KTB20T.jpg">หน้าร้อน</option>
                                 <option value="assets/image/bs/KTB21T.jpg">สงกรานต์</option>
                                 <option value="assets/image/bs/KTB22T.jpg">วันแม่</option>
@@ -289,7 +289,6 @@
                 </div>
             </div>
 
-            <!-- 👇 อัปเดต: เพิ่ม z-index 10 ตรงนี้ เพื่อให้กล่องบัญชีอยู่เหนือกล่องอื่น 👇 -->
             <div class="form-section-card" style="position: relative; z-index: 10;">
                 <div class="form-section-title"><i class="bi bi-person-vcard fs-5"></i> ข้อมูลบัญชี</div>
                 <div class="row g-3">
@@ -305,13 +304,10 @@
                         <label for="receiveraccount" class="form-label text-primary">เลขบัญชีผู้รับ</label>
                         <input type="text" class="form-control mb-3" id="receiveraccount" value="XXX-X-XX000-0" oninput="triggerUpdate()">
                         
-                        <!-- 👇 เพิ่มระบบ Custom Dropdown แบบมีรูป ของ KTB 👇 -->
                         <label for="bank" class="form-label text-primary">ธนาคารปลายทาง</label>
                         
-                        <!-- ซ่อน Select เดิมไว้เพื่อเก็บค่า -->
                         <input type="hidden" id="bank" name="bank" value="กรุงไทย">
                         
-                        <!-- สร้างปุ่ม Dropdown จำลองให้หน้าตาเหมือน select ของเดิม -->
                         <div class="dropdown w-100 custom-bank-dropdown">
                             <button class="form-select d-flex align-items-center justify-content-between w-100" type="button" id="bankDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" style="text-align: left; background-color: var(--input-bg); border-color: var(--card-border); color: var(--text-main);">
                                 <div id="selectedBankDisplay" class="d-flex align-items-center">
@@ -345,7 +341,6 @@
                                 <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="MetaAds2" data-text="MetaAds2" data-img=""><span style="width: 22px; height: 22px; margin-right: 10px; display: inline-block;"></span> MetaAds2</a></li>
                             </ul>
                         </div>
-                        <!-- 👆 สิ้นสุดการเพิ่ม Custom Dropdown 👆 -->
                     </div>
                     <div class="col-12 mt-1">
                         <label for="Itemcode" class="form-label" style="font-size: 0.75rem; color: var(--warning-color);">รหัสอ้างอิง (เฉพาะ ChillPay, SCB มณี SHOP, MetaAds)</label>
@@ -430,8 +425,8 @@
                     <div class="col-md-6">
                         <label for="backgroundSelect" class="form-label">พื้นหลัง (ปกติ)</label>
                         <select class="form-select" id="backgroundSelect" onchange="syncNoteBackground(); triggerUpdate()">
-                            <option value="assets/image/bs/KTB24.jpg">NEW</option>
                             <option value="assets/image/bs/KTB23.jpg">ต้นฉบับ</option>
+                            <option value="assets/image/bs/KTB24.jpg">ไหว้พระจันทร์</option>
                             <option value="assets/image/bs/KTB20.jpg">หน้าร้อน</option>
                             <option value="assets/image/bs/KTB21.jpg">สงกรานต์</option>
                             <option value="assets/image/bs/KTB22.jpg">วันแม่</option>
