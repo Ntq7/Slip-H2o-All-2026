@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รับรองวงเงิน</title>
+    
+    <!-- ฟอนต์ที่ใช้ -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/imagestime/logo.png">
+    
+    <!-- เชื่อมโยงไฟล์ CSS ของโครงสร้างระบบใหม่ -->
+    <link rel="stylesheet" href="css/time.css">
+    
+    <!-- ป้องกันการแคช -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+</head>
+<body onload="if(typeof updateDisplay === 'function') updateDisplay()">
+
+    <div id="copy-toast">✅ ดาวน์โหลดรูปภาพแล้ว</div>
+
+    <aside class="sidebar">
+        <button class="btn-copy-top" id="btn-copy" onclick="if(typeof downloadImage === 'function') downloadImage()">
+            📸 ดาวน์โหลดรูปภาพ
+        </button>
+
+        <!-- ชุดฟอร์มกรอกข้อมูล -->
+        <div class="form-container">
+            <div class="form-group">
+                <label>เลือกพื้นหลังบริษัท</label>
+                <select id="backgroundSelect" name="backgroundSelect" onchange="updateDisplay()">
+                    <option value="/assets/image/paper/paper2.1.jpg">BABY CARE
+                    <option value="/assets/image/paper/paper2.0.jpg">ไม่มี</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>วันที่ออก</label>
+                <input type="datetime-local" id="datetime" step="1" required oninput="updateDisplay()">
+            </div>
+            
+            <div class="form-group">
+                <label>ยูสเซอร์</label>
+                <input type="text" id="user1" placeholder="AM0000" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>ชื่อ-นามสกุล</label>
+                <input type="text" id="sendername" placeholder="ชื่อ-นามสกุล" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>เงินในระบบ</label>
+                <input type="text" id="amount1" placeholder="เงินในระบบ" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>เงินได้คืนทั้งหมด</label>
+                <input type="text" id="amount3" placeholder="เงินได้คืนทั้งหมด" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>หมายเหตุ</label>
+                <input type="text" id="notes" placeholder="หมายเหตุ" oninput="updateDisplay()">
+            </div>
+
+            <hr style="margin: 20px 0; border: none; border-bottom: 1px solid #e2e8f0;">
+
+            <div class="form-group">
+                <label>ชื่อบริษัท (ภาษาไทย)</label>
+                <input type="text" id="companyName" value="บริษัท 94 เบบี้ ลัคกี้ จำกัด" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>ชื่อบริษัท (ภาษาอังกฤษ)</label>
+                <input type="text" id="companyNameEng" value="94 BABY LUCKY CO., LTD." oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>ที่อยู่บริษัท</label>
+                <input type="text" id="companyAddress" value="499/24 หมู่ที่ 4 ตำบลหนองผึ้ง อำเภอสารภี จ.เชียงใหม่ 50140" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>ชื่อผู้จัดการ (ผู้ลงนาม)</label>
+                <input type="text" id="companyName1" value="นางสาวณพัชชนันท์ ใจสา" oninput="updateDisplay()">
+            </div>
+        </div>
+
+        <button class="btn-dashboard" onclick="window.location.href='index.html'">
+            <img src="assets/imagestime/logo.png" alt="icon" style="width: 24px; height: 24px; object-fit: contain;">
+            กลับหน้าหลัก (Dashboard)
+        </button>
+    </aside>
+
+    <main class="workspace" style="display: flex; justify-content: center; align-items: center;">
+        <div style="box-shadow: 0 10px 25px rgba(0,0,0,0.1); background: #ffffff; border-radius: 8px; overflow: hidden; display: flex;">
+            <canvas id="canvas" width="904" height="1280" style="max-height: 90vh; width: auto; object-fit: contain;"></canvas>
+        </div>
+    </main>
+
+    <script type="module" src="js/backend-auth.js"></script>
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/security.js"></script>
+    
+    <script src="js/gc.js"></script>
+</body>
+</html>
