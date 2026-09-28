@@ -5,36 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>กองทุนช่วยเหลือ</title>
     
-    <!-- ฟอนต์ที่ใช้ -->
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="assets/imagestime/logo.png">
     
-    <!-- เชื่อมโยงไฟล์ CSS ของโครงสร้างระบบใหม่ -->
     <link rel="stylesheet" href="css/time.css">
     
-    <!-- ป้องกันการแคช -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
     <meta http-equiv="Expires" content="0"/>
 </head>
 <body onload="if(typeof updateDisplay === 'function') updateDisplay()">
 
-    <!-- แจ้งเตือนเวลาดาวน์โหลดรูป -->
     <div id="copy-toast">✅ ดาวน์โหลดรูปภาพแล้ว</div>
 
-    <!-- Sidebar ด้านซ้าย -->
     <aside class="sidebar">
-        <!-- ปุ่มโหลดรูปภาพด้านบนสุด -->
         <button class="btn-copy-top" id="btn-copy" onclick="if(typeof downloadImage === 'function') downloadImage()">
             📸 ดาวน์โหลดรูปภาพ
         </button>
 
-        <!-- ชุดฟอร์มกรอกข้อมูล -->
         <div class="form-container">
             <div class="form-group">
                 <label>เลือกพื้นหลังบริษัท</label>
                 <select id="backgroundSelect" name="backgroundSelect" onchange="updateDisplay()">
-                    <option value="/assets/image/paper/paper2.1.jpg">BABY CARE
+                    <option value="/assets/image/paper/paper2.1.jpg">SECOND LOVEKIDS
                     <option value="/assets/image/paper/paper2.0.jpg">ไม่มี</option>
                 </select>
             </div>
@@ -74,7 +67,6 @@
                 <input type="text" id="footnote" value="ระบบจะปรับปรุงตามจำนวนเงินที่ยื่นเรื่อง โดยนำเงินกองทุนช่วยเหลือไปพร้อมกับเงินยื่นเรื่อง สมาชิกดำเนินการให้เสร็จสิ้นตามขั้นตอนที่กำหนด" oninput="updateDisplay()">
             </div>
 
-            <!-- ขีดเส้นคั่นแบ่งโซนข้อมูลบริษัท -->
             <hr style="margin: 20px 0; border: none; border-bottom: 1px solid #e2e8f0;">
 
             <div class="form-group">
@@ -100,7 +92,7 @@
 
         <button class="btn-dashboard" onclick="window.location.href='index.html'">
             <img src="assets/imagestime/logo.png" alt="icon" style="width: 24px; height: 24px; object-fit: contain;">
-            กลับหน้าหลัก (Dashboard)
+            กลับหน้าหลัก
         </button>
     </aside>
 
