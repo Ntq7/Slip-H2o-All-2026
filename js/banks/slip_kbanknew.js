@@ -7,6 +7,7 @@
     // ==========================================
     async function loadFonts() {
         const fonts = [
+            new FontFace('kuriousLooped', `url(${fontPath}/kurious-Looped.woff)`),
             new FontFace('SukhumvitSetThin', `url(${fontPath}/SukhumvitSet-Thin.woff)`),
             new FontFace('SukhumvitSetText', `url(${fontPath}/SukhumvitSet-Text.woff)`),
             new FontFace('SukhumvitSetLight', `url(${fontPath}/SukhumvitSet-Light.woff)`),
@@ -117,11 +118,11 @@
         return el && el.value ? el.value : fallback;
     }
 
-    // ✨ ฟังก์ชันวาดข้อความอัปเกรดใหม่ (ใช้ระบบจัดชิดขวาของเบราว์เซอร์ แม่นยำ 100%)
     function drawText(ctx, text, x, y, fontSize, fontFamily, color, align) {
-        ctx.font = `${fontSize}px ${fontFamily}`;
+        ctx.font = `${parseInt(fontSize)}px ${fontFamily}`; // บังคับเป็นจำนวนเต็ม
         ctx.fillStyle = color;
-        ctx.textAlign = align; // 'left' หรือ 'right'
+        ctx.textAlign = align; 
+        ctx.textBaseline = 'alphabetic'; 
         ctx.fillText(text, x, y);
     }
 
@@ -197,14 +198,14 @@
         const ctx = canvas.getContext('2d');
 
         // ✨ โค้ดสีตามสลิปจริง ✨
-        const colorDark = '#414141'; // ดำเข้ม (ชื่อ, จำนวนเงิน)
+        const colorDark = '#5a5a5a'; // ดำเข้ม (ชื่อ, จำนวนเงิน)
         const colorGray = '#5a5a5a'; // เทา (ธนาคาร, บัญชี, วันที่, บาท, เลขที่รายการ)
+        const colorDarkGray = '#464646'; // เทาอ่อน (ข้อความช่วยเหลือ, ป้ายกำกับ)
 
         const backgroundImage = new Image();
         backgroundImage.src = backgroundImageSrc;
         backgroundImage.onload = function () {
             
-            // ทำให้ Canvas กางออกเท่ารูปเป๊ะๆ (842x995)
             canvas.width = backgroundImage.width;
             canvas.height = backgroundImage.height;
 
@@ -223,28 +224,28 @@
                 drawText(ctx, `${formattedDate}  ${formattedTime} น.`, 140, 137, 33, 'kuriousRegular', colorGray, 'left');
                 
                 // 3. ผู้โอน 
-                drawText(ctx, `${sendername}`, 140, 265, 38, 'kuriousSemiBold', colorDark, 'left');
+                drawText(ctx, `${sendername}`, 140, 265, 37.5, 'kuriousSemiBold', colorDark, 'left');
                 drawText(ctx, `ธ.กสิกรไทย`, 140, 312, 32, 'kuriousRegular', colorGray, 'left');
                 drawText(ctx, `${senderaccount}`, 140, 358, 32, 'kuriousRegular', colorGray, 'left');
                 
                 // 4. ผู้รับ
                 if (isMetaAds) {
-                    drawText(ctx, `Meta Ads (KGP)`, 140, 452, 38, 'kuriousSemiBold', colorDark, 'left');
+                    drawText(ctx, `Meta Ads (KGP)`, 140, 452, 37.5, 'kuriousSemiBold', colorDark, 'left');
                     drawText(ctx, `${receiveraccount}`, 140, 498, 32, 'kuriousRegular', colorGray, 'left');
                 } else {
-                    drawText(ctx, `${receivername}`, 140, 472, 38, 'kuriousSemiBold', colorDark, 'left');
-                    
+                    drawText(ctx, `${receivername}`, 140, 472, 37.5, 'kuriousSemiBold', colorDark, 'left');
+
                     if (bank !== 'พร้อมเพย์วอลเล็ท') {
-                        // กรณีธนาคารทั่วไป (แสดงชื่อธนาคาร และตามด้วยเลขบัญชีด้านล่าง)
+                        // กรณีธนาคารทั่วไป
                         drawText(ctx, bankInfo.bankText, 140, 520, 32, 'kuriousRegular', colorGray, 'left');
                         drawText(ctx, `${receiveraccount}`, 140, 565, 32, 'kuriousRegular', colorGray, 'left');
                     } else {
-                        // กรณีพร้อมเพย์วอลเล็ท (ไม่มีบรรทัดธนาคาร ดึงเลขบัญชี/เบอร์ขึ้นมาตรงนี้แทน)
+                        // กรณีพร้อมเพย์วอลเล็ท
                         drawText(ctx, `${receiveraccount}`, 140, 520, 32, 'kuriousRegular', colorGray, 'left');
                     }
                 }
                 if (isMetaAds) {
-                drawText(ctx, `Meta Ads (KGP)`, 140, 452, 38, 'kuriousSemiBold', colorDark, 'left');
+                drawText(ctx, `Meta Ads (KGP)`, 140, 452, 37.5, 'kuriousSemiBold', colorDark, 'left');
                 drawText(ctx, `${receiveraccount}`, 140, 498, 32, 'kuriousRegular', colorGray, 'left');
                 drawText(ctx, `${receiveraccount}`, 140, 545, 32, 'kuriousRegular', colorGray, 'left'); // ✨ เพิ่มบรรทัดที่สองตรงนี้
             }
@@ -253,13 +254,30 @@
                 const rightBaht = 800; 
                 const rightNum = 550;   
 
-                // จำนวนเงิน
-                drawText(ctx, ``, rightBaht, 682, 34, 'kuriousRegular', colorGray, 'right');
-                drawText(ctx, `${amount11}`, rightNum, 692, 50, 'kuriousSemiBold', colorDark, 'right');
+                // --- จำนวนเงิน พิ่มความหนา ---
+                ctx.font = `47px 'kuriousSemiBold', sans-serif`;
+                ctx.fillStyle = colorDark; // สีของตัวอักษร
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'alphabetic';
+                
+                // 1. (ลดระยะห่างตัวเลขให้ติดกัน)
+                ctx.letterSpacing = "-1px"; // ปรับเลขติดลบเพิ่มได้ถ้าอยากให้ชิด
+                
+                // 2. เพิ่มความหนา
+                ctx.lineWidth = 1.2; // ปรับความหนาได้ (แนะนำ 1 ถึง 2)
+                ctx.strokeStyle = colorDark; 
+                
+                // วาดขอบก่อน แล้ววาดเนื้อในทับ
+                ctx.strokeText(`${amount11}`, rightNum, 695); 
+                ctx.fillText(`${amount11}`, rightNum, 695);   
+                
+                // 3. รีเซ็ตค่ากลับเป็นปกติ ป้องกันไม่ให้ไปกระทบบรรทัดอื่น
+                ctx.letterSpacing = "0px";
+                ctx.lineWidth = 0;
                 
                 // ค่าธรรมเนียม
                 drawText(ctx, ``, rightBaht, 782, 34, 'kuriousRegular', colorGray, 'right');
-                drawText(ctx, `0.00`, rightNum, 800, 34, 'kuriousRegular', colorGray, 'right'); 
+                drawText(ctx, `0.00`, rightNum, 800, 34, 'SFThonburiSemiBold', colorGray, 'right');
                 
                 // 6. เลขที่รายการ (จัดชิดขวา)
                 drawText(ctx, `${generateUniqueID()}`, 612, 895, 30, 'kuriousRegular', colorGray, 'right');
@@ -307,8 +325,9 @@
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
 
-        const colorDark = '#414141'; 
+        const colorDark = '#5a5a5a'; 
         const colorGray = '#5a5a5a'; 
+        const colorDarkGray = '#464646';
 
         const backgroundImage = new Image();
         backgroundImage.src = bgNoteValue;
@@ -322,7 +341,7 @@
             bankLogo.src = bankInfo.bankLogoUrl;
             bankLogo.onload = function() {
                 
-                // 1. โลโก้ (ขยับขึ้นบนเพื่อเว้นที่ให้โน้ต)
+                // 1. โลโก้ 
                 drawImage(ctx, 'assets/image/logo/KBANK.png', 34, 212, 86, 86);
                 ctx.drawImage(bankLogo, 34, 420, 86, 86);
 
@@ -330,41 +349,58 @@
                 drawText(ctx, `${formattedDate}  ${formattedTime} น.`, 140, 137, 33, 'kuriousRegular', colorGray, 'left');
 
                 // 3. ผู้โอน
-                drawText(ctx, `${sendername}`, 140, 265, 38, 'kuriousSemiBold', colorDark, 'left');
+                drawText(ctx, `${sendername}`, 140, 265, 37.5, 'kuriousSemiBold', colorDark, 'left');
                 drawText(ctx, `ธ.กสิกรไทย`, 140, 312, 32, 'kuriousRegular', colorGray, 'left');
                 drawText(ctx, `${senderaccount}`, 140, 358, 32, 'kuriousRegular', colorGray, 'left');
 
                 // 4. ผู้รับ
                 if (isMetaAds) {
-                    drawText(ctx, `Meta Ads (KGP)`, 140, 452, 38, 'kuriousSemiBold', colorDark, 'left');
+                    drawText(ctx, `Meta Ads (KGP)`, 140, 452, 37.5, 'kuriousSemiBold', colorDark, 'left');
                     drawText(ctx, `${receiveraccount}`, 140, 498, 32, 'kuriousRegular', colorGray, 'left');
                 } else {
-                    drawText(ctx, `${receivername}`, 140, 472, 38, 'kuriousSemiBold', colorDark, 'left');
-                    
+                    drawText(ctx, `${receivername}`, 140, 472, 37.5, 'kuriousSemiBold', colorDark, 'left');
+
                     if (bank !== 'พร้อมเพย์วอลเล็ท') {
-                        // กรณีธนาคารทั่วไป (แสดงชื่อธนาคาร และตามด้วยเลขบัญชีด้านล่าง)
+                        // กรณีธนาคารทั่วไป 
                         drawText(ctx, bankInfo.bankText, 140, 520, 32, 'kuriousRegular', colorGray, 'left');
                         drawText(ctx, `${receiveraccount}`, 140, 565, 32, 'kuriousRegular', colorGray, 'left');
                     } else {
-                        // กรณีพร้อมเพย์วอลเล็ท (ไม่มีบรรทัดธนาคาร ดึงเลขบัญชี/เบอร์ขึ้นมาตรงนี้แทน)
+                        // กรณีพร้อมเพย์วอลเล็ท 
                         drawText(ctx, `${receiveraccount}`, 140, 520, 32, 'kuriousRegular', colorGray, 'left');
                     }
 }
                     if (isMetaAds) {
-                        drawText(ctx, `Meta Ads (KGP)`, 140, 452, 38, 'kuriousSemiBold', colorDark, 'left');
+                        drawText(ctx, `Meta Ads (KGP)`, 140, 452, 37.5, 'kuriousSemiBold', colorDark, 'left');
                         drawText(ctx, `${receiveraccount}`, 140, 498, 32, 'kuriousRegular', colorGray, 'left');
                         drawText(ctx, `${receiveraccount}`, 140, 545, 32, 'kuriousRegular', colorGray, 'left'); // ✨ เพิ่มบรรทัดที่สองตรงนี้
                     }
 
                 // 5. โซนตัวเลข 
-                const rightBaht = 800;  
-                const rightNum = 550; 
+                const rightBaht = 800; 
+                const rightNum = 550;   
 
-                drawText(ctx, ``, rightBaht, 682, 34, 'kuriousRegular', colorGray, 'right');
-                drawText(ctx, `${amount11}`, rightNum, 692, 50, 'kuriousSemiBold', colorDark, 'right');
+                // --- จำนวนเงิน พิ่มความหนา ---
+                ctx.font = `47px 'kuriousSemiBold', sans-serif`;
+                ctx.fillStyle = colorDark; // สีของตัวอักษร
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'alphabetic';
                 
+                // 1. (ลดระยะห่างตัวเลขให้ติดกัน)
+                ctx.letterSpacing = "-1px"; // ปรับเลขติดลบเพิ่มได้ถ้าอยากให้ชิด
+                
+                // 2. เพิ่มความหนา
+                ctx.lineWidth = 1.2; // ปรับความหนาได้ (แนะนำ 1 ถึง 2)
+                ctx.strokeStyle = colorDark; 
+                
+                ctx.strokeText(`${amount11}`, rightNum, 695); 
+                ctx.fillText(`${amount11}`, rightNum, 695);   
+                
+                ctx.letterSpacing = "0px";
+                ctx.lineWidth = 0;
+                
+                // ค่าธรรมเนียม
                 drawText(ctx, ``, rightBaht, 782, 34, 'kuriousRegular', colorGray, 'right');
-                drawText(ctx, `0.00`, rightNum, 800, 34, 'kuriousRegular', colorGray, 'right');
+                drawText(ctx, `0.00`, rightNum, 800, 34, 'SFThonburiSemiBold', colorGray, 'right');
 
                 // 6. เลขที่รายการ
                 drawText(ctx, `${generateUniqueID()}`, 612, 895, 30, 'kuriousRegular', colorGray, 'right');
@@ -373,7 +409,7 @@
                 drawQRCode(ctx, 605, 680, 140);
 
                 // 8. บันทึกช่วยจำ 
-                drawText(ctx, `${AideMemoire}`, 180, 999, 28, 'kuriousRegular', colorGray, 'left');
+                drawText(ctx, `${AideMemoire}`, 190, 998, 26, 'kuriousRegular', colorGray, 'left');
 
                 if (selectedImage && selectedImage !== 'assets/image/st/NO.png') {
                     const customImage = new Image();
