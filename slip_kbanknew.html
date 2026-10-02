@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สร้างสลิป MAKE by KBank - Slip H2o</title>
+    <title>สร้างสลิป กสิกรไทย - Slip H2o</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="icon" href="assets/image/logo1/p-make.png" type="image/png">
+    <link rel="icon" href="assets/image/logo1/p-kbank.png" type="image/png">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap');
 
         :root {
-            --bg-main: linear-gradient(135deg, #fda1d4 0%, #c2fbc2 50%, #a7dff8 100%);
+            --bg-main: linear-gradient(135deg, #fda1d4 0%, #c2fbc2 50%, #e0c3fc 100%);
             --card-bg: rgba(255, 255, 255, 0.45);
             --card-border: rgba(255, 255, 255, 0.6);
             --sidebar-bg: rgba(255, 255, 255, 0.35);
             --text-main: #1e293b;
             --text-muted: #475569;
-          
-            --primary-color: #06b6d4; 
-            --primary-glow: rgba(6, 182, 212, 0.4);
+            --primary-color: #00a950;
+            --primary-glow: rgba(0, 169, 80, 0.4);
             --item-bg: rgba(255, 255, 255, 0.55);
             --item-hover-bg: rgba(255, 255, 255, 0.95);
             --logo-box-bg: rgba(255, 255, 255, 0.8);
@@ -31,12 +30,12 @@
         }
 
         body.theme-dark {
-            --bg-main: linear-gradient(135deg, #0a1128 0%, #162238 100%);
+            --bg-main: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
             --card-bg: rgba(255, 255, 255, 0.03);
             --card-border: rgba(255, 255, 255, 0.08);
-            --sidebar-bg: rgba(10, 17, 40, 0.6);
+            --sidebar-bg: rgba(15, 23, 42, 0.6);
             --text-main: #f8fafc;
-            --text-muted: #cbd5e1;
+            --text-muted: #94a3b8;
             --item-bg: rgba(255, 255, 255, 0.02);
             --item-hover-bg: rgba(255, 255, 255, 0.06);
             --logo-box-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
@@ -64,7 +63,8 @@
         .sidebar-link:hover::before, .sidebar-link.active::before { transform: scaleY(1); opacity: 1; }
         .sidebar-link:hover, .sidebar-link.active { background: var(--primary-color); color: #fff; transform: translateX(6px); box-shadow: 0 4px 15px var(--primary-glow); }
         .sidebar-icon-img { width: 22px; height: 22px; object-fit: contain; transition: 0.3s; }
-        .sidebar-link:hover .sidebar-icon-img { transform: scale(1.15) rotate(-5deg); }
+        .sidebar-link:hover .sidebar-icon-img { transform: scale(1.15) rotate(-5deg); filter: brightness(0) invert(1); }
+        .sidebar-link.active .sidebar-icon-img 
         
         .sidebar-link[aria-expanded="true"] .toggle-icon { transform: rotate(180deg); }
         .toggle-icon { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); font-size: 0.85rem; opacity: 0.7; }
@@ -80,6 +80,7 @@
         .btn-theme-toggle { background: var(--item-bg); color: var(--text-main); border: 1px solid var(--card-border); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .btn-theme-toggle:hover { background: var(--text-main); color: var(--bg-main); box-shadow: 0 5px 15px rgba(0,0,0,0.1); transform: translateY(-2px); }
 
+        /* Form Styles */
         .form-section-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; margin-bottom: 15px; backdrop-filter: blur(25px); box-shadow: var(--shadow); transition: all 0.3s ease; }
         .form-section-title { font-size: 1rem; font-weight: 600; color: var(--primary-color); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
         .form-label { font-weight: 500; color: var(--text-main); font-size: 0.85rem; margin-bottom: 5px;}
@@ -87,20 +88,22 @@
         .form-control:focus, .form-select:focus { background-color: var(--input-bg); border-color: var(--primary-color); box-shadow: 0 0 0 3px var(--primary-glow); color: var(--text-main); }
         ::placeholder { color: var(--text-muted); opacity: 0.7; }
         
-        .btn-bank-main { background: var(--primary-color); color: white; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 1rem; border: none; transition: all 0.3s; box-shadow: 0 4px 15px var(--primary-glow); }
-        .btn-bank-main:hover { background: #0891b2; transform: translateY(-3px); box-shadow: 0 8px 25px var(--primary-glow); color: white;}
+        .btn-kbank { background: var(--primary-color); color: white; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 1rem; border: none; transition: all 0.3s; box-shadow: 0 4px 15px var(--primary-glow); }
+        .btn-kbank:hover { background: #008a41; transform: translateY(-3px); box-shadow: 0 8px 25px var(--primary-glow); color: white;}
 
         .alert-custom { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: var(--warning-color); border-radius: 12px; padding: 10px 15px; font-size: 0.8rem; margin-bottom: 15px; }
 
+        /* Hologram Canvas */
         .holo-display-wrapper { position: sticky; top: 20px; display: flex; justify-content: center; align-items: center; height: calc(100vh - 120px); perspective: 1000px; }
         .holo-card { width: 100%; max-width: 480px; background: rgba(255, 255, 255, 0.05); border-radius: 24px; padding: 18px; box-shadow: 0 25px 50px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.2); backdrop-filter: blur(20px); transform-style: preserve-3d; animation: floatHolo 6s ease-in-out infinite; }
         @keyframes floatHolo { 0% { transform: translateY(0px) rotateX(1deg); } 50% { transform: translateY(-8px) rotateX(-1deg); } 100% { transform: translateY(0px) rotateX(1deg); } }
-        .holo-screen { width: 100%; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.5); display: block; margin: 0 auto; }
-        #canvas { width: 100%; height: auto; max-height: 80vh; object-fit: contain; display: block; margin: 0 auto; }
+        .holo-screen { width: 100%; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.5); }
+        #canvas { width: 100%; height: auto; display: block; object-fit: contain; }
 
         .form-switch .form-check-input { width: 2.5em; height: 1.2em; background-color: var(--input-bg); border-color: var(--card-border); cursor: pointer; }
         .form-switch .form-check-input:checked { background-color: var(--primary-color); border-color: var(--primary-color); box-shadow: 0 0 10px var(--primary-glow); }
 
+        /* กล่องแสดงรูปตัวอย่าง Tooltip */
         .preview-tooltip {
             position: fixed; pointer-events: none; z-index: 9999;
             opacity: 0; visibility: hidden; transform: translateY(10px) scale(0.95);
@@ -115,9 +118,9 @@
         /* 👇 CSS เสริมเพื่อให้ Custom Dropdown สวยและเข้ากับ Theme 👇 */
         .dropdown-item { color: var(--text-main); font-size: 0.9rem; padding: 10px 15px; }
         .dropdown-item:hover { background-color: var(--primary-glow); color: var(--text-main); }
-        body.theme-dark .dropdown-menu { background-color: #1e293b; border-color: var(--card-border); }
+        body.theme-dark .dropdown-menu { background-color: #1e1b4b; border-color: var(--card-border); }
         body.theme-dark .dropdown-item { color: #f8fafc; }
-        body.theme-dark .dropdown-item:hover { background-color: rgba(6, 182, 212, 0.4); color: #fff; }
+        body.theme-dark .dropdown-item:hover { background-color: rgba(0, 169, 80, 0.4); color: #fff; }
     </style>
 </head>
 <body style="display: none;">
@@ -142,7 +145,7 @@
       </a>
       <div class="collapse show" id="menuSlips">
           <div class="d-flex flex-column gap-1 mt-1 mb-3 ms-3 ps-3 border-start border-secondary border-opacity-25">
-              <a href="slip_kbanknew.html" class="sidebar-link sub-link" data-preview="assets/image/preview/ex_kbanknew.png"><img src="assets/image/logo1/p-kbank.png" class="sidebar-icon-img"> กสิกรไทยใหม่</a>
+              <a href="slip_kbanknew.html" class="sidebar-link sub-link active" data-preview="assets/image/preview/ex_kbanknew.png"><img src="assets/image/logo1/p-kbank.png" class="sidebar-icon-img"> กสิกรไทยใหม่</a>
               <a href="slip_kbank.html" class="sidebar-link sub-link" data-preview="assets/image/preview/ex_kbank.png"><img src="assets/image/logo1/p-kbank.png" class="sidebar-icon-img"> กสิกรไทย</a>
               <a href="slip_scb.html" class="sidebar-link sub-link" data-preview="assets/image/preview/ex_scb.png"><img src="assets/image/logo1/p-scb.png" class="sidebar-icon-img"> ไทยพาณิชย์</a>
               <a href="slip_ktb.html" class="sidebar-link sub-link" data-preview="assets/image/preview/ex_ktb.png"><img src="assets/image/logo1/p-kt.png" class="sidebar-icon-img"> กรุงไทย</a>
@@ -154,7 +157,7 @@
               <a href="slip_cimb.html" class="sidebar-link sub-link" data-preview="assets/image/preview/ex_cimb.png"><img src="assets/image/logo1/p-cimb.png" class="sidebar-icon-img"> CIMB</a>
               <a href="slip_baac.html" class="sidebar-link sub-link" data-preview="assets/image/preview/ex_baac.png"><img src="assets/image/logo1/p-tks.png" class="sidebar-icon-img"> ธ.ก.ส.</a>
               <a href="slip_linebk.html" class="sidebar-link sub-link" data-preview="assets/image/preview/ex_linebk.png"><img src="assets/image/logo1/p-linebk.png" class="sidebar-icon-img"> LINE BK</a>
-              <a href="slip_make.html" class="sidebar-link sub-link active" data-preview="assets/image/preview/ex_make.png"><img src="assets/image/logo1/p-make.png" class="sidebar-icon-img"> MAKE</a>
+              <a href="slip_make.html" class="sidebar-link sub-link" data-preview="assets/image/preview/ex_make.png"><img src="assets/image/logo1/p-make.png" class="sidebar-icon-img"> MAKE</a>
           </div>
       </div>
 
@@ -208,9 +211,9 @@
       <a href="#" class="btn btn-outline-danger btn-sm w-100 rounded-pill mb-2 py-2 fw-medium d-flex justify-content-center align-items-center">
         <i class="bi bi-headset me-2"></i> ติดต่อผู้ดูแลระบบ
       </a>
-      <a href="login.html" onclick="logoutApp()" class="btn btn-theme-toggle btn-sm w-100 rounded-pill py-2 fw-medium d-flex justify-content-center align-items-center">
-        <i class="bi bi-box-arrow-right me-2"></i> ออกจากระบบ
-      </a>
+      <a href="javascript:void(0)" onclick="logoutApp()" class="btn btn-theme-toggle btn-sm w-100 rounded-pill py-2 fw-medium d-flex justify-content-center align-items-center">
+    <i class="bi bi-box-arrow-right me-2"></i> ออกจากระบบ
+</a>
     </div>
   </aside>
 
@@ -218,7 +221,7 @@
     <nav class="navbar navbar-expand-lg slip-navbar d-flex justify-content-between align-items-center">
       <div class="d-flex align-items-center gap-2">
         <h5 class="mb-0 fw-bold" style="color: var(--text-main); font-size: 1.1rem;">
-            <img src="assets/image/logo1/p-make.png" style="width: 28px; margin-right: 8px;"> ระบบสร้างสลิป MAKE by KBank
+            <img src="assets/image/logo1/p-kbank.png" style="width: 28px; margin-right: 8px;"> ระบบสร้างสลิป กสิกรไทย
         </h5>
       </div>
       
@@ -253,7 +256,7 @@
             <div class="alert-custom">
                 <i class="bi bi-info-circle-fill me-2"></i> <strong>รูปแบบเลขบัญชี:</strong><br>
                 <span class="ms-4">10 หลัก: xxx-x-x0000-x | 12 หลัก: xxx-x-x0000-xxx</span><br>
-                <span class="ms-4">วอลเล็ท: 000-xxxxxxxx-0000</span>
+                <span class="ms-4">พร้อมเพย์: xxx-xxx-0000 | วอลเล็ท: 000-xxxxxxxx-0000</span>
             </div>
 
             <div class="form-section-card">
@@ -265,9 +268,15 @@
                 </div>
                 <div id="noteOptions" style="display: none; margin-top: 15px; border-top: 1px dashed var(--card-border); padding-top: 15px;">
                     <div class="row g-3">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <label for="AideMemoire" class="form-label text-warning">บันทึกช่วยจำ</label>
-                            <input type="text" class="form-control" id="AideMemoire" name="AideMemoire" value="ค่าเหล้า ค่าเบียร์" oninput="triggerUpdate()">
+                            <input type="text" class="form-control" id="AideMemoire" value="ค่าเหล้าค่าเบียร์" oninput="triggerUpdate()">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="bg_note" class="form-label text-warning">พื้นหลังโน้ต</label>
+                            <select class="form-select" id="bg_note" onchange="syncNormalBackground(); triggerUpdate()">
+                                <option value="assets/image/bs/N-K1newT.jpg">ต้นฉบับ</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -278,25 +287,25 @@
                 <div class="form-section-title"><i class="bi bi-person-vcard fs-5"></i> ข้อมูลบัญชี</div>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label for="sendername" class="form-label" style="color: #10b981;">ผู้โอน</label>
-                        <input type="text" class="form-control mb-3" id="sendername" name="sendername" value="ยูรีนา อาดตันตรา" oninput="triggerUpdate()">
+                        <label for="sendername" class="form-label" style="color: #10b981;">ชื่อผู้โอน</label>
+                        <input type="text" class="form-control mb-3" id="sendername" value="น.ส. บุษบา บ" oninput="triggerUpdate()">
                         <label for="senderaccount" class="form-label" style="color: #10b981;">เลขบัญชีผู้โอน</label>
-                        <input type="text" class="form-control" id="senderaccount" name="senderaccount" value="xxx-x-x3988-x" oninput="triggerUpdate()">
+                        <input type="text" class="form-control" id="senderaccount" value="xxx-x-x0000-x" oninput="triggerUpdate()">
                     </div>
                     <div class="col-md-6">
                         <label for="receivername" class="form-label text-primary">ชื่อผู้รับ</label>
-                        <input type="text" class="form-control mb-3" id="receivername" name="receivername" value="กบ เขียด" oninput="triggerUpdate()">
+                        <input type="text" class="form-control mb-3" id="receivername" value="นาย กบ เขียด" oninput="triggerUpdate()">
                         <label for="receiveraccount" class="form-label text-primary">เลขบัญชีผู้รับ</label>
-                        <input type="text" class="form-control mb-3" id="receiveraccount" name="receiveraccount" value="xxx-x-x0000-x" oninput="triggerUpdate()">
+                        <input type="text" class="form-control mb-3" id="receiveraccount" value="xxx-x-x0000-x" oninput="triggerUpdate()">
                         
-                        <!-- 👇 เพิ่มระบบ Custom Dropdown แบบมีรูป ของ MAKE 👇 -->
+                        <!-- 👇 เพิ่มระบบ Custom Dropdown แบบมีรูป ของ KBANK 👇 -->
                         <label for="bank" class="form-label text-primary">ธนาคารปลายทาง</label>
                         
                         <!-- ซ่อน Select เดิมไว้เพื่อเก็บค่า -->
                         <input type="hidden" id="bank" name="bank" value="ธ.กสิกรไทย">
                         
                         <!-- สร้างปุ่ม Dropdown จำลองให้หน้าตาเหมือน select ของเดิม -->
-                        <div class="dropdown w-100">
+                        <div class="dropdown w-100 custom-bank-dropdown">
                             <button class="form-select d-flex align-items-center justify-content-between w-100" type="button" id="bankDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" style="text-align: left; background-color: var(--input-bg); border-color: var(--card-border); color: var(--text-main);">
                                 <div id="selectedBankDisplay" class="d-flex align-items-center">
                                     <img src="assets/image/logo/KBANK1.3.png" style="width: 22px; height: 22px; margin-right: 8px; object-fit: contain;">
@@ -304,7 +313,7 @@
                                 </div>
                             </button>
                             
-                            <!-- ลิสต์รายชื่อพร้อมรูปภาพ (ดึง Path รูปภาพจากโค้ดใหม่ทั้งหมด และยึด Value ตามเดิมเป๊ะๆ) -->
+                            <!-- ลิสต์รายชื่อพร้อมรูปภาพ (ยึด Value ตามเดิมเป๊ะๆ) -->
                             <ul class="dropdown-menu w-100 shadow" aria-labelledby="bankDropdownBtn" style="max-height: 250px; overflow-y: auto; background-color: var(--input-bg); backdrop-filter: blur(25px);">
                                 <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.กสิกรไทย" data-text="ธ.กสิกรไทย" data-img="assets/image/logo/KBANK1.3.png"><img src="assets/image/logo/KBANK1.3.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.กสิกรไทย</a></li>
                                 <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.กรุงไทย" data-text="ธ.กรุงไทย" data-img="assets/image/logo/KTB2.png"><img src="assets/image/logo/KTB2.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.กรุงไทย</a></li>
@@ -320,8 +329,9 @@
                                 <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.ยูโอบี" data-text="ธ.ยูโอบี" data-img="assets/image/logo/UOB4.png"><img src="assets/image/logo/UOB4.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ยูโอบี</a></li>
                                 <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.แลนด์ แอนด์ เฮ้าส์" data-text="ธ.แลนด์ แอนด์ เฮ้าส์" data-img="assets/image/logo/LHBANK1.png"><img src="assets/image/logo/LHBANK1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.แลนด์ แอนด์ เฮ้าส์</a></li>
                                 <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="ธ.ไอซีบีซี" data-text="ธ.ไอซีบีซี" data-img="assets/image/logo/ICBC.png"><img src="assets/image/logo/ICBC.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> ธ.ไอซีบีซี</a></li>
-                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="พร้อมเพย์" data-text="พร้อมเพย์" data-img="assets/image/logo/P-TTB1.png"><img src="assets/image/logo/P-TTB1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> พร้อมเพย์</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="รหัสพร้อมเพย์" data-text="รหัสพร้อมเพย์" data-img="assets/image/logo/P-TTB1.png"><img src="assets/image/logo/P-TTB1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> รหัสพร้อมเพย์</a></li>
                                 <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="พร้อมเพย์วอลเล็ท" data-text="พร้อมเพย์วอลเล็ท" data-img="assets/image/logo/P-TTB1.png"><img src="assets/image/logo/P-TTB1.png" style="width: 22px; height: 22px; object-fit: contain; margin-right: 10px;"> พร้อมเพย์วอลเล็ท</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center bank-item" href="#" data-val="MetaAds" data-text="MetaAds" data-img=""><span style="width: 22px; height: 22px; margin-right: 10px; display: inline-block;"></span> MetaAds</a></li>
                             </ul>
                         </div>
                         <!-- 👆 สิ้นสุดการเพิ่ม Custom Dropdown 👆 -->
@@ -334,11 +344,11 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="amount11" class="form-label">จำนวนเงิน (บาท)</label>
-                        <input type="text" class="form-control fs-6 fw-bold" id="amount11" name="amount11" value="3,300.00" oninput="triggerUpdate()">
+                        <input type="text" class="form-control fs-6 fw-bold" id="amount11" value="3,300.00" oninput="triggerUpdate()">
                     </div>
                     <div class="col-md-6">
-                        <label for="datetime" class="form-label">เวลา (hh:mm:ss)</label>
-                        <input type="datetime-local" class="form-control" id="datetime-input" step="1" required oninput="triggerUpdate()">
+                        <label for="datetime" class="form-label">เวลา (ว/ด/ป ช:น:ว)</label>
+                        <input type="datetime-local" class="form-control" id="datetime" step="1" required oninput="triggerUpdate()">
                     </div>
                 </div>
             </div>
@@ -347,29 +357,25 @@
                 <div class="form-section-title"><i class="bi bi-palette fs-5"></i> ตกแต่ง & QR Code</div>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label for="imageSelect" class="form-label">เลือกสติ๊กเกอร์</label>
-                        <select class="form-select" id="imageSelect" name="imageSelect" onchange="triggerUpdate()" disabled>
-                            <option value="/assets/image/st/NO.png">ยังไม่มีสติ๊กเกอร์</option>
+                        <label for="imageSelect" class="form-label">สติ๊กเกอร์</label>
+                        <select class="form-select" id="imageSelect" onchange="triggerUpdate()">
                         </select>
                     </div>
+
                     <div class="col-md-6">
-                        <label for="backgroundSelect" class="form-label">เลือกพื้นหลัง</label>
-                        <select class="form-select" id="backgroundSelect" name="backgroundSelect" onchange="syncNoteBackground(); triggerUpdate()">
-                            <option value="assets/image/bs/MAKE1.jpg">ต้นฉบับ</option>
-                            <option value="assets/image/bs/MAKE1.1.jpg">โอนแล้วน้า</option>
-                            <option value="assets/image/bs/MAKE1.2.jpg">shopping</option>
-                            <option value="assets/image/bs/MAKE1.3.jpg">ธีมเขียว</option>
-                            <option value="assets/image/bs/MAKE1.4.jpg">พระแม่ลักษมี</option>
+                        <label for="backgroundSelect" class="form-label">พื้นหลัง (ปกติ)</label>
+                        <select class="form-select" id="backgroundSelect" onchange="syncNoteBackground(); triggerUpdate()">
+                            <option value="assets/image/bs/N-K1new.jpg">ต้นฉบับ</option>
                         </select>
                     </div>
-                    <div class="col-12 mt-2">
-                        <label for="QRCode" class="form-label">อัปโหลด QR Code</label>
+                    <div class="col-12">
+                        <label for="QRCode" class="form-label">อัปโหลด QR Code ของคุณเอง</label>
                         <input type="file" class="form-control" id="QRCode" name="QRCode" accept="image/*" onchange="triggerUpdate()">
                     </div>
                 </div>
             </div>
 
-            <button type="button" class="btn-bank-main w-100 mt-2 mb-5" onclick="downloadImage()">
+            <button type="button" class="btn-kbank w-100 mt-2 mb-5" onclick="downloadImage()">
                 <i class="bi bi-download me-2"></i> ดาวน์โหลดสลิป
             </button>
         </div>
@@ -378,7 +384,7 @@
             <div class="holo-display-wrapper">
                 <div class="holo-card">
                     <div class="holo-screen" id="display">
-                        <canvas id="canvas" width="1074" height="1095"></canvas>
+                        <canvas id="canvas" width="842" height="1200"></canvas>
                     </div>
                 </div>
             </div>
@@ -392,8 +398,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // 🛑 กำหนดป้ายกำกับว่าหน้านี้คือธนาคาร MAKE
-    window.CURRENT_BANK = "MAKE";
+    window.CURRENT_BANK = "KBANK";
 
     // 👇 ฟังก์ชันเพื่อให้รูปอัปเดตตรงกับธนาคารเสมอ 👇
     function syncBankDropdown() {
@@ -416,7 +421,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        document.getElementById('datetime-input').value = now.toISOString().slice(0, 19);
+        document.getElementById('datetime').value = now.toISOString().slice(0, 19);
         setTimeout(function() { triggerUpdate(); }, 500);
 
         // จัดการเหตุการณ์เมื่อคลิกเลือกธนาคารจากลิสต์
@@ -435,7 +440,12 @@
     });
 
     function autoFormatAccount() {
-        // ฟังก์ชันเดิมของพี่
+        const bank = document.getElementById('bank').value;
+        const accInput = document.getElementById('receiveraccount');
+        if (bank === 'ธ.ออมสิน' || bank === 'ธ.ก.ส.'|| bank === 'ธ.อาคารสงเคราะห์') accInput.value = 'xxx-x-x0000-xxx';
+        else if (bank === 'รหัสพร้อมเพย์') accInput.value = 'xxx-xxx-0000';
+        else if (bank === 'พร้อมเพย์วอลเล็ท') accInput.value = '000-xxxxxxxx-0000';
+        else accInput.value = 'xxx-x-x0000-x';
     }
 
     function syncNoteBackground() {
@@ -469,10 +479,10 @@
     });
 
     window.clearForm = function() {
-        document.getElementById('AideMemoire').value = 'ค่าเหล้า ค่าเบียร์';
-        document.getElementById('sendername').value = 'ยูรีนา อาดตันตรา';
-        document.getElementById('senderaccount').value = 'xxx-x-x3988-x';
-        document.getElementById('receivername').value = 'กบ เขียด';
+        document.getElementById('AideMemoire').value = 'ค่าเหล้าค่าเบียร์';
+        document.getElementById('sendername').value = 'น.ส. บุษบา บ';
+        document.getElementById('senderaccount').value = 'xxx-x-x0000-x';
+        document.getElementById('receivername').value = 'นาย กบ เขียด';
         document.getElementById('receiveraccount').value = 'xxx-x-x0000-x';
         document.getElementById('amount11').value = '3,300.00';
         
@@ -488,7 +498,7 @@
         
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        document.getElementById('datetime-input').value = now.toISOString().slice(0, 19);
+        document.getElementById('datetime').value = now.toISOString().slice(0, 19);
         triggerUpdate();
     };
 
@@ -501,7 +511,6 @@
         triggerUpdate();
     }
 
-    // 🟢 เปลี่ยนจากของเก่า ให้วิ่งเข้าสู่ฟังก์ชันใหม่แทน
     window.triggerUpdate = function() {
         syncBankDropdown(); // อัปเดตรูปโลโก้กันเหนียวกรณีโหลดข้อมูลรายการโปรดมาใส่
 
@@ -539,7 +548,7 @@
 </script>
 
 <script src="js/utils.js"></script>
-<script src="js/banks/slip_make.js"></script> 
+<script src="js/banks/slip_kbanknew.js"></script> 
 <script src="js/security.js"></script>
 <script type="module" src="js/backend-auth.js"></script>
 

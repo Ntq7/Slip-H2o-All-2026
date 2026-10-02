@@ -1,6 +1,3 @@
-// js/banks/slip_kbank.js
-// รวมระบบสร้างสลิปกสิกรไทย (KBANK) ทั้งโหมดปกติ และ โหมดบันทึกช่วยจำ (Note)
-
 (function() {
     const fontPath = 'assets/fonts';
     let fontsLoaded = false;
@@ -75,7 +72,6 @@
             new FontFace('kuriousRegular', `url(${fontPath}/kurious-Regular.woff)`),
             new FontFace('kuriousSemiBold', `url(${fontPath}/kurious-semibold.woff)`)
         ];
-
         return Promise.all(fonts.map(font => font.load().catch(e => {}))).then(function(loadedFonts) {
             loadedFonts.forEach(function(font) { if (font) document.fonts.add(font); });
         });
@@ -113,23 +109,7 @@
         const uniqueDay = (15475 + dayDifference).toString().padStart(6, '0');
         const timePart = `${padZero(now.getHours())}${padZero(now.getMinutes())}${padZero(now.getSeconds())}`;
         const randomPart = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-        const bank = document.getElementById('bank') ? document.getElementById('bank').value : '';
-
-        let prefix = "BOR";
-        if (bank === "MetaAds") {
-            const prefixes = ["APM", "BPM", "CPM", "DPM"];
-            prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        } else if (bank === "รหัสพร้อมเพย์" || bank === "พร้อมเพย์วอลเล็ท") {
-            const prefixes = ["APP", "BPP", "CPP", "DPP"];
-            prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        } else if (bank === "ธ.กสิกรไทย") {
-            const prefixes = ["ATF", "BTF", "CTF", "DTF"];
-            prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        } else {
-            const prefixes = ["AOR", "BOR", "COR", "DOR"];
-            prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        }
-        return `${uniqueDay}${timePart}${prefix}0${randomPart}`;
+        return `${uniqueDay}${timePart}COR0${randomPart}`; // กสิกรใช้ COR
     }
 
     function getInputValue(id, fallback = '') {
@@ -137,79 +117,12 @@
         return el && el.value ? el.value : fallback;
     }
 
-    function computeTextWidth(ctx, text, letterSpacing) {
-        if (!letterSpacing) return ctx.measureText(text).width;
-        const segmenter = new Intl.Segmenter('th', { granularity: 'grapheme' });
-        const chars = [...segmenter.segment(text)].map(seg => seg.segment);
-        let w = 0;
-        chars.forEach((ch, idx) => {
-            w += ctx.measureText(ch).width;
-            if (idx < chars.length - 1) w += letterSpacing;
-        });
-        return w;
-    }
-
-    function drawTextLine(ctx, text, x, y, letterSpacing) {
-        if (!letterSpacing) {
-            ctx.fillText(text, x, y);
-            return;
-        }
-        const segmenter = new Intl.Segmenter('th', { granularity: 'grapheme' });
-        const chars = [...segmenter.segment(text)].map(seg => seg.segment);
-        let currentX = x;
-        chars.forEach((char, idx) => {
-            ctx.fillText(char, currentX, y);
-            currentX += ctx.measureText(char).width + letterSpacing;
-        });
-    }
-
-    function drawText(ctx, text, x, y, fontSize, fontFamily, color, align, lineHeight, maxLines, shadowColor, shadowBlur, maxWidth, letterSpacing) {
+    // ✨ ฟังก์ชันวาดข้อความอัปเกรดใหม่ (ใช้ระบบจัดชิดขวาของเบราว์เซอร์ แม่นยำ 100%)
+    function drawText(ctx, text, x, y, fontSize, fontFamily, color, align) {
         ctx.font = `${fontSize}px ${fontFamily}`;
         ctx.fillStyle = color;
-        ctx.textAlign = 'left';
-        ctx.shadowColor = shadowColor || 'transparent';
-        ctx.shadowBlur  = shadowBlur || 0;
-
-        const paragraphs = text.split('<br>');
-        let currentY = y;
-        const spacing = letterSpacing || 0;
-
-        paragraphs.forEach(paragraph => {
-            if (!paragraph) { currentY += lineHeight; return; }
-            const words = paragraph.split(/(\s+)/);
-            let line = '';
-            const lines = [];
-
-            words.forEach(word => {
-                const testLine = line + word;
-                const testWidth = computeTextWidth(ctx, testLine, spacing);
-
-                if (maxWidth && maxWidth > 0 && testWidth > maxWidth && line) {
-                    lines.push(line);
-                    line = word.trimStart();
-                } else {
-                    line = testLine;
-                }
-            });
-            if (line) lines.push(line);
-
-            const limit = maxLines && maxLines > 0 ? maxLines : lines.length;
-
-            for (let i = 0; i < lines.length && i < limit; i++) {
-                const l = lines[i];
-                let currentX = x;
-                const lineWidth = computeTextWidth(ctx, l, spacing);
-
-                if (align === 'center') {
-                    currentX = x - lineWidth / 2;
-                } else if (align === 'right') {
-                    currentX = x - lineWidth;
-                }
-
-                drawTextLine(ctx, l, currentX, currentY, spacing);
-                currentY += lineHeight;
-            }
-        });
+        ctx.textAlign = align; // 'left' หรือ 'right'
+        ctx.fillText(text, x, y);
     }
 
     function drawImage(ctx, imageUrl, x, y, width, height) {
@@ -218,13 +131,9 @@
         image.onload = function() { ctx.drawImage(image, x, y, width, height); };
     }
 
-    function getBankInfo(bank, isPromptPay, isMetaAds) {
+    function getBankInfo(bank) {
         let bankText = bank;
         let bankLogoUrl = '';
-        
-        if (isPromptPay) bankText = '';
-        else if (isMetaAds) bankText = '';
-
         switch (bank) {
             case 'ธ.กสิกรไทย':          bankText = 'ธ.กสิกรไทย'; bankLogoUrl = 'assets/image/logo/KBANK.png'; break;
             case 'ธ.กรุงไทย':           bankText = 'ธ.กรุงไทย'; bankLogoUrl = 'assets/image/logo/KTB.png'; break;
@@ -244,12 +153,24 @@
             case 'พร้อมเพย์วอลเล็ท':    bankLogoUrl = 'assets/image/logo/P-KBANK.png'; break;
             case 'MetaAds':             bankLogoUrl = 'assets/image/logo/Meta.png'; break;
         }
-
         return { bankText, bankLogoUrl };
     }
 
+    function drawQRCode(ctx, x, y, size) {
+        const qrInput = document.getElementById('QRCode');
+        if (qrInput && qrInput.files && qrInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const qrImg = new Image();
+                qrImg.src = e.target.result;
+                qrImg.onload = function() { ctx.drawImage(qrImg, x, y, size, size); }
+            }
+            reader.readAsDataURL(qrInput.files[0]);
+        }
+    }
+
     // ==========================================
-    // 3. ฟังก์ชันวาดโหมดปกติ (Standard)
+    // 3. โหมดปกติ (Standard) 
     // ==========================================
     function renderSlipStandard() {
         const sendername = getInputValue('sendername', '-');
@@ -257,29 +178,16 @@
         const receivername = getInputValue('receivername', '-');
         const receiveraccount = getInputValue('receiveraccount', '-');
         const bank = getInputValue('bank', '-');
-        const amount11 = getInputValue('amount11', '-');
+        
+        let amount11 = getInputValue('amount11', '-').replace(/\s*บาท/g, '').trim(); 
+        
         const datetime = getInputValue('datetime', '');
         const selectedImage = getInputValue('imageSelect', '');
-        const QRCode = getInputValue('QRCode', '');
         const bgSelectEl = document.getElementById('backgroundSelect');
         let backgroundImageSrc = bgSelectEl ? bgSelectEl.value : 'assets/image/bs/N-K1.jpg';
 
-        const isPromptPay = bank === 'พร้อมเพย์วอลเล็ท';
-        const isMetaAds   = bank === 'MetaAds';
-
-        const bankInfo = getBankInfo(bank, isPromptPay, isMetaAds);
-        
-        let receiveraccountPositionY = 697.7;
-        let receivernamePositionY = 577.0;
-
-        if (isPromptPay) {
-            receiveraccountPositionY = 639.0;
-            receivernamePositionY = 577.0;
-        } else if (isMetaAds) {
-            receiveraccountPositionY = 639.0;
-            receivernamePositionY = 1300.0;
-        }
-
+        const bankInfo = getBankInfo(bank);
+        const isMetaAds = bank === 'MetaAds';
         const formattedDate = formatDate(datetime);
         const d = new Date(datetime);
         const formattedTime = isNaN(d.getTime()) ? '' : d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
@@ -288,43 +196,83 @@
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
 
+        // ✨ โค้ดสีตามสลิปจริง ✨
+        const colorDark = '#414141'; // ดำเข้ม (ชื่อ, จำนวนเงิน)
+        const colorGray = '#5a5a5a'; // เทา (ธนาคาร, บัญชี, วันที่, บาท, เลขที่รายการ)
+
         const backgroundImage = new Image();
         backgroundImage.src = backgroundImageSrc;
         backgroundImage.onload = function () {
+            
+            // ทำให้ Canvas กางออกเท่ารูปเป๊ะๆ (842x995)
+            canvas.width = backgroundImage.width;
+            canvas.height = backgroundImage.height;
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
             const bankLogo = new Image();
             bankLogo.src = bankInfo.bankLogoUrl;
             bankLogo.onload = function() {
-                ctx.drawImage(bankLogo, 34.6, 526.7, 157, 157); 
                 
-                drawText(ctx, `${formattedDate}  ${formattedTime} น.`, 68.9, 136.6, 37.5, 'kuriousRegular', '#4e4e4e', 'left', 1.5, 0, 0, 0, 800, 0);
-                drawText(ctx, `${sendername}`, 238.9, 272.0, 39.3, 'kuriousSemiBold', '#4e4e4e', 'left', 1.5, 3, 0, 0, 800, 0);
-                drawText(ctx, `ธ.กสิกรไทย`, 238.9, 333.6, 37.5, 'kuriousRegular', '#545454', 'left', 1.5, 2, 0, 0, 500, 0);
-                drawText(ctx, `${senderaccount}`, 238.9, 392.5, 37.5, 'kuriousRegular', '#545454', 'left', 1.5, 1, 0, 0, 500, 0);
+                // 1. โลโก้ขนาดพอดีขอบ (86x86)
+                drawImage(ctx, 'assets/image/logo/KBANK.png', 34, 212, 86, 86); 
+                ctx.drawImage(bankLogo, 34, 420, 86, 86); 
                 
-                drawText(ctx, `${receivername}`, 238.9, receivernamePositionY, 39.3, 'kuriousSemiBold', '#4e4e4e', 'left', 1.5, 3, 0, 0, 800, 0);
-                drawText(ctx, bankInfo.bankText, 238.9, 639.0, 37.5, 'kuriousRegular', '#545454', 'left', 1.5, 2, 0, 0, 500, 0);
-                drawText(ctx, `${receiveraccount}`, 238.9, receiveraccountPositionY, 37.5, 'kuriousRegular', '#545454', 'left', 1.5, 1, 0, 0, 500, 0);
+                // 2. วันที่และเวลา
+                drawText(ctx, `${formattedDate}  ${formattedTime} น.`, 140, 137, 33, 'kuriousRegular', colorGray, 'left');
                 
+                // 3. ผู้โอน 
+                drawText(ctx, `${sendername}`, 140, 265, 38, 'kuriousSemiBold', colorDark, 'left');
+                drawText(ctx, `ธ.กสิกรไทย`, 140, 312, 32, 'kuriousRegular', colorGray, 'left');
+                drawText(ctx, `${senderaccount}`, 140, 358, 32, 'kuriousRegular', colorGray, 'left');
+                
+                // 4. ผู้รับ
                 if (isMetaAds) {
-                    drawText(ctx, `${receiveraccount}`, 238.9, 697.7, 37.5, 'kuriousRegular', '#545454', 'left', 1.5, 1, 0, 0, 500, 0);
-                    drawText(ctx, `Meta Ads (KGP)`, 238.9, 577.00, 39.3, 'kuriousSemiBold', '#4e4e4e', 'left', 1.5, 3, 0, 0, 800, 0);
+                    drawText(ctx, `Meta Ads (KGP)`, 140, 452, 38, 'kuriousSemiBold', colorDark, 'left');
+                    drawText(ctx, `${receiveraccount}`, 140, 498, 32, 'kuriousRegular', colorGray, 'left');
+                } else {
+                    drawText(ctx, `${receivername}`, 140, 472, 38, 'kuriousSemiBold', colorDark, 'left');
+                    
+                    if (bank !== 'พร้อมเพย์วอลเล็ท') {
+                        // กรณีธนาคารทั่วไป (แสดงชื่อธนาคาร และตามด้วยเลขบัญชีด้านล่าง)
+                        drawText(ctx, bankInfo.bankText, 140, 520, 32, 'kuriousRegular', colorGray, 'left');
+                        drawText(ctx, `${receiveraccount}`, 140, 565, 32, 'kuriousRegular', colorGray, 'left');
+                    } else {
+                        // กรณีพร้อมเพย์วอลเล็ท (ไม่มีบรรทัดธนาคาร ดึงเลขบัญชี/เบอร์ขึ้นมาตรงนี้แทน)
+                        drawText(ctx, `${receiveraccount}`, 140, 520, 32, 'kuriousRegular', colorGray, 'left');
+                    }
                 }
+                if (isMetaAds) {
+                drawText(ctx, `Meta Ads (KGP)`, 140, 452, 38, 'kuriousSemiBold', colorDark, 'left');
+                drawText(ctx, `${receiveraccount}`, 140, 498, 32, 'kuriousRegular', colorGray, 'left');
+                drawText(ctx, `${receiveraccount}`, 140, 545, 32, 'kuriousRegular', colorGray, 'left'); // ✨ เพิ่มบรรทัดที่สองตรงนี้
+            }
                 
-                drawText(ctx, `${generateUniqueID()}`, 459, 885.4, 35.63, 'kuriousRegular', '#575757', 'right', 1.5, 3, 0, 0, 500, -2);
-                drawText(ctx, `${amount11} บาท`, 459, 1003.6, 38.44, 'kuriousSemiBold', '#4b4b4b', 'right', 1.5, 3, 0, 0, 500, -2);
-                drawText(ctx, `0.00 บาท`, 459, 1124.2, 38.44, 'kuriousSemiBold', '#4b4b4b', 'right', 1.5, 3, 0, 0, 500, -2);
+                // 5. โซนตัวเลข 
+                const rightBaht = 800; 
+                const rightNum = 550;   
+
+                // จำนวนเงิน
+                drawText(ctx, ``, rightBaht, 682, 34, 'kuriousRegular', colorGray, 'right');
+                drawText(ctx, `${amount11}`, rightNum, 692, 50, 'kuriousSemiBold', colorDark, 'right');
                 
-                drawText(ctx, `${QRCode}`, 238.9, 599.0, 33, 'kuriousSemiBold', '#4e4e4e', 'left', 1.5, 5, 0, 0, 500, 0);
-                drawImage(ctx, 'assets/image/logo/KBANK.png', 34.6, 222, 157, 157);  
-            
+                // ค่าธรรมเนียม
+                drawText(ctx, ``, rightBaht, 782, 34, 'kuriousRegular', colorGray, 'right');
+                drawText(ctx, `0.00`, rightNum, 800, 34, 'kuriousRegular', colorGray, 'right'); 
+                
+                // 6. เลขที่รายการ (จัดชิดขวา)
+                drawText(ctx, `${generateUniqueID()}`, 612, 895, 30, 'kuriousRegular', colorGray, 'right');
+                
+                // 7. QR Code
+                drawQRCode(ctx, 605, 680, 140);
+                
+                // 8. สติ๊กเกอร์
                 if (selectedImage && selectedImage !== 'assets/image/st/NO.png') {
                     const customImage = new Image();
                     customImage.src = selectedImage;
                     customImage.onload = function() {
-                        ctx.drawImage(customImage, 0, 0, 842, 1200);
+                        ctx.drawImage(customImage, 0, 0, canvas.width, canvas.height);
                     }
                 }
             };
@@ -332,39 +280,25 @@
     }
 
     // ==========================================
-    // 4. ฟังก์ชันวาดโหมดบันทึกช่วยจำ (Note)
+    // 4. โหมดบันทึกช่วยจำ (Note)
     // ==========================================
     function renderSlipNote() {
-        const sendername      = getInputValue('sendername', '-');
-        const senderaccount   = getInputValue('senderaccount', '-');
-        const receivername    = getInputValue('receivername', '-');
+        const sendername = getInputValue('sendername', '-');
+        const senderaccount = getInputValue('senderaccount', '-');
+        const receivername = getInputValue('receivername', '-');
         const receiveraccount = getInputValue('receiveraccount', '-');
-        const bank            = getInputValue('bank', '-');
-        const amount11        = getInputValue('amount11', '-');
-        const datetime        = getInputValue('datetime', '');
-        const selectedImage   = getInputValue('imageSelect', '');
-        const QRCode          = getInputValue('QRCode', '');
-        const AideMemoire     = getInputValue('AideMemoire', '-');
-
-        const bgNoteEl    = document.getElementById('bg_note');
+        const bank = getInputValue('bank', '-');
+        
+        let amount11 = getInputValue('amount11', '-').replace(/\s*บาท/g, '').trim(); 
+        
+        const datetime = getInputValue('datetime', '');
+        const selectedImage = getInputValue('imageSelect', '');
+        const AideMemoire = getInputValue('AideMemoire', '-');
+        const bgNoteEl = document.getElementById('bg_note');
         const bgNoteValue = bgNoteEl ? bgNoteEl.value : 'assets/image/bs/N-K1T.jpg';
 
-        const isPromptPay = bank === 'พร้อมเพย์วอลเล็ท';
-        const isMetaAds   = bank === 'MetaAds';
-
-        const bankInfo = getBankInfo(bank, isPromptPay, isMetaAds);
-
-        let receiveraccountPositionY = 681.7;
-        let receivernamePositionY    = 564.3;
-
-        if (isPromptPay) {
-            receiveraccountPositionY = 624.8;
-            receivernamePositionY    = 564.3;
-        } else if (isMetaAds) {
-            receiveraccountPositionY = 624.8;
-            receivernamePositionY    = 1300.0;
-        }
-
+        const bankInfo = getBankInfo(bank);
+        const isMetaAds = bank === 'MetaAds';
         const formattedDate = formatDate(datetime);
         const d = new Date(datetime);
         const formattedTime = isNaN(d.getTime()) ? '' : d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
@@ -373,46 +307,79 @@
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
 
+        const colorDark = '#414141'; 
+        const colorGray = '#5a5a5a'; 
+
         const backgroundImage = new Image();
         backgroundImage.src = bgNoteValue;
         backgroundImage.onload = function() {
+            canvas.width = backgroundImage.width;
+            canvas.height = backgroundImage.height;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
             const bankLogo = new Image();
             bankLogo.src = bankInfo.bankLogoUrl;
             bankLogo.onload = function() {
-                ctx.drawImage(bankLogo, 34.2, 515.7, 154, 154);
+                
+                // 1. โลโก้ (ขยับขึ้นบนเพื่อเว้นที่ให้โน้ต)
+                drawImage(ctx, 'assets/image/logo/KBANK.png', 34, 212, 86, 86);
+                ctx.drawImage(bankLogo, 34, 420, 86, 86);
 
-                drawText(ctx, `${formattedDate}  ${formattedTime} น.`, 67.5, 133.1, 37.5, 'kuriousRegular', '#4e4e4e', 'left', 1.5, 3, 0, 0, 800, 0);
+                // 2. วันที่
+                drawText(ctx, `${formattedDate}  ${formattedTime} น.`, 140, 137, 33, 'kuriousRegular', colorGray, 'left');
 
-                drawText(ctx, `${sendername}`,      233.5, 265.8, 39.3, 'kuriousSemiBold', '#4e4e4e', 'left', 1.5, 3, 0, 0, 800, 0);
-                drawText(ctx, `ธ.กสิกรไทย`,        233.5, 326.0, 37.5, 'kuriousRegular',  '#545454', 'left', 1.5, 2, 0, 0, 500, 0);
-                drawText(ctx, `${senderaccount}`,   233.5, 384.0, 37.5, 'kuriousRegular',  '#545454', 'left', 1.5, 1, 0, 0, 500, 0);
+                // 3. ผู้โอน
+                drawText(ctx, `${sendername}`, 140, 265, 38, 'kuriousSemiBold', colorDark, 'left');
+                drawText(ctx, `ธ.กสิกรไทย`, 140, 312, 32, 'kuriousRegular', colorGray, 'left');
+                drawText(ctx, `${senderaccount}`, 140, 358, 32, 'kuriousRegular', colorGray, 'left');
 
-                drawText(ctx, `${receivername}`,    233.5, receivernamePositionY, 39.3, 'kuriousSemiBold', '#4e4e4e', 'left', 1.5, 3, 0, 0, 800, 0);
-                drawText(ctx, bankInfo.bankText,    233.5, 624.8,               37.5, 'kuriousRegular',  '#545454', 'left', 1.5, 2, 0, 0, 500, 0);
-                drawText(ctx, `${receiveraccount}`, 233.5, receiveraccountPositionY, 37.5, 'kuriousRegular', '#545454', 'left', 1.5, 1, 0, 0, 500, 0);
-
+                // 4. ผู้รับ
                 if (isMetaAds) {
-                    drawText(ctx, `${receiveraccount}`,    233.5, 681.7, 37.5, 'kuriousRegular', '#545454', 'left', 1.5, 1, 0, 0, 500, 0);
-                    drawText(ctx, `Meta Ads (KGP)`,       233.5, 564.3, 39.3, 'kuriousSemiBold', '#4e4e4e', 'left', 1.5, 3, 0, 0, 800, 0);
-                }
+                    drawText(ctx, `Meta Ads (KGP)`, 140, 452, 38, 'kuriousSemiBold', colorDark, 'left');
+                    drawText(ctx, `${receiveraccount}`, 140, 498, 32, 'kuriousRegular', colorGray, 'left');
+                } else {
+                    drawText(ctx, `${receivername}`, 140, 472, 38, 'kuriousSemiBold', colorDark, 'left');
+                    
+                    if (bank !== 'พร้อมเพย์วอลเล็ท') {
+                        // กรณีธนาคารทั่วไป (แสดงชื่อธนาคาร และตามด้วยเลขบัญชีด้านล่าง)
+                        drawText(ctx, bankInfo.bankText, 140, 520, 32, 'kuriousRegular', colorGray, 'left');
+                        drawText(ctx, `${receiveraccount}`, 140, 565, 32, 'kuriousRegular', colorGray, 'left');
+                    } else {
+                        // กรณีพร้อมเพย์วอลเล็ท (ไม่มีบรรทัดธนาคาร ดึงเลขบัญชี/เบอร์ขึ้นมาตรงนี้แทน)
+                        drawText(ctx, `${receiveraccount}`, 140, 520, 32, 'kuriousRegular', colorGray, 'left');
+                    }
+}
+                    if (isMetaAds) {
+                        drawText(ctx, `Meta Ads (KGP)`, 140, 452, 38, 'kuriousSemiBold', colorDark, 'left');
+                        drawText(ctx, `${receiveraccount}`, 140, 498, 32, 'kuriousRegular', colorGray, 'left');
+                        drawText(ctx, `${receiveraccount}`, 140, 545, 32, 'kuriousRegular', colorGray, 'left'); // ✨ เพิ่มบรรทัดที่สองตรงนี้
+                    }
 
-                drawText(ctx, `${generateUniqueID()}`, 449,  865.2, 34.63, 'kuriousRegular',  '#575757', 'right', 1.5, 3, 0, 0, 500, -2);
-                drawText(ctx, `${amount11} บาท`,     449,  980.9, 38.44, 'kuriousSemiBold', '#4b4b4b', 'right', 1.5, 3, 0, 0, 500, -2);
-                drawText(ctx, `0.00 บาท`,           449, 1098.6, 38.44, 'kuriousSemiBold', '#4b4b4b', 'right', 1.5, 3, 0, 0, 500, -2);
+                // 5. โซนตัวเลข 
+                const rightBaht = 800;  
+                const rightNum = 550; 
 
-                drawText(ctx, `${QRCode}`,     238.9, 599.0, 33,    'kuriousSemiBold', '#4e4e4e', 'left', 1.5, 5, 0, 0, 500, 0);
-                drawImage(ctx, 'assets/image/logo/KBANK.png', 34.2, 217.5, 154, 154);
+                drawText(ctx, ``, rightBaht, 682, 34, 'kuriousRegular', colorGray, 'right');
+                drawText(ctx, `${amount11}`, rightNum, 692, 50, 'kuriousSemiBold', colorDark, 'right');
+                
+                drawText(ctx, ``, rightBaht, 782, 34, 'kuriousRegular', colorGray, 'right');
+                drawText(ctx, `0.00`, rightNum, 800, 34, 'kuriousRegular', colorGray, 'right');
 
-                drawText(ctx, `${AideMemoire}`, 208.3, 1173.1, 30.23, 'kuriousRegular', '#545454', 'left', 1.5, 1, 0, 0, 500, 0);
+                // 6. เลขที่รายการ
+                drawText(ctx, `${generateUniqueID()}`, 612, 895, 30, 'kuriousRegular', colorGray, 'right');
+
+                // 7. QR Code
+                drawQRCode(ctx, 605, 680, 140);
+
+                // 8. บันทึกช่วยจำ 
+                drawText(ctx, `${AideMemoire}`, 180, 999, 28, 'kuriousRegular', colorGray, 'left');
 
                 if (selectedImage && selectedImage !== 'assets/image/st/NO.png') {
                     const customImage = new Image();
                     customImage.src = selectedImage;
                     customImage.onload = function() {
-                        ctx.drawImage(customImage, 0, 0, 823, 1200);
+                        ctx.drawImage(customImage, 0, 0, canvas.width, canvas.height);
                     };
                 }
             };
@@ -420,7 +387,7 @@
     }
 
     // ==========================================
-    // 5. EXPORT ให้ HTML เรียกใช้งาน
+    // 5. EXPORT
     // ==========================================
     window.updateDisplayStandard = function() {
         ensureFontsLoaded().then(() => { renderSlipStandard(); }).catch(() => { renderSlipStandard(); });

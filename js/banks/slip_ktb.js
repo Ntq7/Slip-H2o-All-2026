@@ -388,7 +388,7 @@
                 drawText(ctx, `0.00 บาท`, 942.9, 1046, 39, 'DXKrungthaiMedium', '#000000', 'right', 1.5, 3, 0, 0, 500, -1.5);
                 drawText(ctx, `${QRCode}`, 238.9, 599.0, 33, 'DXKrungthaiMedium', '#4e4e4e', 'left', 1.5, 5, 0, 0, 500, 0);
                 drawImage(ctx, 'assets/image/logo/KTB3.png', 26.2, 378, 126.5, 126.5);  
-                drawText(ctx, `${AideMemoire}`, 942.9, 1194, 39, 'DXKrungthaiMedium', '#000000', 'right', 1.5, 1, 0, 0, 800, -1.5);
+                drawText(ctx, `${AideMemoire}`, 942.9, 1181, 39, 'DXKrungthaiMedium', '#000000', 'right', 1.5, 1, 0, 0, 800, -1.5);
             }
 
         } else {
