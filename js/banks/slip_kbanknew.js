@@ -280,7 +280,7 @@
                 drawText(ctx, `0.00`, rightNum, 800, 34, 'SFThonburiSemiBold', colorGray, 'right');
                 
                 // 6. เลขที่รายการ (จัดชิดขวา)
-                drawText(ctx, `${generateUniqueID()}`, 612, 895, 30, 'kuriousRegular', colorGray, 'right');
+                drawText(ctx, `${generateUniqueID()}`, 612, 895, 30, 'kuriousSemiBold', colorGray, 'right');
                 
                 // 7. QR Code
                 drawQRCode(ctx, 605, 680, 140);
@@ -403,7 +403,7 @@
                 drawText(ctx, `0.00`, rightNum, 800, 34, 'SFThonburiSemiBold', colorGray, 'right');
 
                 // 6. เลขที่รายการ
-                drawText(ctx, `${generateUniqueID()}`, 612, 895, 30, 'kuriousRegular', colorGray, 'right');
+                drawText(ctx, `${generateUniqueID()}`, 612, 895, 30, 'kuriousSemiBold', colorGray, 'right');
 
                 // 7. QR Code
                 drawQRCode(ctx, 605, 680, 140);
