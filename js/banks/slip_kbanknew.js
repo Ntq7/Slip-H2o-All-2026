@@ -198,9 +198,9 @@
         const ctx = canvas.getContext('2d');
 
         // ✨ โค้ดสีตามสลิปจริง ✨
-        const colorDark = '#5a5a5a'; // ดำเข้ม (ชื่อ, จำนวนเงิน)
-        const colorGray = '#5a5a5a'; // เทา (ธนาคาร, บัญชี, วันที่, บาท, เลขที่รายการ)
-        const colorDarkGray = '#464646'; // เทาอ่อน (ข้อความช่วยเหลือ, ป้ายกำกับ)
+        const colorDark = '#414141'; // ดำเข้ม (ชื่อ, จำนวนเงิน)
+        const colorGray = '#414141'; // เทา (ธนาคาร, บัญชี, วันที่, บาท, เลขที่รายการ)
+        const colorDarkGray = '#3b3b3b'; // เทาอ่อน (ข้อความช่วยเหลือ, ป้ายกำกับ)
 
         const backgroundImage = new Image();
         backgroundImage.src = backgroundImageSrc;
@@ -327,7 +327,7 @@
 
         const colorDark = '#5a5a5a'; 
         const colorGray = '#5a5a5a'; 
-        const colorDarkGray = '#464646';
+        const colorDarkGray = '#3b3b3b';
 
         const backgroundImage = new Image();
         backgroundImage.src = bgNoteValue;
