@@ -198,8 +198,8 @@
         const ctx = canvas.getContext('2d');
 
         // ✨ โค้ดสีตามสลิปจริง ✨
-        const colorDark = '#413f3f'; // ดำเข้ม (ชื่อ, จำนวนเงิน)
-        const colorGray = '#413f3f'; // เทา (ธนาคาร, บัญชี, วันที่, บาท, เลขที่รายการ)
+        const colorDark = '#494747'; // ดำเข้ม (ชื่อ, จำนวนเงิน)
+        const colorGray = '#494747'; // เทา (ธนาคาร, บัญชี, วันที่, บาท, เลขที่รายการ)
         const colorDarkGray = '#3b3b3b'; // เทาอ่อน (ข้อความช่วยเหลือ, ป้ายกำกับ)
 
         const backgroundImage = new Image();
@@ -225,30 +225,26 @@
                 
                 // 3. ผู้โอน 
                 drawText(ctx, `${sendername}`, 140, 265, 37.5, 'kuriousSemiBold', colorDark, 'left');
-                drawText(ctx, `ธ.กสิกรไทย`, 140, 312, 32, 'kuriousRegular', colorGray, 'left');
+                drawText(ctx, `ธ.กสิกรไทย`, 140, 312, 32, 'kuriousSemiBold', colorGray, 'left');
                 drawText(ctx, `${senderaccount}`, 140, 358, 32, 'kuriousRegular', colorGray, 'left');
                 
                 // 4. ผู้รับ
                 if (isMetaAds) {
                     drawText(ctx, `Meta Ads (KGP)`, 140, 452, 37.5, 'kuriousSemiBold', colorDark, 'left');
                     drawText(ctx, `${receiveraccount}`, 140, 498, 32, 'kuriousRegular', colorGray, 'left');
+                    drawText(ctx, `${receiveraccount}`, 140, 545, 32, 'kuriousRegular', colorGray, 'left'); // ✨ เติมบรรทัดนี้กลับเข้ามาครับ
                 } else {
                     drawText(ctx, `${receivername}`, 140, 472, 37.5, 'kuriousSemiBold', colorDark, 'left');
-
+                    
                     if (bank !== 'พร้อมเพย์วอลเล็ท') {
-                        // กรณีธนาคารทั่วไป
-                        drawText(ctx, bankInfo.bankText, 140, 520, 32, 'kuriousRegular', colorGray, 'left');
+                        // กรณีธนาคารทั่วไป 
+                        drawText(ctx, bankInfo.bankText, 140, 520, 32, 'kuriousSemiBold', colorGray, 'left');
                         drawText(ctx, `${receiveraccount}`, 140, 565, 32, 'kuriousRegular', colorGray, 'left');
                     } else {
                         // กรณีพร้อมเพย์วอลเล็ท
-                        drawText(ctx, `${receiveraccount}`, 140, 520, 32, 'kuriousRegular', colorGray, 'left');
+                        drawText(ctx, `${receiveraccount}`, 140, 520, 32, 'kuriousSemiBold', colorGray, 'left');
                     }
                 }
-                if (isMetaAds) {
-                drawText(ctx, `Meta Ads (KGP)`, 140, 452, 37.5, 'kuriousSemiBold', colorDark, 'left');
-                drawText(ctx, `${receiveraccount}`, 140, 498, 32, 'kuriousRegular', colorGray, 'left');
-                drawText(ctx, `${receiveraccount}`, 140, 545, 32, 'kuriousRegular', colorGray, 'left'); // ✨ เพิ่มบรรทัดที่สองตรงนี้
-            }
                 
                 // 5. โซนตัวเลข 
                 const rightBaht = 800; 
@@ -325,8 +321,8 @@
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
 
-        const colorDark = '#413f3f'; 
-        const colorGray = '#413f3f'; 
+        const colorDark = '#494747'; 
+        const colorGray = '#494747'; 
         const colorDarkGray = '#3b3b3b';
 
         const backgroundImage = new Image();
@@ -350,30 +346,26 @@
 
                 // 3. ผู้โอน
                 drawText(ctx, `${sendername}`, 140, 265, 37.5, 'kuriousSemiBold', colorDark, 'left');
-                drawText(ctx, `ธ.กสิกรไทย`, 140, 312, 32, 'kuriousRegular', colorGray, 'left');
+                drawText(ctx, `ธ.กสิกรไทย`, 140, 312, 32, 'kuriousSemiBold', colorGray, 'left');
                 drawText(ctx, `${senderaccount}`, 140, 358, 32, 'kuriousRegular', colorGray, 'left');
 
                 // 4. ผู้รับ
                 if (isMetaAds) {
                     drawText(ctx, `Meta Ads (KGP)`, 140, 452, 37.5, 'kuriousSemiBold', colorDark, 'left');
                     drawText(ctx, `${receiveraccount}`, 140, 498, 32, 'kuriousRegular', colorGray, 'left');
+                    drawText(ctx, `${receiveraccount}`, 140, 545, 32, 'kuriousRegular', colorGray, 'left'); // ✨ เติมบรรทัดนี้กลับเข้ามาครับ
                 } else {
                     drawText(ctx, `${receivername}`, 140, 472, 37.5, 'kuriousSemiBold', colorDark, 'left');
-
+                    
                     if (bank !== 'พร้อมเพย์วอลเล็ท') {
                         // กรณีธนาคารทั่วไป 
-                        drawText(ctx, bankInfo.bankText, 140, 520, 32, 'kuriousRegular', colorGray, 'left');
+                        drawText(ctx, bankInfo.bankText, 140, 520, 32, 'kuriousSemiBold', colorGray, 'left');
                         drawText(ctx, `${receiveraccount}`, 140, 565, 32, 'kuriousRegular', colorGray, 'left');
                     } else {
-                        // กรณีพร้อมเพย์วอลเล็ท 
-                        drawText(ctx, `${receiveraccount}`, 140, 520, 32, 'kuriousRegular', colorGray, 'left');
+                        // กรณีพร้อมเพย์วอลเล็ท
+                        drawText(ctx, `${receiveraccount}`, 140, 520, 32, 'kuriousSemiBold', colorGray, 'left');
                     }
-}
-                    if (isMetaAds) {
-                        drawText(ctx, `Meta Ads (KGP)`, 140, 452, 37.5, 'kuriousSemiBold', colorDark, 'left');
-                        drawText(ctx, `${receiveraccount}`, 140, 498, 32, 'kuriousRegular', colorGray, 'left');
-                        drawText(ctx, `${receiveraccount}`, 140, 545, 32, 'kuriousRegular', colorGray, 'left'); // ✨ เพิ่มบรรทัดที่สองตรงนี้
-                    }
+                }
 
                 // 5. โซนตัวเลข 
                 const rightBaht = 800; 
