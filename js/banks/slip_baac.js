@@ -197,7 +197,7 @@
         const ctx = canvas.getContext('2d');
         
         canvas.width = 782;
-        canvas.height = 1280;
+        canvas.height = 1387;
 
         const backgroundImageSrc = isNoteMode ? 'assets/image/bs/A3T.jpg' : 'assets/image/bs/A3.jpg';
 
@@ -216,33 +216,39 @@
         }
 
         if (isNoteMode) {
-            drawText(ctx, `${formattedDate}  ${formattedTime}`, 391, 296.3, 39, 'BaacBold', '#4a4a4a', 'center', 50, 3, 0, 0, 800, 0);
-            drawText(ctx, `รหัสทำรายการ  ${generateUniqueID()}`, 391, 334.8, 39, 'BaacBold', '#4a4a4a', 'center', 50, 3, 0, 0, 800, 0);
+            drawText(ctx, `${formattedDate}  ${formattedTime}`, 391, 345, 38, 'BaacBold', '#4a4a4a', 'center', 50, 3, 0, 0, 800, 0);
+            drawText(ctx, `รหัสทำรายการ  ${generateUniqueID()}`, 391, 380, 38, 'BaacBold', '#4a4a4a', 'center', 50, 3, 0, 0, 800, 0);
 
-            drawText(ctx, `${sendername}`, 718.2, 415, 50, 'BaacBold', '#000000', 'right', 50, 3, 0, 0, 800, -0.50);
-            drawText(ctx, `${senderaccount}`, 718.2, 463.3, 50, 'BaacBold', '#000000', 'right', 50, 1, 0, 0, 800, -0.50);
+            drawText(ctx, `${sendername}`, 718, 490, 45, 'BaacBold', '#4a4a4a', 'right', 50, 3, 0, 0, 800, -0.50);
+            drawText(ctx, `${senderaccount}`, 718, 535, 29, 'Arial', '#252525', 'right', 50, 1, 0, 0, 800, -0.50);
             
-            drawText(ctx, `${bank}`, 718.2, 579, 50, 'BaacBold', '#000000', 'right', 50, 2, 0, 0, 800, 0);
-            drawText(ctx, `${receivername}`, 718.2, 626.5, 50, 'BaacBold', '#000000', 'right', 50, 3, 0, 0, 800, -0.50);
-            drawText(ctx, `${receiveraccount}`, 718.2, 672.2, 50, 'BaacBold', '#000000', 'right', 50, 1, 0, 0, 800, -0.50);
+            drawText(ctx, `${bank}`, 718, 633, 45, 'BaacBold', '#252525', 'right', 50, 2, 0, 0, 800, 0);
+            drawText(ctx, `${receivername}`, 718, 678, 45, 'BaacBold', '#252525', 'right', 50, 3, 0, 0, 800, -0.50);
+            drawText(ctx, `${receiveraccount}`, 718, 723, 29, 'Arial', '#252525', 'right', 50, 1, 0, 0, 800, -0.50);
             
-            drawText(ctx, `${AideMemoire}`, 718.2, 745, 50, 'BaacBold', '#000000', 'right', 50, 1, 0, 0, 800, -0.50);
+            drawText(ctx, `${AideMemoire}`, 718, 793, 45, 'BaacBold', '#252525', 'right', 50, 1, 0, 0, 800, -0.50);
 
-            drawText(ctx, `${amount11} บาท`, 718.2, 835, 50, 'BaacBold', '#000000', 'right', 50, 3, 0, 0, 800, 0);
-            drawText(ctx, `0.00 บาท`, 718.2, 906.4, 50, 'BaacBold', '#000000', 'right', 50, 3, 0, 0, 800, 0);
+            drawText(ctx, `บาท`, 718, 863, 45, 'BaacBold', '#000000', 'right', 50, 3, 0, 0, 800, 0);
+
+            drawText(ctx, `${amount11}`, 665, 863, 30, 'Arial', '#000000', 'right', 50, 3, 0, 0, 800, 0);
+            drawText(ctx, `${amount11}`, 665.5, 863, 30, 'Arial', '#000000', 'right', 50, 3, 0, 0, 800, 0); // ซ้อนเหลื่อมให้ตัวเลขหนาขึ้น // วาดซ้ำเหลื่อมกัน 0.5px เพื่อเพิ่มความหนา
+            drawText(ctx, `0.00 บาท`, 718, 935, 45, 'BaacBold', '#252525', 'right', 50, 3, 0, 0, 800, 0);
         } else {
-            drawText(ctx, `${formattedDate}  ${formattedTime}`, 391, 296.3, 39, 'BaacBold', '#4a4a4a', 'center', 50, 3, 0, 0, 800, 0);
-            drawText(ctx, `รหัสทำรายการ  ${generateUniqueID()}`, 391, 334.8, 39, 'BaacBold', '#4a4a4a', 'center', 50, 3, 0, 0, 800, 0);
+            drawText(ctx, `${formattedDate}  ${formattedTime}`, 391, 345, 38, 'BaacBold', '#4a4a4a', 'center', 50, 3, 0, 0, 800, 0);
+            drawText(ctx, `รหัสทำรายการ  ${generateUniqueID()}`, 391, 380, 38, 'BaacBold', '#4a4a4a', 'center', 50, 3, 0, 0, 800, 0);
 
-            drawText(ctx, `${sendername}`, 718.2, 414.5, 50, 'BaacBold', '#000000', 'right', 50, 3, 0, 0, 800, -0.50);
-            drawText(ctx, `${senderaccount}`, 718.2, 463.3, 50, 'BaacBold', '#000000', 'right', 50, 1, 0, 0, 800, -0.50);
+            drawText(ctx, `${sendername}`, 718, 490, 45, 'BaacBold', '#252525', 'right', 50, 3, 0, 0, 800, -0.50);
+            drawText(ctx, `${senderaccount}`, 718, 535, 29, 'Arial', '#252525', 'right', 50, 1, 0, 0, 800, -0.50);
             
-            drawText(ctx, `${bank}`, 718.2, 579, 50, 'BaacBold', '#000000', 'right', 50, 2, 0, 0, 800, 0);
-            drawText(ctx, `${receivername}`, 718.2, 626.5, 50, 'BaacBold', '#000000', 'right', 50, 3, 0, 0, 800, -0.50);
-            drawText(ctx, `${receiveraccount}`, 718.2, 672.2, 50, 'BaacBold', '#000000', 'right', 50, 1, 0, 0, 800, -0.50);
+            drawText(ctx, `${bank}`, 718, 633, 45, 'BaacBold', '#252525', 'right', 50, 2, 0, 0, 800, 0);
+            drawText(ctx, `${receivername}`, 718, 678, 45, 'BaacBold', '#252525', 'right', 50, 3, 0, 0, 800, -0.50);
+            drawText(ctx, `${receiveraccount}`, 718, 723, 29, 'Arial', '#252525', 'right', 50, 1, 0, 0, 800, -0.50);
             
-            drawText(ctx, `${amount11} บาท`, 718.2, 765.6, 50, 'BaacBold', '#000000', 'right', 50, 3, 0, 0, 800, 0);
-            drawText(ctx, `0.00 บาท`, 718.2, 835, 50, 'BaacBold', '#000000', 'right', 50, 3, 0, 0, 800, 0);
+            drawText(ctx, `บาท`, 718, 792, 45, 'BaacBold', '#000000', 'right', 50, 3, 0, 0, 800, 0);
+
+            drawText(ctx, `${amount11}`, 665, 792, 30, 'Arial', '#000000', 'right', 50, 3, 0, 0, 800, 0);
+            drawText(ctx, `${amount11}`, 665.5, 792, 30, 'Arial', '#000000', 'right', 50, 3, 0, 0, 800, 0); // ซ้อนเหลื่อมให้ตัวเลขหนาขึ้น
+            drawText(ctx, `0.00 บาท`, 718, 864, 45, 'BaacBold', '#252525', 'right', 50, 3, 0, 0, 800, 0);
         }
 
         if (QRCode) {
