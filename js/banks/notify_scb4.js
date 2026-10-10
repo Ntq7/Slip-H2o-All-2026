@@ -123,6 +123,10 @@ window.updateDisplay = function() {
     if(!canvas) return;
     const ctx = canvas.getContext('2d');
 
+    // ✨ สร้างเงื่อนไขเช็คชื่อไฟล์รูปภาพ ถ้ามีตัวอักษร 'T' อยู่ จะกำหนดเป็นสีเทา ✨
+    const isDarkTheme = backgroundSelect.includes('T');
+    const timeColor = isDarkTheme ? '#d4d4d4' : '#1b3422';
+
     const backgroundImage = new Image();
     backgroundImage.src = backgroundSelect;
     backgroundImage.onload = function() {
@@ -139,7 +143,8 @@ window.updateDisplay = function() {
         drawText(ctx, `${formattedDate1} ${formattedTime1}`, 453.5, 391.5, 19.4, 'SFThonburiSemiBold', '#3d3d3d', 'right', 1.5, 3, 0, 0, 1250, -1);
         drawText(ctx, `${remaining1} บาท`, 453.5, 438, 19.4, 'SFThonburiSemiBold', '#3d3d3d', 'right', 1.5, 3, 0, 0, 1250, -1);
 
-        drawText(ctx, `${formattedTime1}`, 483, 610, 13, 'SFThonburiRegular', '#1b3422', 'left', 1.5, 3, 0, 0, 1250, -0.25);
+        // ✨ ใช้ตัวแปร timeColor เพื่อแสดงสีเวลาอันบนที่ถูกต้อง ✨
+        drawText(ctx, `${formattedTime1}`, 483, 610, 13, 'SFThonburiRegular', timeColor, 'left', 1.5, 3, 0, 0, 1250, -0.25);
 
         drawText(ctx, `รายการเงินเข้า`, 85.7, 734, 22.3, 'SFThonburiSemiBold', '#3d3d3d', 'left', 1.5, 3, 0, 0, 1250, 0);
         drawText(ctx, `+${money02} บาท`, 85.7, 770, 25, 'SFThonburiBold', '#881cff', 'left', 1.5, 3, 0, 0, 1250,0);
@@ -149,7 +154,8 @@ window.updateDisplay = function() {
         drawText(ctx, `${formattedDate2} ${formattedTime2}`, 453.5, 924.9, 19.4, 'SFThonburiSemiBold', '#3d3d3d', 'right', 1.5, 3, 0, 0, 1250, -1);
         drawText(ctx, `${remaining2} บาท`, 453.5, 971, 19.4, 'SFThonburiSemiBold', '#3d3d3d', 'right', 1.5, 3, 0, 0, 1250, -1);
 
-        drawText(ctx, `${formattedTime2}`, 483, 1142, 13, 'SFThonburiRegular', '#1b3422', 'left', 1.5, 3, 0, 0, 1250, -0.25);
+        // ✨ ใช้ตัวแปร timeColor เพื่อแสดงสีเวลาอันล่างที่ถูกต้อง ✨
+        drawText(ctx, `${formattedTime2}`, 483, 1142, 13, 'SFThonburiRegular', timeColor, 'left', 1.5, 3, 0, 0, 1250, -0.25);
 
         if (qrCodeImage) {
             ctx.drawImage(qrCodeImage, 0, 130.3, 555, 951); 
