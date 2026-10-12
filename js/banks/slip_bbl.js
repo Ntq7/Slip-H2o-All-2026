@@ -204,10 +204,15 @@
             ? (document.getElementById('bg_note')?.value || 'assets/image/bs/B1T.jpg') 
             : (document.getElementById('backgroundSelect')?.value || 'assets/image/bs/B1.jpg');
         
-        const isNewTheme = baseBg.includes('2'); 
+        const isNewTheme = !baseBg.includes('B1.jpg') && !baseBg.includes('B1T.jpg'); 
+
+        let themeNumber = '1';
+        const match = baseBg.match(/B(\d+)/);
+        if (match) {
+            themeNumber = match[1];
+        }
 
         let backgroundImageSrc = '';
-        const themeNumber = isNewTheme ? '2' : '1';
         const noteSuffix = isNoteMode ? 'T' : '';
 
         if (bank === 'พร้อมเพย์ e-Wallet TrueMoney' || bank === 'พร้อมเพย์ e-Wallet Jaew' || bank === 'พร้อมเพย์ e-Wallet K Plus Wallet') {
