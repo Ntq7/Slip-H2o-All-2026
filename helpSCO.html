@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>กองทุนช่วยเหลือ</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/imagestime/logosco.png">
+    
+    <link rel="stylesheet" href="css/timesco.css">
+    
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+</head>
+<body onload="if(typeof updateDisplay === 'function') updateDisplay()">
+
+<!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <!-- โค้ดเช็คสิทธิ์แบบซ่อนเนื้อหาเฉพาะภายใน -->
+    <script type="module">
+        import { dbFirestore } from "./js/firebase-config.js"; 
+        import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const savedEmail = localStorage.getItem('H2O_SAVED_EMAIL'); 
+
+            if (!savedEmail) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const usersRef = collection(dbFirestore, "users");
+                const q = query(usersRef, where("email", "==", savedEmail));
+                const querySnapshot = await getDocs(q);
+
+                let hasAccess = false;
+                querySnapshot.forEach((doc) => {
+                    if (doc.data().allow_cso === true) {
+                        hasAccess = true;
+                    }
+                });
+
+                if (hasAccess) {
+                    // ✅ ถ้ามีสิทธิ์ -> แสดงเนื้อหาข้างในทั้งหมด
+                    document.getElementById('protected-content').style.display = 'flex';
+                } else {
+                    // ❌ ถ้าไม่มีสิทธิ์ -> เด้งกล่องแจ้งเตือนให้เห็นชัดเจน โดยไม่เปิดเนื้อหาข้างหลัง
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่ได้รับอนุญาต',
+                        html: '<span style="font-size: 1.1rem;">⛔ คุณไม่มีสิทธิ์เข้าถึงหน้านี้</span>',
+                        confirmButtonColor: '#ef4444',
+                        confirmButtonText: 'กลับหน้าหลัก',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        background: '#1e293b',
+                        color: '#f8fafc'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = 'index.html';
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Auth check error:", error);
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row selection:bg-indigo-500 selection:text-white">
+
+    <!-- กล่องห่อหุ้มเนื้อหาทั้งหมด (ถูกซ่อนไว้เป็นค่าเริ่มต้นเพื่อให้แจ้งเตือนเด้งเด่นชัด) -->
+    <div id="protected-content" style="display: none; width: 100%; min-height: 100vh;" class="flex flex-col md:flex-row flex-1">
+
+    <div id="copy-toast">✅ ดาวน์โหลดรูปภาพแล้ว</div>
+
+    <aside class="sidebar">
+        <button class="btn-copy-top" id="btn-copy" onclick="if(typeof downloadImage === 'function') downloadImage()">
+            📸 ดาวน์โหลดรูปภาพ
+        </button>
+
+        <div class="form-container">
+            <div class="form-group">
+                <label>เลือกพื้นหลังบริษัท</label>
+                <select id="backgroundSelect" name="backgroundSelect" onchange="updateDisplay()">
+                    <option value="/assets/image/paper/paper2.2.jpg">BEAUTYLOOP MARKET
+                    <option value="/assets/image/paper/paper2.0.jpg">ไม่มี</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>วันที่ออก / เวลา</label>
+                <input type="datetime-local" id="datetime" step="1" required oninput="updateDisplay()">
+            </div>
+            
+            <div class="form-group">
+                <label>ยูสเซอร์</label>
+                <input type="text" id="user1" placeholder="AM0000" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>ชื่อ-นามสกุล</label>
+                <input type="text" id="sendername" placeholder="ชื่อ-นามสกุล" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>เงินในระบบ</label>
+                <input type="text" id="amount1" placeholder="เงินในระบบ" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>เปอร์เซ็นต์ (0-100) (ช่วยเหลือ)</label>
+                <input type="text" id="Percent" placeholder="ช่วยเหลือ" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>ขั้นตอน</label>
+                <input type="text" id="notes" placeholder="ขั้นตอน" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>หมายเหตุ</label>
+                <input type="text" id="footnote" value="ระบบจะปรับปรุงตามจำนวนเงินที่ยื่นเรื่อง โดยนำเงินกองทุนช่วยเหลือไปพร้อมกับเงินยื่นเรื่อง สมาชิกดำเนินการให้เสร็จสิ้นตามขั้นตอนที่กำหนด" oninput="updateDisplay()">
+            </div>
+
+            <hr style="margin: 20px 0; border: none; border-bottom: 1px solid #e2e8f0;">
+
+            <div class="form-group">
+                <label>ชื่อบริษัท (ภาษาไทย)</label>
+                <input type="text" id="companyName" value="บริษัท 88 ซีเคร็ท สกิน จำกัด" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>ชื่อบริษัท (ภาษาอังกฤษ)</label>
+                <input type="text" id="companyNameEng" value="88 SECRET SKIN CO., LTD." oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>ที่อยู่บริษัท</label>
+                <input type="text" id="companyAddress" value="190/170 หมู่ที่ 2 ตำบลต้นเปา อำเภอสันกำแพง จ.เชียงใหม่ 50130" oninput="updateDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label>ชื่อผู้จัดการ (ผู้ลงนาม)</label>
+                <input type="text" id="companyName1" value="นางสาวณพัชชนันท์ ใจสา" oninput="updateDisplay()">
+            </div>
+        </div>
+
+        <button class="btn-dashboard" onclick="window.location.href='index.html'">
+            <img src="assets/imagestime/logosco.png" alt="icon" style="width: 24px; height: 24px; object-fit: contain;">
+            กลับหน้าหลัก
+        </button>
+    </aside>
+
+    <main class="workspace" style="display: flex; justify-content: center; align-items: center;">
+        <div style="box-shadow: 0 10px 25px rgba(0,0,0,0.5); background: #ffffff; border-radius: 8px; overflow: hidden; display: flex;">
+            <canvas id="canvas" width="904" height="1280" style="max-height: 90vh; width: auto; object-fit: contain;"></canvas>
+        </div>
+    </main>
+
+    <script type="module" src="js/backend-auth.js"></script>
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/security.js"></script>
+    
+    <script src="js/helpsco.js"></script>
+</body>
+</html>

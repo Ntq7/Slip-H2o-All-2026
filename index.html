@@ -406,6 +406,7 @@
             }
         })();
     </script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
 
 <body style="display: none;">
@@ -468,6 +469,13 @@
 
       <a href="javascript:void(0)" onclick="switchSection('document', this)" class="sidebar-link mb-2">
           <i class="bi bi-file-earmark-text-fill"></i> <span class="link-text">เอกสารซ่อม</span>
+          <div class="cyber-line"></div>
+          <div class="cyber-bg"></div>
+      </a>
+
+      <!-- เมนูใหม่: แพลตฟอร์มอื่น (จำกัดสิทธิ์) -->
+      <a href="javascript:void(0)" onclick="checkAccessAndSwitch('new-platform', this)" class="sidebar-link mb-2">
+          <i class="bi bi-window-stack"></i> <span class="link-text">เอกสารซ่อม คสอ.</span>
           <div class="cyber-line"></div>
           <div class="cyber-bg"></div>
       </a>
@@ -582,7 +590,7 @@
 
       
       <div class="slip-card mb-4" id="section-document" style="display: none;">
-        <h4 class="doc-header-title" style="text-align: left;">รายการเอกสารของระบบ</h4>
+        <h4 class="doc-header-title" style="text-align: left;">เอกสารซ่อม แม่และเด็ก</h4>
         
         <div class="doc-grid">
             <div class="doc-card">
@@ -645,7 +653,76 @@
                 <a href="assets/image/logo/hhhhh.png" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
             </div>
         </div>
+        
       </div>
+
+      <!-- เพิ่มกลุ่มใหม่ตรงนี้ -->
+      <div class="slip-card mb-4" id="section-new-platform" style="display: none;">
+        <h4 class="doc-header-title" style="text-align: left;">เอกสารซ่อม คสอ.</h4>
+        
+        <div class="doc-grid">
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper">
+                        <img src="assets/images3/logo9.png" alt="icon">
+                    </div>
+                    <h5 class="doc-title">ซ่อม 3% </h5>
+                </div>
+                <a href="repair3SCO.html" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper">
+                        <img src="assets/images3/logo9.png" alt="icon">
+                    </div>
+                    <h5 class="doc-title">ซ่อมบันทึก </h5>
+                </div>
+                <a href="repairSCO.html" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper">
+                        <img src="assets/images3/logo9.png" alt="icon">
+                    </div>
+                    <h5 class="doc-title">ขยายเวลา</h5>
+                </div>
+                <a href="timeSCO.html" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper">
+                        <img src="assets/images3/logo9.png" alt="icon">
+                    </div>
+                    <h5 class="doc-title">รับรองวงเงิน</h5>
+                </div>
+                <a href="gcSCO.html" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper">
+                        <img src="assets/images3/logo9.png" alt="icon">
+                    </div>
+                    <h5 class="doc-title">กองทุนช่วยเหลือ</h5>
+                </div>
+                <a href="helpSCO.html" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+
+            <div class="doc-card">
+                <div class="doc-card-left">
+                    <div class="doc-icon-wrapper">
+                        <img src="assets/images3/logo9.png" alt="icon">
+                    </div>
+                    <h5 class="doc-title">เพิ่มเอกสาร</h5>
+                </div>
+                <a href="assets/image/logo/hhhhh.png" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+            </div>
+        </div>
+      </div>
+      <!-- จบกลุ่มใหม่ -->
 
       <div class="slip-card mb-4" id="section-smartcontract" style="display: none;">
         <h4 class="doc-header-title" style="text-align: left;">
@@ -660,7 +737,7 @@
                     <div class="doc-icon-wrapper">
                         <img src="assets/images/logoai.png" alt="SECOND LOVEKIDS">
                     </div>
-                    <h5 class="doc-title">SECOND LOVEKIDS</h5>
+                    <h5 class="doc-title">SECOND LOVEKIDS ( แม่&เด็ก)</h5>
                 </div>
                 <a href="ai_contract.html" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
             </div>
@@ -668,11 +745,11 @@
             <div class="doc-card">
                 <div class="doc-card-left">
                     <div class="doc-icon-wrapper">
-                        <img src="https://as.nida.ac.th/wp-content/uploads/2025/11/itqr3cCThu104932.png" alt="icon">
+                        <img src="assets/images/logoai.png" alt="icon">
                     </div>
-                    <h5 class="doc-title">ว่าง </h5>
+                    <h5 class="doc-title">BEAUTYLOOP MARKET (คสอ) </h5>
                 </div>
-                <a href="assets/image/logo/hhhhh.png" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
+                <a href="javascript:void(0)" onclick="checkCSOAndNavigate('ai_contractSCO.html')" class="doc-btn">เปิดระบบ <i class="bi bi-chevron-right"></i></a>
             </div>
 
         </div>
@@ -727,9 +804,89 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+    // ฟังก์ชันตรวจสอบสิทธิ์ก่อนสลับหน้า
+    
+    // ฟังก์ชันสำหรับแจ้งเตือนระบบที่ยังไม่พร้อมใช้งาน (เช่น BeautyLoop)
+    function showNotAvailableAlert() {
+        Swal.fire({
+            icon: 'info',
+            title: 'เร็วๆ นี้',
+            html: '<span style="font-size: 1.1rem;">⏳ ระบบนี้ยังไม่เปิดให้บริการ</span><br><br><span style="font-size: 0.9rem; color: #6b7280;">อยู่ระหว่างการพัฒนา กรุณารอติดตามอัปเดต</span>',
+            confirmButtonColor: '#3b82f6',
+            confirmButtonText: 'ตกลง',
+            background: document.body.classList.contains('theme-dark') ? '#1e293b' : '#ffffff',
+            color: document.body.classList.contains('theme-dark') ? '#f8fafc' : '#1e293b',
+            backdrop: `rgba(0,0,0,0.4)`
+        });
+    }
+
+    async function checkAccessAndSwitch(sectionId, btnElement) {
+        // 1. เช็คว่ามีล็อกอินในเครื่องไหม
+        const currentUserEmail = localStorage.getItem('H2O_SAVED_EMAIL'); 
+        if (!currentUserEmail) {
+            Swal.fire({ 
+                icon: 'warning', 
+                title: 'ไม่พบข้อมูล', 
+                text: 'ไม่พบข้อมูลการล็อกอิน กรุณาล็อกอินใหม่', 
+                confirmButtonColor: '#3b82f6',
+                confirmButtonText: 'ตกลง'
+            });
+            return;
+        }
+
+
+
+        try {
+            // ดึงข้อมูล Firebase มาเช็คแบบ Real-time
+            const { getFirestore, collection, query, where, getDocs } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
+            const { app } = await import("./js/firebase-config.js"); 
+            const db = getFirestore(app);
+            
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("email", "==", currentUserEmail));
+            const querySnapshot = await getDocs(q);
+
+            let hasAccess = false;
+            querySnapshot.forEach((doc) => {
+                if (doc.data().allow_cso === true) {
+                    hasAccess = true;
+                }
+            });
+
+
+
+            if (hasAccess) {
+                switchSection(sectionId, btnElement); // มีสิทธิ์ -> เปิดหน้า
+            } else {
+                // ไม่มีสิทธิ์ -> บล็อก
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่ได้รับอนุญาต',
+                    html: '<span style="font-size: 1.1rem;">⛔ คุณไม่มีสิทธิ์เข้าถึงเอกสารซ่อม คสอ.</span><br><br><span style="font-size: 0.9rem; color: #6b7280;">กรุณาติดต่อผู้ดูแลระบบเพื่อเปิดใช้งานแพ็คเกจเสริมนี้</span>',
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'ปิด',
+                    background: document.body.classList.contains('theme-dark') ? '#1e293b' : '#ffffff',
+                    color: document.body.classList.contains('theme-dark') ? '#f8fafc' : '#1e293b',
+                    backdrop: `rgba(0,0,0,0.6) backdrop-filter: blur(4px);`
+                });
+            }
+
+        } catch (error) {
+            console.error("Error checking access:", error);
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'ข้อผิดพลาดเครือข่าย', 
+                text: 'ไม่สามารถตรวจสอบสิทธิ์ได้ กรุณาลองใหม่',
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'ปิด'
+            });
+        }
+    }
+
     // ฟังก์ชันจัดการสลับหน้า
     function switchSection(sectionId, btnElement) {
         if(btnElement) {
@@ -737,7 +894,7 @@
             btnElement.classList.add('active');
         }
 
-        const sections = ['section-slip', 'section-notify', 'section-document', 'section-payout', 'section-smartcontract'];
+        const sections = ['section-slip', 'section-notify', 'section-document', 'section-new-platform', 'section-payout', 'section-smartcontract'];
         
         sections.forEach(id => {
             const el = document.getElementById(id);
@@ -806,6 +963,62 @@
             previewImg.src = '';
         });
     });
+
+    async function checkCSOAndNavigate(url) {
+        const currentUserEmail = localStorage.getItem('H2O_SAVED_EMAIL'); 
+        if (!currentUserEmail) {
+            Swal.fire({ 
+                icon: 'warning', 
+                title: 'ไม่พบข้อมูล', 
+                text: 'ไม่พบข้อมูลการล็อกอิน กรุณาล็อกอินใหม่', 
+                confirmButtonColor: '#3b82f6',
+                confirmButtonText: 'ตกลง'
+            });
+            return;
+        }
+
+        try {
+            const { getFirestore, collection, query, where, getDocs } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
+            const { app } = await import("./js/firebase-config.js"); 
+            const db = getFirestore(app);
+            
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("email", "==", currentUserEmail));
+            const querySnapshot = await getDocs(q);
+
+            let hasAccess = false;
+            querySnapshot.forEach((doc) => {
+                if (doc.data().allow_cso === true) {
+                    hasAccess = true;
+                }
+            });
+
+            if (hasAccess) {
+                window.location.href = url; 
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่ได้รับอนุญาต',
+                    html: '<span style="font-size: 1.1rem;">⛔ คุณไม่มีสิทธิ์เข้าถึง AI SMART CONTRACT.</span><br><br><span style="font-size: 0.9rem; color: #6b7280;">กรุณาติดต่อผู้ดูแลระบบเพื่อเปิดใช้งานแพ็คเกจเสริมนี้</span>',
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'ปิด',
+                    background: document.body.classList.contains('theme-dark') ? '#1e293b' : '#ffffff',
+                    color: document.body.classList.contains('theme-dark') ? '#f8fafc' : '#1e293b',
+                    backdrop: `rgba(0,0,0,0.6) backdrop-filter: blur(4px);`
+                });
+            }
+
+        } catch (error) {
+            console.error("Error checking access:", error);
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'ข้อผิดพลาดเครือข่าย', 
+                text: 'ไม่สามารถตรวจสอบสิทธิ์ได้ กรุณาลองใหม่',
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'ปิด'
+            });
+        }
+    }
 </script>
 
 <script src="js/utils.js"></script>

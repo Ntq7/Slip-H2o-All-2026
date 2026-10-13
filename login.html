@@ -307,6 +307,9 @@
                         if (now.getTime() > expireTimeMs) throw new Error("บัญชีหมดอายุ โปรดติดต่อผู้ดูแลระบบ");
                     }
                     
+                    // 🟢 เซฟค่าสิทธิ์เข้าสู่ LocalStorage 🟢
+                    localStorage.setItem('H2O_ALLOW_CSO', data.allow_cso === true ? 'yes' : 'no');
+                    
                     let activeSessions = data.activeSessions || {};
                     const allowMulti = data.allowMultiSession === true;
                     if (!allowMulti) {
