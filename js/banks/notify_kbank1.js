@@ -2,7 +2,7 @@
 
 (function() {
     const fontPath = 'assets/fonts';
-    let fontsLoaded = false;
+    let powerSavingMode = false;
 
     async function loadFonts() {
         const fonts = [
@@ -202,16 +202,16 @@
         }
     }
 
-    function drawBattery(ctx, batteryLevel, powerSavingMode) {
+    function drawBattery(ctx, batteryLevel, isPowerSaving) {
         ctx.lineWidth = 2; 
         ctx.strokeStyle = '#9b9b9b'; 
         ctx.fillStyle = '#ffffff'; 
 
-        let batteryColor = '#28bf2b'; 
+        let batteryColor = '#28bf2b'; // สีเขียวปกติ
         if (batteryLevel <= 20) {
             batteryColor = '#ff0000'; 
-        } else if (powerSavingMode) {
-            batteryColor = '#fccd0e'; 
+        } else if (isPowerSaving) {
+            batteryColor = '#fccd0e'; // สีส้มเฉพาะตอนเปิดโหมดประหยัดพลังงาน
         }
 
         const fillWidth = (batteryLevel / 100) * 29.5; 
@@ -351,8 +351,23 @@
         drawText(ctx, `${choose5}`, 20.6, 1250.1, 19.65, 'kuriousMedium', '#4d4d4d', 'left', 1.5, 3, 0, 0, 800, 0);
         drawText(ctx, `${money5} บาท`, 534, 1250.1, 19.65, 'kuriousMedium', getTextColor(choose5), 'right', 1.5, 3, 0, 0, 800, 0);
 
-        const isPowerSavingMode = typeof powerSavingMode !== 'undefined' ? powerSavingMode : false;
-        drawBattery(ctx, batteryLevel, isPowerSavingMode);
+        drawBattery(ctx, batteryLevel, powerSavingMode);
+    };
+
+    window.togglePowerSavingMode = function() {
+        powerSavingMode = !powerSavingMode;
+        const btn = document.getElementById('powerSavingMode');
+        if (btn) {
+            btn.classList.toggle('active', powerSavingMode);
+            if (powerSavingMode) {
+                btn.classList.remove('btn-outline-warning', 'btn-outline-secondary', 'border-secondary', 'text-secondary');
+                btn.classList.add('btn-warning', 'text-dark', 'fw-bold');
+            } else {
+                btn.classList.remove('btn-warning', 'text-dark', 'fw-bold');
+                btn.classList.add('btn-outline-warning');
+            }
+        }
+        if (typeof window.updateDisplay === 'function') window.updateDisplay();
     };
 
     window.downloadImage = function() {

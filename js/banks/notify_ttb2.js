@@ -367,7 +367,7 @@
         ctx.fill(); 
 
         ctx.font = '800 18px SFThonburiBold';
-        ctx.fillStyle = '#9ebbcc';
+        ctx.fillStyle = '#2c3035';
         ctx.textAlign = 'center';
         ctx.fillText(`${batteryLevel}`, x + 37.8 / 2, y + height / 1.25);
     }

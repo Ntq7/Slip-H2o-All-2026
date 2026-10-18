@@ -1,5 +1,3 @@
-// js/banks/notify_ktb3.js
-
 (function() {
     const fontPath = 'assets/fonts';
     let powerSavingMode = false;
@@ -198,7 +196,7 @@
         if (batteryLevel <= 20) {
             batteryColor = '#ff0000';
         } else if (powerSavingMode) {
-            batteryColor = '#fccd0e'; 
+            batteryColor = '#fccd0e'; // สีส้ม/เหลืองโหมดประหยัดพลังงาน
         }
 
         const fillWidth = (batteryLevel / 100) * 26;
@@ -220,6 +218,22 @@
 
         drawText(ctx, `${batteryLevel}`, x + 26 / 2, y + height / 1.21, 13, 'SFThonburiSemiBold', '#ffffff', 'center', 1, 1, 0, 0, 100, -1);
     }
+
+    window.togglePowerSavingMode = function() {
+        powerSavingMode = !powerSavingMode;
+        const btn = document.getElementById('powerSavingMode');
+        if (btn) {
+            btn.classList.toggle('active', powerSavingMode);
+            if (powerSavingMode) {
+                btn.classList.remove('btn-outline-warning', 'btn-outline-secondary', 'border-secondary', 'text-secondary');
+                btn.classList.add('btn-warning', 'text-dark', 'fw-bold');
+            } else {
+                btn.classList.remove('btn-warning', 'text-dark', 'fw-bold');
+                btn.classList.add('btn-outline-warning');
+            }
+        }
+        if (typeof window.updateDisplay === 'function') window.updateDisplay();
+    };
 
     window.downloadImage = function() {
         const canvas = document.getElementById('canvas');

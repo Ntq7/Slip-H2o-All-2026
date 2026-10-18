@@ -54,7 +54,6 @@
         const activeBgMode = document.getElementById('activeBgMode')?.value || 'system';
         const customBgUrl = document.getElementById('customImageDataUrl')?.value || '';
 
-        // ฟังก์ชันวาดเฉพาะข้อความและแบตเตอรี่ (ไม่ต้องมีกรอบ 666, 667)
         const drawUI = () => {
             drawText(ctx, `   ${data.formattedDateWithDay}   `, 308, 167.8, 33.50, 'SFThonburiSemiBold', '#ffffff', 'center', 24, 3, 0, 0, 800, 0);
             drawText(ctx, `${data.formattedTimePlusOne}`, 295, 298.8, 138.50, 'SFThonburiSemiBold', '#ffffff', 'center', 1.5, 3, 0, 0, 800, -7);
@@ -70,7 +69,6 @@
             drawBattery(ctx, data.batteryLevel, powerSavingMode);
         };
 
-        // ฟังก์ชันวาดกรอบ 666, 667 แล้วค่อยเรียก drawUI (ใช้เฉพาะโหมดวางรูปเอง)
         const drawOverlaysAndUI = () => {
             let loadedCount = 0;
             const img1 = new Image();
@@ -88,8 +86,6 @@
                     if (img2Success) {
                         ctx.drawImage(img2, 0, 0, canvas.width, canvas.height);
                     }
-                    
-                    // หลังจากวาดกรอบเสร็จ ค่อยวาดข้อความทับลงไป
                     drawUI();
                 }
             };
@@ -103,7 +99,6 @@
             img2.src = 'assets/image/bs/backgroundEnter-KB4.667.png';
         };
 
-        // --- เช็คเงื่อนไขว่าใช้รูปพื้นหลังแบบไหน ---
         if (activeBgMode === 'custom' && customBgUrl) {
             const userImg = new Image();
             userImg.onload = function() {
@@ -122,8 +117,6 @@
                 }
                 
                 ctx.drawImage(userImg, offsetX, offsetY, renderW, renderH);
-                
-                // ใช้รูปวางเอง -> เรียกใช้วาดกรอบ 666, 667 + ข้อความ
                 drawOverlaysAndUI(); 
             };
             userImg.onerror = function() {
@@ -139,8 +132,6 @@
                 ctx.fillStyle = "#1e293b";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
-            
-            // ใช้รูปจากระบบ (ไม่มีการวางรูปเอง) -> วาดแค่ข้อความอย่างเดียว ไม่เอากรอบ
             drawUI(); 
         }
     }
@@ -280,7 +271,7 @@
         if (batteryLevel <= 20) {
             batteryColor = '#ff0000'; 
         } else if (powerSavingMode) {
-            batteryColor = '#fccd0e'; 
+            batteryColor = '#ffcc00'; // สีส้ม/เหลืองโหมดประหยัดพลังงาน
         }
 
         const fillWidth = (batteryLevel / 100) * 31; 
@@ -301,6 +292,22 @@
         ctx.fill(); 
     }
 
+    window.togglePowerSavingMode = function() {
+        powerSavingMode = !powerSavingMode;
+        const btn = document.getElementById('powerSavingMode');
+        if (btn) {
+            btn.classList.toggle('active', powerSavingMode);
+            if (powerSavingMode) {
+                btn.classList.remove('btn-outline-warning', 'btn-outline-secondary', 'border-secondary', 'text-secondary');
+                btn.classList.add('btn-warning', 'text-dark', 'fw-bold');
+            } else {
+                btn.classList.remove('btn-warning', 'text-dark', 'fw-bold');
+                btn.classList.add('btn-outline-warning');
+            }
+        }
+        updateDisplay();
+    };
+
     window.downloadImage = function() {
         const canvas = document.getElementById('canvas');
         if(!canvas) return;
@@ -320,7 +327,8 @@
                 const blob = item.getAsFile();
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    document.getElementById('customImageDataUrl').value = event.target.result;
+                    const customInput = document.getElementById('customImageDataUrl');
+                    if(customInput) customInput.value = event.target.result;
                     if(window.activateCustomMode) window.activateCustomMode();
 
                     const dropZone = document.getElementById('pasteDropZone');
